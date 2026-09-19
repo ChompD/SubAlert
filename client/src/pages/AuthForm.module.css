@@ -1,0 +1,22 @@
+/* Shared by the Log in and Register forms. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* A problem with the whole attempt, shown above the fields. */
+.formMessage {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.submit {
+  margin-top: var(--space-1);
+}

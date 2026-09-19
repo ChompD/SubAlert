@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import DemoNotice from './components/DemoNotice.jsx'
+import AuthLayout from './layouts/AuthLayout.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
@@ -17,8 +18,11 @@ export default function App() {
       <DemoNotice />
       <Routes>
         <Route path="/" element={<DashboardPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        {/* Log in and Register share the logo-only AuthLayout. */}
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Route>
         {/* Every design-system component on one page. Development only:
             import.meta.env.DEV is false in the build GitHub Pages serves. */}
         {import.meta.env.DEV && <Route path="/styleguide" element={<StyleguidePage />} />}

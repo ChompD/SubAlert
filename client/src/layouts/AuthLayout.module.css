@@ -1,0 +1,11 @@
+/* Header at the top, footer at the bottom, the page fills the middle, so the
+   footer does not float halfway up a tall screen. */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+}
