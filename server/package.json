@@ -1,0 +1,21 @@
+{
+  "name": "final-project-server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --env-file=.env --watch server.js",
+    "db:schema": "node --env-file=.env db/run.js db/schema.sql",
+    "db:seed": "node --env-file=.env db/run.js db/seed.sql",
+    "db:reset": "npm run db:schema && npm run db:seed"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}

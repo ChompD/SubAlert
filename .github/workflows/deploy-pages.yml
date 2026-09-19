@@ -1,0 +1,110 @@
+name: Deploy client to GitHub Pages
+
+# Builds the React client and publishes it to GitHub Pages on every push to
+# main, so the link in your README is always your latest commit.
+#
+# TURN PAGES ON ONCE, BY HAND, or this runs green and publishes nothing:
+#   Settings > Pages > Build and deployment > Source: GitHub Actions
+#
+# CONFIG. Everything passed in below ends up inside the built JavaScript, which
+# anyone can download and read. That is fine for the two variables here, and it
+# is why they are repository VARIABLES rather than secrets:
+#
+#   Settings > Secrets and variables > Actions > Variables
+#     VITE_USE_MOCK_API   "false" once your Express API is deployed. Anything
+#                         else, including leaving it unset, keeps the simulated
+#                         backend on, which is the safe default for a template.
+#     VITE_API_BASE_URL   https://your-api.onrender.com   (no trailing slash)
+#
+# Never put an API key, a password or a database URL in a VITE_ variable. Those
+# belong in your SERVER's environment, and the server is not built here. See
+# page 2 and page 16 of content/extending-your-app.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'client/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# If you push twice quickly, cancel the older run rather than racing it.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # A fresh copy of the template already has a client, but you may well
+      # restructure. Skip quietly rather than failing, so your repository is not
+      # red before you have written anything.
+      - id: check
+        env:
+          IS_PRIVATE: ${{ github.event.repository.private }}
+        run: |
+          if [ -f client/package.json ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No client/package.json, so there is nothing to build yet."
+          fi
+          # GitHub Pages only publishes PUBLIC repositories on a free account.
+          # Say so loudly rather than failing later with a confusing 404.
+          if [ "$IS_PRIVATE" = "true" ]; then
+            echo "::warning::This repository is private, so GitHub Pages cannot publish it and the deploy step will be skipped. Make it public (Settings > General > Danger Zone > Change visibility) to get your live link."
+          fi
+
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - if: steps.check.outputs.ready == 'true'
+        working-directory: client
+        run: npm ci
+
+      - name: Build
+        if: steps.check.outputs.ready == 'true'
+        working-directory: client
+        env:
+          # On a project page the site is served from username.github.io/<repo>/,
+          # so assets need that prefix or every one of them 404s and you get a
+          # blank white page. Reading the name from the event means this keeps
+          # working if you rename the repository.
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_USE_MOCK_API: ${{ vars.VITE_USE_MOCK_API }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+        # npm run build also copies index.html to 404.html. GitHub Pages serves
+        # 404.html for any path it cannot find, which is how a single-page app
+        # survives someone refreshing on a nested route.
+        run: npm run build
+
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: client/dist
+
+  deploy:
+    needs: build
+    # Skipped, not failed, when there is nothing to build or the repo is private.
+    if: needs.build.outputs.ready == 'true' && github.event.repository.private == false
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

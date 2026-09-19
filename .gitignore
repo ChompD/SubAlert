@@ -1,0 +1,22 @@
+# Secrets. Never commit these.
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+
+# Database dumps: a full plain-text copy of your data
+*.dump
+backup*.sql
+
+# Editor and OS noise
+.DS_Store
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
