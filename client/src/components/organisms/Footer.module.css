@@ -1,0 +1,15 @@
+.footer {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .footer {
+    display: block;
+    padding: var(--space-2);
+    border-top: 1px solid var(--color-divider);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    text-align: center;
+  }
+}

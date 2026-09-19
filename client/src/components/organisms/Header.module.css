@@ -1,0 +1,45 @@
+.header {
+  border-bottom: 1px solid var(--color-divider);
+  background: var(--color-surface);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  max-width: var(--content-max);
+  height: 56px;
+  margin: 0 auto;
+  padding: 0 var(--space-2);
+}
+
+.logo {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--color-primary);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .inner {
+    padding: 0 var(--space-4);
+  }
+}

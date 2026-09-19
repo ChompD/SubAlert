@@ -1,0 +1,136 @@
+.page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-2) var(--space-4);
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.note {
+  margin-top: calc(var(--space-1) / 2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.section {
+  margin-top: var(--space-4);
+}
+
+.heading {
+  margin-bottom: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-2);
+}
+
+.swatch {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.chip {
+  width: var(--space-4);
+  height: var(--space-4);
+  flex: none;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius);
+}
+
+.rowOfThings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.pills {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  overflow-x: auto;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.stack > * {
+  width: 100%;
+}
+
+.toggles {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.fields {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 640px;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+/* The third summary card is hidden on phones, as in the wireframe. */
+.summary > :nth-child(3) {
+  display: none;
+}
+
+.list {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.authStage {
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  outline: 1px dashed var(--color-divider);
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: var(--space-4);
+  }
+
+  .fields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .summary > :nth-child(3) {
+    display: block;
+  }
+
+  .list {
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius);
+  }
+}
