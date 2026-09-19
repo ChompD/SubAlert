@@ -1,0 +1,20 @@
+.avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.primary {
+  background: var(--color-primary);
+  color: var(--color-surface);
+}
+
+.neutral {
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+}

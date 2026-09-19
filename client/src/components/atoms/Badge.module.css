@@ -1,0 +1,27 @@
+.badge {
+  display: inline-block;
+  padding: calc(var(--space-1) / 4) var(--space-1);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.urgent {
+  background: var(--color-accent);
+  color: var(--color-surface);
+}
+
+.soon {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-accent);
+}
+
+.later {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
