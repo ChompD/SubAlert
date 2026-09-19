@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Footer from '../components/organisms/Footer.jsx'
 import Header from '../components/organisms/Header.jsx'
-import styles from './AuthLayout.module.css'
+import styles from './Layout.module.css'
 
 // The frame around Log in and Register: logo-only header, the page, footer.
 // <Outlet /> is where React Router puts whichever of the two pages matched.

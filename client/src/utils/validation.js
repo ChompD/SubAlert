@@ -30,6 +30,25 @@ export function validateLogin({ email, password }) {
   return errors
 }
 
+export const PRICE_MAX = 99999
+
+export function validateSubscription({ name, trialEndDate, price }) {
+  const errors = {}
+
+  if (!name.trim()) errors.name = 'Enter the service name'
+  else if (name.trim().length > NAME_MAX) errors.name = `Keep it under ${NAME_MAX} characters`
+
+  // <input type="date"> always gives "YYYY-MM-DD", or "" when empty.
+  if (!trialEndDate) errors.trialEndDate = 'Pick the day the trial ends'
+
+  const amount = Number(price)
+  if (price === '') errors.price = 'Enter the renewal price, or 0 if it is free'
+  else if (!Number.isFinite(amount) || amount < 0) errors.price = 'Enter a price of 0 or more'
+  else if (amount > PRICE_MAX) errors.price = `Enter a price under ${PRICE_MAX.toLocaleString()}`
+
+  return errors
+}
+
 export function validateRegister({ name, email, password, confirmPassword }) {
   const errors = {}
 

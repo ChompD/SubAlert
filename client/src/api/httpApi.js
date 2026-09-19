@@ -2,13 +2,25 @@
 //
 // This is the file that matters for your finals project. mockApi.js exists so
 // you can build the interface before this has anywhere to point.
+//
+// SubAlert runs on mockApi.js for now. These are the same functions, pointing
+// at the routes the server will have once it is built, so switching over is
+// one environment variable, as the template intends.
+
+import { getToken } from './token.js'
 
 const BASE = import.meta.env.VITE_API_BASE_URL || ''
 
 async function request(path, options) {
+  // Send the login token with every request, if there is one.
+  const token = getToken()
+
   const response = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
   })
 
   if (!response.ok) {
@@ -20,21 +32,29 @@ async function request(path, options) {
     } catch {
       // The body was not JSON. The status line is all we have.
     }
-    throw new Error(message)
+    const error = new Error(message)
+    // Kept so the app can tell "you're logged out" (401) from other failures.
+    error.status = response.status
+    throw error
   }
 
   return response.status === 204 ? null : response.json()
 }
 
-export const listSightings = () => request('/api/sightings')
+// Accounts. register and login resolve to { token, user }; getMe to { user }.
+export const register = (input) =>
+  request('/api/auth/register', { method: 'POST', body: JSON.stringify(input) })
 
-export const getSighting = (id) => request(`/api/sightings/${id}`)
+export const login = (input) =>
+  request('/api/auth/login', { method: 'POST', body: JSON.stringify(input) })
 
-export const createSighting = (input) =>
-  request('/api/sightings', { method: 'POST', body: JSON.stringify(input) })
+export const getMe = () => request('/api/auth/me')
 
-export const updateSighting = (id, input) =>
-  request(`/api/sightings/${id}`, { method: 'PUT', body: JSON.stringify(input) })
+// Subscriptions, always the logged-in user's own.
+export const listSubscriptions = () => request('/api/subscriptions')
 
-export const deleteSighting = (id) =>
-  request(`/api/sightings/${id}`, { method: 'DELETE' })
+export const createSubscription = (input) =>
+  request('/api/subscriptions', { method: 'POST', body: JSON.stringify(input) })
+
+export const updateSubscription = (id, changes) =>
+  request(`/api/subscriptions/${id}`, { method: 'PATCH', body: JSON.stringify(changes) })

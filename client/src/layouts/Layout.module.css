@@ -1,0 +1,26 @@
+/* Shared by AuthLayout and AppLayout. Header at the top, footer at the bottom,
+   the page fills the middle, so the footer does not float up a tall screen. */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main {
+  flex: 1;
+}
+
+/* The header's add button: "+ Add" on a phone, the full label from 640px. */
+.addLong {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .addShort {
+    display: none;
+  }
+
+  .addLong {
+    display: inline;
+  }
+}

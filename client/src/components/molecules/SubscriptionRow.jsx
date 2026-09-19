@@ -52,27 +52,34 @@ export default function SubscriptionRow({ subscription, onDecisionChange, onEdit
         />
       </div>
 
-      <div className={styles.menuWrapper} ref={menu}>
-        <button
-          type="button"
-          className={styles.menuButton}
-          aria-expanded={menuOpen}
-          aria-label={`More options for ${name}`}
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          <span aria-hidden="true">···</span>
-        </button>
-        {menuOpen && (
-          <div className={styles.menu}>
-            <button type="button" onClick={() => { closeMenu(); onEdit?.(id) }}>
-              Edit
-            </button>
-            <button type="button" className={styles.delete} onClick={() => { closeMenu(); onDelete?.(id) }}>
-              Delete
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Only shown once a page passes Edit or Delete handlers. */}
+      {(onEdit || onDelete) && (
+        <div className={styles.menuWrapper} ref={menu}>
+          <button
+            type="button"
+            className={styles.menuButton}
+            aria-expanded={menuOpen}
+            aria-label={`More options for ${name}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <span aria-hidden="true">···</span>
+          </button>
+          {menuOpen && (
+            <div className={styles.menu}>
+              {onEdit && (
+                <button type="button" onClick={() => { closeMenu(); onEdit(id) }}>
+                  Edit
+                </button>
+              )}
+              {onDelete && (
+                <button type="button" className={styles.delete} onClick={() => { closeMenu(); onDelete(id) }}>
+                  Delete
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </article>
   )
 }

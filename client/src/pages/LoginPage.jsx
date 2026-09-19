@@ -1,14 +1,19 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Button from '../components/atoms/Button.jsx'
 import FormField from '../components/molecules/FormField.jsx'
 import AuthCard from '../components/organisms/AuthCard.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
+import { friendlyError } from '../utils/errors.js'
 import { validateLogin } from '../utils/validation.js'
 import styles from './AuthForm.module.css'
 
-// Log in (/login). The form checks its own fields first; section 6 connects
-// the submit to the API through AuthContext.
+// Log in (/login). Checks the fields here, then AuthContext calls the API.
 export default function LoginPage() {
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+
   const [form, setForm] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({})
   // A problem with the whole attempt, like "Wrong email or password", rather
@@ -39,9 +44,14 @@ export default function LoginPage() {
     }
 
     setSubmitting(true)
-    // Placeholder until section 6 wires this to the API.
-    setFormMessage("Log in isn't connected yet. It will be in section 6.")
-    setSubmitting(false)
+    try {
+      await login(form.email.trim(), form.password)
+      // Back to the page ProtectedRoute sent them away from, or the Dashboard.
+      navigate(location.state?.from?.pathname ?? '/', { replace: true })
+    } catch (error) {
+      setFormMessage(friendlyError(error))
+      setSubmitting(false)
+    }
   }
 
   return (

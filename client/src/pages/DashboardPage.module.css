@@ -1,0 +1,103 @@
+.page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-2) var(--space-4);
+}
+
+.title {
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.empty h2 {
+  font-size: var(--font-size-md);
+}
+
+.empty button {
+  margin-top: var(--space-1);
+}
+
+/* Phone: 2 summary cards, the third hidden, as in the wireframe. */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.summary > :nth-child(3) {
+  display: none;
+}
+
+/* Phone: a stack of cards with a small gap. */
+.list {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.headings {
+  display: none;
+}
+
+/* 640px and up: 3 summary cards, and the list becomes one bordered table
+   whose column headings line up with SubscriptionRow's grid. */
+@media (min-width: 640px) {
+  .page {
+    padding: var(--space-4);
+  }
+
+  .summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .summary > :nth-child(3) {
+    display: block;
+  }
+
+  .list {
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+  }
+
+  .headings {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1.6fr) minmax(0, 1fr) 80px 180px var(--control-height);
+    gap: var(--space-1) var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border-bottom: 1px solid var(--color-divider);
+    background: var(--color-bg);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+}

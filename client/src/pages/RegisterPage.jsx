@@ -1,16 +1,21 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Button from '../components/atoms/Button.jsx'
 import FormField from '../components/molecules/FormField.jsx'
 import AuthCard from '../components/organisms/AuthCard.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
+import { friendlyError } from '../utils/errors.js'
 import { PASSWORD_MIN, validateRegister } from '../utils/validation.js'
 import styles from './AuthForm.module.css'
 
 const EMPTY = { name: '', email: '', password: '', confirmPassword: '' }
 
 // Register (/register). Same pattern as LoginPage: check the fields here,
-// then (from section 6) hand them to AuthContext, which calls the API.
+// then AuthContext calls the API, which also logs the new account in.
 export default function RegisterPage() {
+  const { register } = useAuth()
+  const navigate = useNavigate()
+
   const [form, setForm] = useState(EMPTY)
   const [errors, setErrors] = useState({})
   const [formMessage, setFormMessage] = useState(null)
@@ -35,9 +40,19 @@ export default function RegisterPage() {
     }
 
     setSubmitting(true)
-    // Placeholder until section 6 wires this to the API.
-    setFormMessage("Registering isn't connected yet. It will be in section 6.")
-    setSubmitting(false)
+    try {
+      await register(form.name.trim(), form.email.trim(), form.password)
+      navigate('/', { replace: true })
+    } catch (error) {
+      if (error.status === 409) {
+        // "That email already has an account": it belongs under the email.
+        setErrors({ email: error.message })
+        document.getElementById('register-email')?.focus()
+      } else {
+        setFormMessage(friendlyError(error))
+      }
+      setSubmitting(false)
+    }
   }
 
   return (
