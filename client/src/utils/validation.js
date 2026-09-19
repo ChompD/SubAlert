@@ -8,6 +8,12 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export const PASSWORD_MIN = 8
 
+// bcrypt, which the server will use to hash passwords, only reads the first 72
+// characters. Longer ones are refused rather than silently cut short.
+export const PASSWORD_MAX = 72
+
+export const NAME_MAX = 80
+
 export function emailError(email) {
   if (!email.trim()) return 'Enter your email'
   if (!EMAIL_PATTERN.test(email.trim())) return 'Enter a valid email, like name@email.com'
@@ -21,5 +27,23 @@ export function validateLogin({ email, password }) {
   const emailProblem = emailError(email)
   if (emailProblem) errors.email = emailProblem
   if (!password) errors.password = 'Enter your password'
+  return errors
+}
+
+export function validateRegister({ name, email, password, confirmPassword }) {
+  const errors = {}
+
+  if (!name.trim()) errors.name = 'Enter your name'
+  else if (name.trim().length > NAME_MAX) errors.name = `Keep your name under ${NAME_MAX} characters`
+
+  const emailProblem = emailError(email)
+  if (emailProblem) errors.email = emailProblem
+
+  if (password.length < PASSWORD_MIN) errors.password = `Use at least ${PASSWORD_MIN} characters`
+  else if (password.length > PASSWORD_MAX) errors.password = `Use ${PASSWORD_MAX} characters or fewer`
+
+  if (!confirmPassword) errors.confirmPassword = 'Type your password again'
+  else if (confirmPassword !== password) errors.confirmPassword = "Passwords don't match"
+
   return errors
 }
