@@ -1,0 +1,39 @@
+.toggle {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+}
+
+.option {
+  flex: 1;
+  height: calc(var(--control-height) - 4px);
+  padding: 0 var(--space-2);
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.option + .option {
+  border-left: 1px solid var(--color-border);
+}
+
+.selected {
+  background: var(--color-primary);
+  color: var(--color-surface);
+  font-weight: 600;
+}
+
+/* The focus ring would be clipped by overflow: hidden, so draw it inside. */
+.option:focus-visible {
+  outline-offset: -3px;
+}

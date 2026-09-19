@@ -1,0 +1,156 @@
+/* Phone (the default): a card.
+     [avatar] [name + badge / price] [days] [...]
+     [ Keep | Cancel  (full width)          ]      */
+.row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    'avatar service ends menu'
+    'decision decision decision decision';
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+/* Urgency stripe: thick for urgent, thin for soon. Colour AND width differ,
+   and the Badge says it in words too. */
+.urgent {
+  border-left: 5px solid var(--color-accent);
+}
+
+.soon {
+  border-left: 2px solid var(--color-accent);
+}
+
+.row > :first-child {
+  grid-area: avatar;
+}
+
+.service {
+  grid-area: service;
+  min-width: 0;
+}
+
+.name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.pricePhone {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.priceDesktop {
+  display: none;
+}
+
+.ends {
+  grid-area: ends;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.urgent .ends {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.decision {
+  grid-area: decision;
+}
+
+.menuWrapper {
+  position: relative;
+  grid-area: menu;
+}
+
+.menuButton {
+  width: var(--control-height);
+  height: var(--control-height);
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--color-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  background: var(--color-bg);
+}
+
+.menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  min-width: 140px;
+  overflow: hidden;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.menu button {
+  display: block;
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu button:hover {
+  background: var(--color-bg);
+}
+
+.menu .delete {
+  color: var(--color-accent);
+}
+
+/* 640px and up: one line, lined up with the list's column headings.
+     [avatar] [name + badge] [ends] [price] [Keep|Cancel] [...]   */
+@media (min-width: 640px) {
+  .row {
+    grid-template-columns: 32px minmax(0, 1.6fr) minmax(0, 1fr) 80px 180px var(--control-height);
+    grid-template-areas: 'avatar service ends price decision menu';
+    padding: var(--space-1) var(--space-2);
+    border-radius: 0;
+    border-width: 0 0 1px;
+  }
+
+  .urgent {
+    border-left-width: 5px;
+  }
+
+  .soon {
+    border-left-width: 2px;
+  }
+
+  .pricePhone {
+    display: none;
+  }
+
+  .priceDesktop {
+    display: block;
+    grid-area: price;
+    font-size: var(--font-size-sm);
+  }
+
+  .ends {
+    font-size: var(--font-size-md);
+  }
+}

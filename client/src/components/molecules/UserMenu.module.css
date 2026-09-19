@@ -1,0 +1,78 @@
+.wrapper {
+  position: relative;
+}
+
+/* Phone (the default): the avatar alone, to leave room in the header. */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--control-height);
+  padding: 0 calc(var(--space-1) / 2);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.name,
+.caret {
+  display: none;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  z-index: 10;
+  min-width: 240px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+}
+
+.email {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-divider);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.email strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.item {
+  width: 100%;
+  padding: var(--space-2);
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: var(--color-bg);
+}
+
+/* 640px and up: the name, a caret and an outline too. */
+@media (min-width: 640px) {
+  .trigger {
+    padding: 0 var(--space-2) 0 calc(var(--space-1) / 2);
+    border-color: var(--color-border);
+  }
+
+  .name,
+  .caret {
+    display: inline;
+  }
+}
