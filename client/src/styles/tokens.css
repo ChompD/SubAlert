@@ -1,0 +1,36 @@
+/* Design tokens: every colour, size and space in the app, defined once.
+   These are the values from my design system (document 3). Components read
+   them with var(--name) and never use a raw hex or pixel value of their own,
+   so changing one line here restyles the whole app. */
+
+:root {
+  /* Colour */
+  --color-primary: #0E6E5C;     /* buttons, links, selected states, focus */
+  --color-accent: #C2410C;      /* trials about to charge you, and errors */
+  --color-bg: #F5F7F8;          /* page background */
+  --color-surface: #FFFFFF;     /* cards, header, inputs */
+  --color-text: #1A1D21;        /* body text and headings */
+
+  /* Neutral helpers */
+  --color-text-muted: #5A6470;  /* labels, captions, footer */
+  --color-border: #8A949E;      /* input and button outlines */
+  --color-divider: #E3E7EA;     /* card edges, row lines */
+
+  /* Type */
+  --font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-size-lg: 24px;         /* headings */
+  --font-size-md: 16px;         /* body */
+  --font-size-sm: 13px;         /* labels, captions, small print */
+  --font-size-button: 14px;     /* button labels, to fit phone headers */
+
+  /* Spacing: everything is a multiple of 8px */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --radius: 8px;
+
+  /* Sizes */
+  --control-height: 40px;       /* buttons and inputs: 5 x 8, easy to tap */
+  --content-max: 1120px;        /* widest the page content gets on desktop */
+}
