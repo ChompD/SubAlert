@@ -102,7 +102,12 @@ export default function DashboardPage() {
               <span>Decision</span>
             </div>
             {subscriptions.map((sub) => (
-              <SubscriptionRow key={sub.id} subscription={sub} onDecisionChange={changeDecision} />
+              <SubscriptionRow
+                key={sub.id}
+                subscription={sub}
+                onDecisionChange={changeDecision}
+                onEdit={(id) => navigate(`/edit/${id}`)}
+              />
             ))}
           </div>
         </>

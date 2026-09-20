@@ -17,6 +17,10 @@
   line-height: 1.25;
 }
 
+.loading {
+  color: var(--color-text-muted);
+}
+
 .decision {
   display: flex;
   flex-direction: column;

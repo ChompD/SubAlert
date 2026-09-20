@@ -53,6 +53,8 @@ export const getMe = () => request('/api/auth/me')
 // Subscriptions, always the logged-in user's own.
 export const listSubscriptions = () => request('/api/subscriptions')
 
+export const getSubscription = (id) => request(`/api/subscriptions/${id}`)
+
 export const createSubscription = (input) =>
   request('/api/subscriptions', { method: 'POST', body: JSON.stringify(input) })
 

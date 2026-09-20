@@ -33,6 +33,7 @@ export const {
   login,
   getMe,
   listSubscriptions,
+  getSubscription,
   createSubscription,
   updateSubscription,
 } = implementation

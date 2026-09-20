@@ -5,11 +5,11 @@ import ProtectedRoute from './components/routing/ProtectedRoute.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import AppLayout from './layouts/AppLayout.jsx'
 import AuthLayout from './layouts/AuthLayout.jsx'
-import AddSubscriptionPage from './pages/AddSubscriptionPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import StyleguidePage from './pages/StyleguidePage.jsx'
+import SubscriptionFormPage from './pages/SubscriptionFormPage.jsx'
 
 // Every screen in the app and the URL it lives at (document 2, Step A).
 //
@@ -27,7 +27,8 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/" element={<DashboardPage />} />
-              <Route path="/add" element={<AddSubscriptionPage />} />
+              <Route path="/add" element={<SubscriptionFormPage />} />
+              <Route path="/edit/:id" element={<SubscriptionFormPage />} />
             </Route>
           </Route>
 

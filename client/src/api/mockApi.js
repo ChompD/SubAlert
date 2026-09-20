@@ -128,6 +128,16 @@ export async function listSubscriptions() {
     .map(publicSubscription)
 }
 
+export async function getSubscription(id) {
+  await delay()
+  const userId = currentUserId()
+  const found = readList(SUBSCRIPTIONS_KEY).find((row) => row.id === id && row.userId === userId)
+  // Someone else's id, or one that no longer exists, looks the same as a
+  // wrong id: not found. Never "that belongs to another account".
+  if (!found) fail(404, 'That subscription no longer exists')
+  return publicSubscription(found)
+}
+
 export async function createSubscription(input) {
   await delay()
   const userId = currentUserId()
