@@ -60,3 +60,6 @@ export const createSubscription = (input) =>
 
 export const updateSubscription = (id, changes) =>
   request(`/api/subscriptions/${id}`, { method: 'PATCH', body: JSON.stringify(changes) })
+
+export const deleteSubscription = (id) =>
+  request(`/api/subscriptions/${id}`, { method: 'DELETE' })

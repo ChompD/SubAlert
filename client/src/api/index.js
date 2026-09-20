@@ -36,4 +36,5 @@ export const {
   getSubscription,
   createSubscription,
   updateSubscription,
+  deleteSubscription,
 } = implementation

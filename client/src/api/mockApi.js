@@ -151,6 +151,16 @@ export async function createSubscription(input) {
   return publicSubscription(created)
 }
 
+export async function deleteSubscription(id) {
+  await delay()
+  const userId = currentUserId()
+  const rows = readList(SUBSCRIPTIONS_KEY)
+  const remaining = rows.filter((row) => !(row.id === id && row.userId === userId))
+  if (remaining.length === rows.length) fail(404, 'That subscription no longer exists')
+  writeList(SUBSCRIPTIONS_KEY, remaining)
+  return null
+}
+
 // Changes only the fields given, so the Keep/Cancel toggle can send
 // { status } without resending the rest.
 export async function updateSubscription(id, changes) {

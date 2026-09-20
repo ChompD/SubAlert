@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { createSubscription, getSubscription, updateSubscription } from '../api'
+import { createSubscription, deleteSubscription, getSubscription, updateSubscription } from '../api'
 import Button from '../components/atoms/Button.jsx'
 import DecisionToggle, { THREE_OPTIONS } from '../components/molecules/DecisionToggle.jsx'
 import FormField from '../components/molecules/FormField.jsx'
@@ -23,6 +23,7 @@ export default function SubscriptionFormPage() {
   const [errors, setErrors] = useState({})
   const [formMessage, setFormMessage] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [loading, setLoading] = useState(isEdit)
 
   useEffect(() => {
@@ -84,6 +85,21 @@ export default function SubscriptionFormPage() {
     } catch (error) {
       setFormMessage(friendlyError(error))
       setSaving(false)
+    }
+  }
+
+  async function handleDelete() {
+    // Deleting cannot be undone, so ask first. The name is in the question,
+    // so nobody deletes the wrong one by muscle memory.
+    if (!window.confirm(`Delete ${form.name}? This can't be undone.`)) return
+
+    setDeleting(true)
+    try {
+      await deleteSubscription(id)
+      navigate('/')
+    } catch (error) {
+      setFormMessage(friendlyError(error))
+      setDeleting(false)
     }
   }
 
@@ -157,13 +173,22 @@ export default function SubscriptionFormPage() {
           </div>
 
           <div className={styles.actions}>
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving || deleting}>
               {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Save'}
             </Button>
-            <Button variant="secondary" onClick={() => navigate('/')}>
+            <Button variant="secondary" onClick={() => navigate('/')} disabled={saving || deleting}>
               Cancel
             </Button>
           </div>
+
+          {/* Edit only, and set apart from Save so it is not hit by accident. */}
+          {isEdit && (
+            <div className={styles.danger}>
+              <Button variant="danger" fullWidth onClick={handleDelete} disabled={saving || deleting}>
+                {deleting ? 'Deleting…' : 'Delete subscription'}
+              </Button>
+            </div>
+          )}
         </form>
       )}
     </div>

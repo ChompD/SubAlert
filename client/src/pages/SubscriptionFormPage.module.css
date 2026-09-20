@@ -40,6 +40,13 @@
   margin-top: var(--space-1);
 }
 
+/* Kept away from Save and Cancel by a divider, because it cannot be undone. */
+.danger {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-divider);
+}
+
 @media (min-width: 640px) {
   .page {
     padding-top: var(--space-4);
