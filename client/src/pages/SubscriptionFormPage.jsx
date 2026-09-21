@@ -183,7 +183,7 @@ export default function SubscriptionFormPage() {
             <FormField
               id="sub-price"
               name="price"
-              label="Renewal price (per month)"
+              label="Price per month"
               type="number"
               inputMode="decimal"
               min="0"

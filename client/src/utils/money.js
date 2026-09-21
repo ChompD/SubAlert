@@ -4,16 +4,18 @@
 // Intl.NumberFormat handles the symbol, the commas and the right number of
 // decimals for each currency (two for PHP and USD, none for JPY and KRW).
 
+// Short labels ("PHP · ₱") so the drop-down fits beside the price, even on
+// a phone. The code says which currency; the symbol is what people recognise.
 export const CURRENCIES = [
-  { code: 'PHP', label: 'PHP · Philippine peso' },
-  { code: 'USD', label: 'USD · US dollar' },
-  { code: 'EUR', label: 'EUR · Euro' },
-  { code: 'GBP', label: 'GBP · British pound' },
-  { code: 'JPY', label: 'JPY · Japanese yen' },
-  { code: 'KRW', label: 'KRW · Korean won' },
-  { code: 'SGD', label: 'SGD · Singapore dollar' },
-  { code: 'AUD', label: 'AUD · Australian dollar' },
-  { code: 'CAD', label: 'CAD · Canadian dollar' },
+  { code: 'PHP', label: 'PHP · ₱' },
+  { code: 'USD', label: 'USD · $' },
+  { code: 'EUR', label: 'EUR · €' },
+  { code: 'GBP', label: 'GBP · £' },
+  { code: 'JPY', label: 'JPY · ¥' },
+  { code: 'KRW', label: 'KRW · ₩' },
+  { code: 'SGD', label: 'SGD · S$' },
+  { code: 'AUD', label: 'AUD · A$' },
+  { code: 'CAD', label: 'CAD · C$' },
 ]
 
 export const CURRENCY_CODES = CURRENCIES.map((currency) => currency.code)

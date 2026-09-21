@@ -52,7 +52,8 @@ input {
   border: 0;
 }
 
-/* From the template: the banner shown while the backend is simulated. */
+/* From the template: the banner shown while the backend is simulated. One
+   line, with the full explanation in a <details> that opens on tap. */
 .demo-notice {
   padding: var(--space-1) var(--space-2);
   border-bottom: 1px solid var(--color-divider);
@@ -60,4 +61,33 @@ input {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   text-align: center;
+}
+
+.demo-notice summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Hide the browser's own triangle; "More" / "Less" says it in words. */
+.demo-notice summary::-webkit-details-marker {
+  display: none;
+}
+
+.demo-notice-more {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.demo-notice[open] .demo-notice-more {
+  font-size: 0;
+}
+
+.demo-notice[open] .demo-notice-more::after {
+  content: 'Less';
+  font-size: var(--font-size-sm);
+}
+
+.demo-notice p {
+  max-width: 720px;
+  margin: var(--space-1) auto 0;
 }

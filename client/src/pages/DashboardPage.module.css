@@ -44,7 +44,9 @@
   margin-top: var(--space-1);
 }
 
-/* Phone: 2 summary cards, the third hidden, as in the wireframe. */
+/* Phone: 2 summary cards side by side, and "Saved by cancelling" across the
+   full width below them, since mixed currencies ("₱549.00 + $15.99") need
+   the room. */
 .summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -53,7 +55,7 @@
 }
 
 .summary > :nth-child(3) {
-  display: none;
+  grid-column: 1 / -1;
 }
 
 /* Phone: a stack of cards with a small gap. */
@@ -96,7 +98,7 @@
   }
 
   .summary > :nth-child(3) {
-    display: block;
+    grid-column: auto;
   }
 
   .list {

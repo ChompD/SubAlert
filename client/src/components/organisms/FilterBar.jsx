@@ -1,9 +1,15 @@
+import { ArrowUpDown } from 'lucide-react'
 import Pill from '../atoms/Pill.jsx'
 import { FILTERS, SORTS } from '../../utils/subscriptionFilters.js'
 import styles from './FilterBar.module.css'
 
-// The row above the list: filter pills on the left, sort on the right.
+// The row above the list: filter pills, then sort.
 // counts is { all: 5, soon: 2, ... } so each pill says how many it holds.
+//
+// Phone: the pills scroll sideways and sort is a small square button at the
+// end of the same row. It's still the real <select>, laid invisibly over the
+// icon, so tapping it opens the phone's own picker. Desktop: "Sort" and the
+// <select> as normal.
 export default function FilterBar({ filter, onFilterChange, sort, onSortChange, counts = {} }) {
   return (
     <div className={styles.bar}>
@@ -20,6 +26,9 @@ export default function FilterBar({ filter, onFilterChange, sort, onSortChange, 
         <label htmlFor="dashboard-sort" className={styles.sortLabel}>
           Sort
         </label>
+        <span className={styles.sortIcon} aria-hidden="true">
+          <ArrowUpDown size={18} />
+        </span>
         <select
           id="dashboard-sort"
           className={styles.select}

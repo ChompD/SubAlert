@@ -1,19 +1,23 @@
-/* Phone (the default): pills on one line that scrolls sideways inside itself
-   (never the whole page), and sort on its own line below. */
+/* Phone (the default): one row. Pills scroll sideways inside their own box
+   (never the whole page), and sort is a square button at the end. */
 .bar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: var(--space-1);
   margin-bottom: var(--space-2);
 }
 
 .pills {
   display: flex;
+  flex: 1;
   gap: var(--space-1);
+  min-width: 0;
   overflow-x: auto;
   /* Room for the focus ring, which overflow would otherwise clip. */
   padding: calc(var(--space-1) / 2) 2px;
   scrollbar-width: none;
+  /* Fade the last few pixels, so it's obvious there are more pills to see. */
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--space-4)), transparent);
 }
 
 .pills::-webkit-scrollbar {
@@ -27,43 +31,98 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Phone: a 40px square with an icon; the real <select> covers it, invisible,
+   so a tap opens the phone's own picker and screen readers find a labelled
+   select as usual. */
 .sort {
+  position: relative;
   display: flex;
+  flex: none;
   align-items: center;
-  gap: var(--space-1);
-  margin-left: auto;
-}
-
-.sortLabel {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-}
-
-.select {
-  height: var(--space-4);
-  padding: 0 var(--space-1);
+  justify-content: center;
+  width: var(--control-height);
+  height: var(--control-height);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-surface);
   color: var(--color-text);
-  font-size: var(--font-size-sm);
+}
+
+.sort:focus-within {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.sortLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.sortIcon {
+  display: flex;
+  pointer-events: none;
+}
+
+.select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
   cursor: pointer;
 }
 
-/* 640px and up: one row, pills left and sort right, as in the wireframe. */
+/* 640px and up: pills wrap, and sort is a normal labelled <select>. */
 @media (min-width: 640px) {
   .bar {
-    flex-direction: row;
-    align-items: center;
     gap: var(--space-2);
   }
 
   .pills {
     flex-wrap: wrap;
     overflow: visible;
+    mask-image: none;
   }
 
   .sort {
-    flex: none;
+    gap: var(--space-1);
+    width: auto;
+    height: auto;
+    border: 0;
+    background: none;
+  }
+
+  .sort:focus-within {
+    outline: none;
+  }
+
+  .sortLabel {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .sortIcon {
+    display: none;
+  }
+
+  .select {
+    position: static;
+    width: auto;
+    height: var(--space-4);
+    padding: 0 var(--space-1);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    opacity: 1;
   }
 }
