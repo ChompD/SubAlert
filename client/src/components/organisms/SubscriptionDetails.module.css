@@ -1,0 +1,136 @@
+/* Phone (the default): a sheet that rises from the bottom of the screen, the
+   usual pattern for pop-ups on phones, and easy to reach with a thumb. */
+.dialog {
+  width: 100%;
+  max-width: 100%;
+  max-height: 90vh;
+  margin: auto 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 16px 16px 0 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.dialog::backdrop {
+  background: rgb(26 29 33 / 0.45);
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-2);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.titleBlock {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: calc(var(--space-1) / 2);
+  color: var(--color-text-muted);
+}
+
+.close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height);
+  height: var(--control-height);
+  margin: calc(var(--space-1) * -1) calc(var(--space-1) * -1) 0 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.close:hover {
+  background: var(--color-bg);
+}
+
+/* Label on the left, value on the right, a thin line between rows. */
+.facts {
+  margin: 0;
+  border-top: 1px solid var(--color-divider);
+}
+
+.facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  border-bottom: 1px solid var(--color-divider);
+  font-size: var(--font-size-sm);
+}
+
+.facts dt {
+  color: var(--color-text-muted);
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.noteTitle {
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+/* Keeps the line breaks the user typed. */
+.note {
+  padding: var(--space-2);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+/* 640px and up: a centred box. */
+@media (min-width: 640px) {
+  .dialog {
+    width: calc(100% - var(--space-4));
+    max-width: 480px;
+    margin: auto;
+    border-radius: var(--radius);
+  }
+
+  .box {
+    padding: var(--space-3);
+  }
+}

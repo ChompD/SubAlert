@@ -37,6 +37,18 @@ export function describeDaysLeft(days) {
   return `In ${days} days`
 }
 
+// "Sat, Sep 26, 2026" for the details pop-up. Built from the parts, like
+// daysUntil, so it can't slip to the day before in some timezones.
+export function formatLongDate(dateString) {
+  const [year, month, day] = dateString.split('-').map(Number)
+  return localMidnight(year, month - 1, day).toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
 // A "YYYY-MM-DD" string for a date some days from today, in local time.
 // Used for sample data, so the demo always has trials ending soon.
 export function isoDateFromToday(offsetDays, today = new Date()) {

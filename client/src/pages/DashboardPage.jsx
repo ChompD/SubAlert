@@ -5,6 +5,7 @@ import Button from '../components/atoms/Button.jsx'
 import SubscriptionRow from '../components/molecules/SubscriptionRow.jsx'
 import SummaryCard from '../components/molecules/SummaryCard.jsx'
 import FilterBar from '../components/organisms/FilterBar.jsx'
+import SubscriptionDetails from '../components/organisms/SubscriptionDetails.jsx'
 import useDashboardFilters from '../hooks/useDashboardFilters.js'
 import { daysUntil } from '../utils/dates.js'
 import { friendlyError } from '../utils/errors.js'
@@ -19,6 +20,8 @@ export default function DashboardPage() {
   const [status, setStatus] = useState('loading') // loading | ready | error
   const [subscriptions, setSubscriptions] = useState([])
   const [error, setError] = useState(null)
+  // Which subscription's details pop-up is open, by id, or null for none.
+  const [openId, setOpenId] = useState(null)
   const { query, filter, sort, setFilter, setSort, clear, isFiltered } = useDashboardFilters()
 
   async function load() {
@@ -142,6 +145,7 @@ export default function DashboardPage() {
                   subscription={sub}
                   onDecisionChange={changeDecision}
                   onEdit={(id) => navigate(`/edit/${id}`)}
+                  onOpen={setOpenId}
                 />
               ))}
             </div>
@@ -156,6 +160,12 @@ export default function DashboardPage() {
           )}
         </>
       )}
+
+      <SubscriptionDetails
+        subscription={subscriptions.find((sub) => sub.id === openId) ?? null}
+        onClose={() => setOpenId(null)}
+        onEdit={(id) => navigate(`/edit/${id}`)}
+      />
     </div>
   )
 }

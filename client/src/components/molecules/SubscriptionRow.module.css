@@ -44,8 +44,36 @@
   line-height: 1.3;
 }
 
+/* Tappable cards: a pointer, and a light wash on hover (not on phones,
+   where hover sticks after a tap). */
+.clickable {
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .clickable:hover {
+    background: var(--color-bg);
+  }
+}
+
+/* The name as a button that still looks like the name. */
+.nameButton {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nameButton:hover .nameText {
+  text-decoration: underline;
+}
+
 /* The badge keeps its size; the name gives way. */
-.name > :last-child:not(.nameText) {
+.name > :last-child:not(.nameText):not(.nameButton) {
   flex: none;
 }
 
