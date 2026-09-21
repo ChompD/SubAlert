@@ -117,6 +117,8 @@ function cleanSubscription(input) {
   const icon = input.icon ?? DEFAULT_ICON
   const color = input.color ?? DEFAULT_COLOR
   const frequency = input.frequency ?? DEFAULT_FREQUENCY
+  // Optional. Rows saved before notes existed have none.
+  const note = typeof input.note === 'string' ? input.note.trim() : ''
 
   if (!name || name.length > 80) fail(400, 'Enter a service name of 80 characters or fewer')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(endDate)) fail(400, 'Enter the subscription end date')
@@ -125,14 +127,16 @@ function cleanSubscription(input) {
   if (!ICON_KEYS.includes(icon)) fail(400, 'Pick an icon from the list')
   if (!COLOR_KEYS.includes(color)) fail(400, 'Pick a colour from the list')
   if (!FREQUENCY_KEYS.includes(frequency)) fail(400, 'Pick how often it bills')
+  if (note.length > 500) fail(400, 'Keep the note under 500 characters')
 
-  return { name, endDate, price: Math.round(price * 100) / 100, currency, frequency, icon, color, status }
+  return { name, endDate, price: Math.round(price * 100) / 100, currency, frequency, icon, color, status, note }
 }
 
 // Only what the page needs: the owner's id stays inside the "database".
 // Older rows get a currency, frequency, icon and colour filled in on the way
 // out, and an old trialEndDate is handed over as endDate.
 const publicSubscription = ({ userId, trialEndDate, ...row }) => ({
+  note: '',
   currency: LEGACY_CURRENCY,
   frequency: DEFAULT_FREQUENCY,
   icon: DEFAULT_ICON,

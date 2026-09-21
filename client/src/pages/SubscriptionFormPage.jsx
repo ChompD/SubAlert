@@ -6,10 +6,11 @@ import DecisionToggle, { THREE_OPTIONS } from '../components/molecules/DecisionT
 import FormField from '../components/molecules/FormField.jsx'
 import IconPicker from '../components/molecules/IconPicker.jsx'
 import SelectField from '../components/molecules/SelectField.jsx'
+import TextAreaField from '../components/molecules/TextAreaField.jsx'
 import { friendlyError } from '../utils/errors.js'
 import { DEFAULT_COLOR, DEFAULT_ICON } from '../utils/icons.js'
 import { CURRENCIES, DEFAULT_CURRENCY, DEFAULT_FREQUENCY, FREQUENCIES } from '../utils/money.js'
-import { validateSubscription } from '../utils/validation.js'
+import { NOTE_MAX, validateSubscription } from '../utils/validation.js'
 import formStyles from './AuthForm.module.css'
 import styles from './SubscriptionFormPage.module.css'
 
@@ -22,6 +23,7 @@ const EMPTY = {
   icon: DEFAULT_ICON,
   color: DEFAULT_COLOR,
   status: 'undecided',
+  note: '',
 }
 
 const CURRENCY_OPTIONS = CURRENCIES.map(({ code, label }) => ({ value: code, label }))
@@ -95,6 +97,7 @@ export default function SubscriptionFormPage() {
       icon: form.icon,
       color: form.color,
       status: form.status,
+      note: form.note.trim(),
     }
 
     setSaving(true)
@@ -221,6 +224,19 @@ export default function SubscriptionFormPage() {
               fullWidth
             />
           </div>
+
+          <TextAreaField
+            id="sub-note"
+            name="note"
+            label="Note"
+            hint="(optional)"
+            placeholder="Shared with family, promo code, how to cancel…"
+            rows={3}
+            maxLength={NOTE_MAX}
+            value={form.note}
+            onChange={handleChange}
+            error={errors.note}
+          />
 
           <div className={styles.actions}>
             <Button type="submit" disabled={saving || deleting}>

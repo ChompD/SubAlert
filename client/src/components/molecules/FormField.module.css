@@ -23,6 +23,30 @@
   color: var(--color-text-muted);
 }
 
+/* TextAreaField: taller, grows with the content, and only resizes up/down. */
+.textarea {
+  height: auto;
+  min-height: calc(var(--control-height) * 2);
+  max-height: calc(var(--control-height) * 6);
+  padding: var(--space-1) var(--space-2);
+  line-height: 1.5;
+  resize: vertical;
+  field-sizing: content;
+}
+
+/* "(optional)" after a label. */
+.hint {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.counter {
+  align-self: flex-end;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Room on the right for the browser's drop-down arrow. */
 .select {
   padding-right: var(--space-4);

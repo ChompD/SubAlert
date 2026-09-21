@@ -35,7 +35,9 @@ export function validateLogin({ email, password }) {
 // High enough for currencies with big numbers, like KRW and JPY.
 export const PRICE_MAX = 9999999
 
-export function validateSubscription({ name, endDate, price, currency, frequency }) {
+export const NOTE_MAX = 500
+
+export function validateSubscription({ name, endDate, price, currency, frequency, note = '' }) {
   const errors = {}
 
   if (!name.trim()) errors.name = 'Enter the service name'
@@ -51,6 +53,10 @@ export function validateSubscription({ name, endDate, price, currency, frequency
 
   if (!CURRENCY_CODES.includes(currency)) errors.currency = 'Pick a currency from the list'
   if (!FREQUENCY_KEYS.includes(frequency)) errors.frequency = 'Pick how often it bills'
+
+  // Optional, so empty is fine. The box stops typing at the limit, but a
+  // pasted note could still arrive longer.
+  if (note.trim().length > NOTE_MAX) errors.note = `Keep the note under ${NOTE_MAX} characters`
 
   return errors
 }
