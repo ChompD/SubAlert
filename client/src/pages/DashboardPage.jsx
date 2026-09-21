@@ -8,7 +8,7 @@ import FilterBar from '../components/organisms/FilterBar.jsx'
 import useDashboardFilters from '../hooks/useDashboardFilters.js'
 import { daysUntil } from '../utils/dates.js'
 import { friendlyError } from '../utils/errors.js'
-import { formatTotals } from '../utils/money.js'
+import { formatMonthlyTotals } from '../utils/money.js'
 import { applyFilters, countByFilter, FILTERS } from '../utils/subscriptionFilters.js'
 import styles from './DashboardPage.module.css'
 
@@ -50,11 +50,11 @@ export default function DashboardPage() {
 
   // Worked out from the list on every render, never stored, so they can't
   // disagree with it.
-  const active = subscriptions.filter((sub) => daysUntil(sub.trialEndDate) >= 0)
-  const endingSoon = active.filter((sub) => daysUntil(sub.trialEndDate) <= 2).length
-  // Added up per currency: pesos and dollars can't be summed without an
-  // exchange rate, so mixed currencies show as "₱549.00 + $15.99".
-  const saved = formatTotals(subscriptions.filter((sub) => sub.status === 'cancel'))
+  const active = subscriptions.filter((sub) => daysUntil(sub.endDate) >= 0)
+  const endingSoon = active.filter((sub) => daysUntil(sub.endDate) <= 2).length
+  // Per month and per currency: a yearly plan counts as a twelfth of its
+  // price, and mixed currencies show as "₱549.00 + $15.99".
+  const saved = formatMonthlyTotals(subscriptions.filter((sub) => sub.status === 'cancel'))
 
   // The summary cards always describe everything; only the list is filtered.
   const visible = applyFilters(subscriptions, { query, filter, sort })
@@ -79,9 +79,9 @@ export default function DashboardPage() {
 
       {status === 'ready' && subscriptions.length === 0 && (
         <section className={styles.empty}>
-          <h2>Add your first trial</h2>
+          <h2>Add your first subscription</h2>
           <p className={styles.muted}>
-            Log a free trial when you sign up for it, and SubAlert shows you when it&apos;s about to charge you.
+            Log a subscription or free trial when you sign up for it, and SubAlert shows you when it&apos;s about to charge you.
           </p>
           <Button onClick={() => navigate('/add')}>+ Add subscription</Button>
         </section>
@@ -97,7 +97,7 @@ export default function DashboardPage() {
 
           <div className={styles.summary}>
             <SummaryCard label="Ending in 48h" value={endingSoon} />
-            <SummaryCard label="Active trials" value={active.length} />
+            <SummaryCard label="Active" value={active.length} />
             <SummaryCard label="Saved by cancelling" value={`${saved}/mo`} />
           </div>
 
@@ -132,7 +132,7 @@ export default function DashboardPage() {
               <div className={styles.headings} aria-hidden="true">
                 <span />
                 <span>Service</span>
-                <span>Trial ends</span>
+                <span>Ends</span>
                 <span>Price</span>
                 <span>Decision</span>
               </div>

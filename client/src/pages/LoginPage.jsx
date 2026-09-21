@@ -57,7 +57,7 @@ export default function LoginPage() {
   return (
     <AuthCard
       title="Log in"
-      subtitle="Track your trials before they bill you."
+      subtitle="Track your subscriptions before they bill you."
       footer={
         <>
           Don&apos;t have an account? <Link to="/register">Register</Link>

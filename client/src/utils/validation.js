@@ -1,4 +1,4 @@
-import { CURRENCY_CODES } from './money.js'
+import { CURRENCY_CODES, FREQUENCY_KEYS } from './money.js'
 
 // Checks the forms run before sending anything. They make mistakes quick to
 // fix, but they are for convenience only: the server checks everything again,
@@ -35,14 +35,14 @@ export function validateLogin({ email, password }) {
 // High enough for currencies with big numbers, like KRW and JPY.
 export const PRICE_MAX = 9999999
 
-export function validateSubscription({ name, trialEndDate, price, currency }) {
+export function validateSubscription({ name, endDate, price, currency, frequency }) {
   const errors = {}
 
   if (!name.trim()) errors.name = 'Enter the service name'
   else if (name.trim().length > NAME_MAX) errors.name = `Keep it under ${NAME_MAX} characters`
 
   // <input type="date"> always gives "YYYY-MM-DD", or "" when empty.
-  if (!trialEndDate) errors.trialEndDate = 'Pick the day the trial ends'
+  if (!endDate) errors.endDate = 'Pick the day the subscription ends'
 
   const amount = Number(price)
   if (price === '') errors.price = 'Enter the renewal price, or 0 if it is free'
@@ -50,6 +50,7 @@ export function validateSubscription({ name, trialEndDate, price, currency }) {
   else if (amount > PRICE_MAX) errors.price = `Enter a price under ${PRICE_MAX.toLocaleString()}`
 
   if (!CURRENCY_CODES.includes(currency)) errors.currency = 'Pick a currency from the list'
+  if (!FREQUENCY_KEYS.includes(frequency)) errors.frequency = 'Pick how often it bills'
 
   return errors
 }

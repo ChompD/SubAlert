@@ -8,22 +8,24 @@ import IconPicker from '../components/molecules/IconPicker.jsx'
 import SelectField from '../components/molecules/SelectField.jsx'
 import { friendlyError } from '../utils/errors.js'
 import { DEFAULT_COLOR, DEFAULT_ICON } from '../utils/icons.js'
-import { CURRENCIES, DEFAULT_CURRENCY } from '../utils/money.js'
+import { CURRENCIES, DEFAULT_CURRENCY, DEFAULT_FREQUENCY, FREQUENCIES } from '../utils/money.js'
 import { validateSubscription } from '../utils/validation.js'
 import formStyles from './AuthForm.module.css'
 import styles from './SubscriptionFormPage.module.css'
 
 const EMPTY = {
   name: '',
-  trialEndDate: '',
+  endDate: '',
   price: '',
   currency: DEFAULT_CURRENCY,
+  frequency: DEFAULT_FREQUENCY,
   icon: DEFAULT_ICON,
   color: DEFAULT_COLOR,
   status: 'undecided',
 }
 
 const CURRENCY_OPTIONS = CURRENCIES.map(({ code, label }) => ({ value: code, label }))
+const FREQUENCY_OPTIONS = FREQUENCIES.map(({ key, label }) => ({ value: key, label }))
 
 // One page for two routes: /add starts blank, /edit/:id loads the existing
 // subscription first. Building it once means the two screens cannot drift
@@ -86,9 +88,10 @@ export default function SubscriptionFormPage() {
 
     const values = {
       name: form.name.trim(),
-      trialEndDate: form.trialEndDate,
+      endDate: form.endDate,
       price: Number(form.price),
       currency: form.currency,
+      frequency: form.frequency,
       icon: form.icon,
       color: form.color,
       status: form.status,
@@ -158,16 +161,16 @@ export default function SubscriptionFormPage() {
           />
 
           <FormField
-            id="sub-trialEndDate"
-            name="trialEndDate"
-            label="Trial end date"
+            id="sub-endDate"
+            name="endDate"
+            label="Subscription end date"
             type="date"
-            value={form.trialEndDate}
+            value={form.endDate}
             onChange={handleChange}
-            error={errors.trialEndDate}
+            error={errors.endDate}
           />
 
-          {/* Currency and amount share a row: [PHP ▾] [ 549.00 ]. */}
+          {/* Currency, amount and how often: [PHP ▾] [ 549.00 ] [Monthly ▾]. */}
           <div className={styles.priceRow}>
             <SelectField
               id="sub-currency"
@@ -183,7 +186,7 @@ export default function SubscriptionFormPage() {
             <FormField
               id="sub-price"
               name="price"
-              label="Price per month"
+              label="Price"
               type="number"
               inputMode="decimal"
               min="0"
@@ -192,6 +195,16 @@ export default function SubscriptionFormPage() {
               value={form.price}
               onChange={handleChange}
               error={errors.price}
+            />
+
+            <SelectField
+              id="sub-frequency"
+              name="frequency"
+              label="Billed"
+              options={FREQUENCY_OPTIONS}
+              value={form.frequency}
+              onChange={handleChange}
+              error={errors.frequency}
             />
           </div>
 

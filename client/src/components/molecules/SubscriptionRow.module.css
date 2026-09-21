@@ -106,7 +106,7 @@
      [icon] [name + badge] [ends] [price] [Keep|Cancel] [···]   */
 @media (min-width: 640px) {
   .row {
-    grid-template-columns: 32px minmax(0, 1.6fr) minmax(0, 1fr) 96px 180px var(--control-height);
+    grid-template-columns: 32px minmax(0, 1.6fr) minmax(0, 1fr) 120px 180px var(--control-height);
     grid-template-areas: 'icon service ends price decision edit';
     align-items: center;
     gap: var(--space-1) var(--space-2);

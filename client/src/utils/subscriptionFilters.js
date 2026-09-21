@@ -1,4 +1,5 @@
 import { daysUntil } from './dates.js'
+import { monthlyAmount } from './money.js'
 
 // Search, filter and sort for the Dashboard list. Plain functions with no
 // React in them, so they are easy to test on their own.
@@ -22,9 +23,9 @@ export const DEFAULT_FILTER = 'all'
 export const DEFAULT_SORT = 'endDate'
 
 // "Ending soon" means the same as the Urgent and Soon badges: ends today or
-// within the next 7 days. Trials that already ended don't count.
+// within the next 7 days. Subscriptions that already ended don't count.
 function isEndingSoon(subscription) {
-  const days = daysUntil(subscription.trialEndDate)
+  const days = daysUntil(subscription.endDate)
   return days >= 0 && days <= 7
 }
 
@@ -36,15 +37,18 @@ function matchesFilter(subscription, filter) {
   return true
 }
 
-const byEndDate = (a, b) => a.trialEndDate.localeCompare(b.trialEndDate)
+const byEndDate = (a, b) => a.endDate.localeCompare(b.endDate)
 
 const COMPARATORS = {
   endDate: byEndDate,
   endDateDesc: (a, b) => byEndDate(b, a),
   name: (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
   // Prices in different currencies can't be compared without an exchange rate,
-  // so they are grouped by currency first, then highest price within each.
-  price: (a, b) => a.currency.localeCompare(b.currency) || Number(b.price) - Number(a.price),
+  // so they are grouped by currency first. Within a currency they are compared
+  // per month, so ₱1,200 a year ranks below ₱549 a month.
+  price: (a, b) =>
+    a.currency.localeCompare(b.currency) ||
+    monthlyAmount(b.price, b.frequency) - monthlyAmount(a.price, a.frequency),
 }
 
 // How many subscriptions each filter pill would show, for the counts on them.

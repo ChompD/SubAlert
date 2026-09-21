@@ -25,6 +25,29 @@ export const DEFAULT_CURRENCY = 'PHP'
 // Subscriptions saved before currencies existed were all in dollars.
 export const LEGACY_CURRENCY = 'USD'
 
+// How often a subscription charges. perMonth turns a price into "what this
+// costs per month", so a yearly plan and a weekly plan can be added up or
+// compared fairly (a year is 12 months, and 52 weeks, so a week is 12/52).
+export const FREQUENCIES = [
+  { key: 'weekly', label: 'Weekly', short: 'wk', perMonth: 52 / 12 },
+  { key: 'monthly', label: 'Monthly', short: 'mo', perMonth: 1 },
+  { key: 'quarterly', label: 'Every 3 months', short: '3 mo', perMonth: 1 / 3 },
+  { key: 'yearly', label: 'Yearly', short: 'yr', perMonth: 1 / 12 },
+]
+
+export const FREQUENCY_KEYS = FREQUENCIES.map((frequency) => frequency.key)
+
+// New subscriptions, and ones saved before frequencies existed, are monthly.
+export const DEFAULT_FREQUENCY = 'monthly'
+
+const frequencyOf = (key) => FREQUENCIES.find((f) => f.key === key) ?? FREQUENCIES[1]
+
+// "/mo", "/yr"... for after a price.
+export const perFrequency = (key) => `/${frequencyOf(key).short}`
+
+// What a subscription costs per month, whatever its billing cycle.
+export const monthlyAmount = (price, frequency) => Number(price) * frequencyOf(frequency).perMonth
+
 // Building a formatter is slow-ish, so keep one per currency.
 const formatters = new Map()
 
@@ -35,13 +58,14 @@ export function formatPrice(amount, currency = LEGACY_CURRENCY) {
   return formatters.get(currency).format(Number(amount) || 0)
 }
 
-// Adds prices up per currency, because pesos and dollars can't be added
-// together without an exchange rate. Returns something like "₱549.00 + $15.99",
-// or a single amount when everything shares one currency.
-export function formatTotals(items) {
+// Adds up what the subscriptions cost PER MONTH, per currency: a yearly plan
+// counts as a twelfth of its price. Pesos and dollars can't be added together
+// without an exchange rate, so the result looks like "₱549.00 + $15.99", or a
+// single amount when everything shares one currency.
+export function formatMonthlyTotals(items) {
   const totals = new Map()
-  for (const { price, currency = LEGACY_CURRENCY } of items) {
-    totals.set(currency, (totals.get(currency) ?? 0) + Number(price))
+  for (const { price, currency = LEGACY_CURRENCY, frequency } of items) {
+    totals.set(currency, (totals.get(currency) ?? 0) + monthlyAmount(price, frequency))
   }
   if (totals.size === 0) return formatPrice(0, DEFAULT_CURRENCY)
   return [...totals].map(([currency, total]) => formatPrice(total, currency)).join(' + ')

@@ -2,7 +2,7 @@ import Badge from '../atoms/Badge.jsx'
 import ServiceIcon from '../atoms/ServiceIcon.jsx'
 import DecisionToggle from './DecisionToggle.jsx'
 import { daysUntil, describeDaysLeft, urgencyLevel } from '../../utils/dates.js'
-import { formatPrice } from '../../utils/money.js'
+import { formatPrice, perFrequency } from '../../utils/money.js'
 import styles from './SubscriptionRow.module.css'
 
 const BADGE_TEXT = { urgent: 'Urgent', soon: 'Soon' }
@@ -20,11 +20,12 @@ const BADGE_TEXT = { urgent: 'Urgent', soon: 'Soon' }
 // one. That keeps each layout simple instead of one layout fighting the other.
 // Days left and urgency are CALCULATED from the end date on every render.
 export default function SubscriptionRow({ subscription, onDecisionChange, onEdit }) {
-  const { id, name, price, currency, icon, color, trialEndDate, status } = subscription
-  const days = daysUntil(trialEndDate)
+  const { id, name, price, currency, frequency, icon, color, endDate, status } = subscription
+  const days = daysUntil(endDate)
+  const amount = `${formatPrice(price, currency)}${perFrequency(frequency)}`
   const level = urgencyLevel(days)
   const badge = BADGE_TEXT[level] && <Badge level={level}>{BADGE_TEXT[level]}</Badge>
-  const daysLeft = <time dateTime={trialEndDate}>{describeDaysLeft(days)}</time>
+  const daysLeft = <time dateTime={endDate}>{describeDaysLeft(days)}</time>
 
   return (
     <article className={`${styles.row} ${styles[level]}`} aria-label={name}>
@@ -40,10 +41,10 @@ export default function SubscriptionRow({ subscription, onDecisionChange, onEdit
 
         {/* Phone: everything about "when and how much" on one line. */}
         <p className={styles.meta}>
-          <span>{formatPrice(price, currency)}/mo</span>
+          <span>{amount}</span>
           <span aria-hidden="true">·</span>
           <span className={styles.ends}>
-            <span className="sr-only">Trial ends: </span>
+            <span className="sr-only">Ends: </span>
             {daysLeft}
           </span>
         </p>
@@ -51,10 +52,10 @@ export default function SubscriptionRow({ subscription, onDecisionChange, onEdit
 
       {/* Desktop: its own columns, lined up with the list's headings. */}
       <p className={styles.endsColumn}>
-        <span className="sr-only">Trial ends: </span>
+        <span className="sr-only">Ends: </span>
         {daysLeft}
       </p>
-      <p className={styles.priceColumn}>{formatPrice(price, currency)}</p>
+      <p className={styles.priceColumn}>{amount}</p>
 
       <div className={styles.decision}>
         <DecisionToggle

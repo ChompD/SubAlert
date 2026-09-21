@@ -9,7 +9,7 @@
 // project. See content/extending-your-app page 3.
 
 import { getToken } from './token.js'
-import { CURRENCY_CODES, LEGACY_CURRENCY } from '../utils/money.js'
+import { CURRENCY_CODES, DEFAULT_FREQUENCY, FREQUENCY_KEYS, LEGACY_CURRENCY } from '../utils/money.js'
 import { COLOR_KEYS, DEFAULT_COLOR, DEFAULT_ICON, ICON_KEYS } from '../utils/icons.js'
 
 // A real network is not instant. Keeping this delay is what forces you to build
@@ -107,7 +107,8 @@ const STATUSES = ['keep', 'cancel', 'undecided']
 
 function cleanSubscription(input) {
   const name = input.name?.trim() ?? ''
-  const trialEndDate = input.trialEndDate ?? ''
+  // Rows saved before the rename call it trialEndDate.
+  const endDate = input.endDate ?? input.trialEndDate ?? ''
   const price = Number(input.price)
   // Rows saved before currencies existed have none, and were all in dollars.
   const currency = input.currency ?? LEGACY_CURRENCY
@@ -115,23 +116,28 @@ function cleanSubscription(input) {
   // Rows saved before icons existed get the plain letter look.
   const icon = input.icon ?? DEFAULT_ICON
   const color = input.color ?? DEFAULT_COLOR
+  const frequency = input.frequency ?? DEFAULT_FREQUENCY
 
   if (!name || name.length > 80) fail(400, 'Enter a service name of 80 characters or fewer')
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(trialEndDate)) fail(400, 'Enter the trial end date')
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(endDate)) fail(400, 'Enter the subscription end date')
   if (!Number.isFinite(price) || price < 0 || price > 9999999) fail(400, 'Enter a price from 0 to 9,999,999')
   if (!CURRENCY_CODES.includes(currency)) fail(400, 'Pick a currency from the list')
   if (!ICON_KEYS.includes(icon)) fail(400, 'Pick an icon from the list')
   if (!COLOR_KEYS.includes(color)) fail(400, 'Pick a colour from the list')
+  if (!FREQUENCY_KEYS.includes(frequency)) fail(400, 'Pick how often it bills')
 
-  return { name, trialEndDate, price: Math.round(price * 100) / 100, currency, icon, color, status }
+  return { name, endDate, price: Math.round(price * 100) / 100, currency, frequency, icon, color, status }
 }
 
 // Only what the page needs: the owner's id stays inside the "database".
-// Older rows get a currency, icon and colour filled in on the way out.
-const publicSubscription = ({ userId, ...row }) => ({
+// Older rows get a currency, frequency, icon and colour filled in on the way
+// out, and an old trialEndDate is handed over as endDate.
+const publicSubscription = ({ userId, trialEndDate, ...row }) => ({
   currency: LEGACY_CURRENCY,
+  frequency: DEFAULT_FREQUENCY,
   icon: DEFAULT_ICON,
   color: DEFAULT_COLOR,
+  endDate: trialEndDate,
   ...row,
 })
 
@@ -140,8 +146,8 @@ export async function listSubscriptions() {
   const userId = currentUserId()
   return readList(SUBSCRIPTIONS_KEY)
     .filter((row) => row.userId === userId)
-    .sort((a, b) => a.trialEndDate.localeCompare(b.trialEndDate))
     .map(publicSubscription)
+    .sort((a, b) => a.endDate.localeCompare(b.endDate))
 }
 
 export async function getSubscription(id) {
@@ -186,7 +192,8 @@ export async function updateSubscription(id, changes) {
   const index = rows.findIndex((row) => row.id === id && row.userId === userId)
   if (index === -1) fail(404, 'Not found')
 
-  rows[index] = { ...rows[index], ...cleanSubscription({ ...rows[index], ...changes }) }
+  const { trialEndDate, ...current } = rows[index]
+  rows[index] = { ...current, ...cleanSubscription({ ...rows[index], ...changes }) }
   writeList(SUBSCRIPTIONS_KEY, rows)
   return publicSubscription(rows[index])
 }

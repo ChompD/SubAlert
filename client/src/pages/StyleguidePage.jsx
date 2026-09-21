@@ -24,11 +24,11 @@ const COLOURS = [
 const SAMPLE_USER = { name: 'Name', email: 'name@email.com' }
 
 const SAMPLE_ROWS = [
-  { id: 1, name: 'Streaming+', price: 15.99, trialEndDate: isoDateFromToday(1), status: 'undecided' },
-  { id: 2, name: 'Music Pro', price: 10.99, trialEndDate: isoDateFromToday(2), status: 'cancel' },
-  { id: 3, name: 'Cloud Drive', price: 2.99, trialEndDate: isoDateFromToday(6), status: 'keep' },
-  { id: 4, name: 'Design App', price: 12, trialEndDate: isoDateFromToday(19), status: 'undecided' },
-  { id: 5, name: 'Old Trial', price: 4.99, trialEndDate: isoDateFromToday(-3), status: 'cancel' },
+  { id: 1, name: 'Streaming+', price: 15.99, endDate: isoDateFromToday(1), status: 'undecided' },
+  { id: 2, name: 'Music Pro', price: 10.99, endDate: isoDateFromToday(2), status: 'cancel' },
+  { id: 3, name: 'Cloud Drive', price: 2.99, endDate: isoDateFromToday(6), status: 'keep' },
+  { id: 4, name: 'Design App', price: 12, endDate: isoDateFromToday(19), status: 'undecided' },
+  { id: 5, name: 'Old Trial', price: 4.99, endDate: isoDateFromToday(-3), status: 'cancel' },
 ]
 
 const FILTERS = ['All', 'Ending soon', 'Keep', 'Cancel', 'Undecided']
@@ -76,7 +76,7 @@ export default function StyleguidePage() {
         <Section title="Type scale">
           <p style={{ fontSize: 'var(--font-size-lg)', fontWeight: 700 }}>Heading 24px: Add subscription</p>
           <p style={{ fontSize: 'var(--font-size-md)' }}>Body 16px: Streaming+ ends tomorrow. Decide before you're charged.</p>
-          <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>Small 13px: Trial end date</p>
+          <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>Small 13px: Subscription end date</p>
         </Section>
 
         <Section title="Button">
@@ -122,7 +122,7 @@ export default function StyleguidePage() {
         <Section title="SummaryCard">
           <div className={styles.summary}>
             <SummaryCard label="Ending in 48h" value="2" />
-            <SummaryCard label="Active trials" value="6" />
+            <SummaryCard label="Active" value="6" />
             <SummaryCard label="Saved by cancelling" value="$38/mo" />
           </div>
         </Section>
@@ -149,7 +149,7 @@ export default function StyleguidePage() {
           <div className={styles.authStage}>
             <AuthCard
               title="Log in"
-              subtitle="Track your trials before they bill you."
+              subtitle="Track your subscriptions before they bill you."
               footer={<>Don&apos;t have an account? <a href="#register">Register</a></>}
             >
               <div className={styles.stack}>
