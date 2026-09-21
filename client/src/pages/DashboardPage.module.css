@@ -66,6 +66,23 @@
   display: none;
 }
 
+.filterNote {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Looks like a link, but it's an action on this page, so it's a button. */
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-primary);
+  font-size: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* 640px and up: 3 summary cards, and the list becomes one bordered table
    whose column headings line up with SubscriptionRow's grid. */
 @media (min-width: 640px) {

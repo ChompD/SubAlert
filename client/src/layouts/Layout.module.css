@@ -15,7 +15,17 @@
   display: none;
 }
 
+/* Header search: desktop only. */
+.headerSearch {
+  display: none;
+}
+
 @media (min-width: 640px) {
+  .headerSearch {
+    display: flex;
+    width: 220px;
+  }
+
   .addShort {
     display: none;
   }

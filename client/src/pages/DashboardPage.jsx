@@ -4,18 +4,22 @@ import { listSubscriptions, updateSubscription } from '../api'
 import Button from '../components/atoms/Button.jsx'
 import SubscriptionRow from '../components/molecules/SubscriptionRow.jsx'
 import SummaryCard from '../components/molecules/SummaryCard.jsx'
+import FilterBar from '../components/organisms/FilterBar.jsx'
+import useDashboardFilters from '../hooks/useDashboardFilters.js'
 import { daysUntil } from '../utils/dates.js'
 import { friendlyError } from '../utils/errors.js'
 import { formatTotals } from '../utils/money.js'
+import { applyFilters, countByFilter, FILTERS } from '../utils/subscriptionFilters.js'
 import styles from './DashboardPage.module.css'
 
-// The Dashboard (/): summary numbers, then every subscription sorted by the
-// day its trial ends, soonest first.
+// The Dashboard (/): summary numbers, then the subscriptions, narrowed by the
+// search box and filter pills and ordered by the sort menu.
 export default function DashboardPage() {
   const navigate = useNavigate()
   const [status, setStatus] = useState('loading') // loading | ready | error
   const [subscriptions, setSubscriptions] = useState([])
   const [error, setError] = useState(null)
+  const { query, filter, sort, setFilter, setSort, clear, isFiltered } = useDashboardFilters()
 
   async function load() {
     setStatus('loading')
@@ -51,6 +55,11 @@ export default function DashboardPage() {
   // Added up per currency: pesos and dollars can't be summed without an
   // exchange rate, so mixed currencies show as "₱549.00 + $15.99".
   const saved = formatTotals(subscriptions.filter((sub) => sub.status === 'cancel'))
+
+  // The summary cards always describe everything; only the list is filtered.
+  const visible = applyFilters(subscriptions, { query, filter, sort })
+  const counts = countByFilter(subscriptions)
+  const filterLabel = FILTERS.find((f) => f.key === filter)?.label
 
   return (
     <div className={styles.page}>
@@ -92,24 +101,59 @@ export default function DashboardPage() {
             <SummaryCard label="Saved by cancelling" value={`${saved}/mo`} />
           </div>
 
-          <div className={styles.list}>
-            {/* Column headings, desktop only. The phone cards label themselves. */}
-            <div className={styles.headings} aria-hidden="true">
-              <span />
-              <span>Service</span>
-              <span>Trial ends</span>
-              <span>Price</span>
-              <span>Decision</span>
+          <FilterBar
+            filter={filter}
+            onFilterChange={setFilter}
+            sort={sort}
+            onSortChange={setSort}
+            counts={counts}
+          />
+
+          {/* Announced to screen readers as the list changes. */}
+          <p className="sr-only" role="status">
+            Showing {visible.length} of {subscriptions.length} subscriptions
+          </p>
+
+          {visible.length === 0 ? (
+            <section className={styles.empty}>
+              <h2>No matches</h2>
+              <p className={styles.muted}>
+                {query.trim()
+                  ? `Nothing${filter !== 'all' ? ` in "${filterLabel}"` : ''} matches "${query.trim()}".`
+                  : `You have no subscriptions in "${filterLabel}" right now.`}
+              </p>
+              <Button variant="secondary" onClick={clear}>
+                Show all subscriptions
+              </Button>
+            </section>
+          ) : (
+            <div className={styles.list}>
+              {/* Column headings, desktop only. The phone cards label themselves. */}
+              <div className={styles.headings} aria-hidden="true">
+                <span />
+                <span>Service</span>
+                <span>Trial ends</span>
+                <span>Price</span>
+                <span>Decision</span>
+              </div>
+              {visible.map((sub) => (
+                <SubscriptionRow
+                  key={sub.id}
+                  subscription={sub}
+                  onDecisionChange={changeDecision}
+                  onEdit={(id) => navigate(`/edit/${id}`)}
+                />
+              ))}
             </div>
-            {subscriptions.map((sub) => (
-              <SubscriptionRow
-                key={sub.id}
-                subscription={sub}
-                onDecisionChange={changeDecision}
-                onEdit={(id) => navigate(`/edit/${id}`)}
-              />
-            ))}
-          </div>
+          )}
+          {isFiltered && visible.length > 0 && (
+            <p className={styles.filterNote}>
+              Showing {visible.length} of {subscriptions.length}.{' '}
+              <button type="button" className={styles.linkButton} onClick={clear}>
+                Clear search and filters
+              </button>
+            </p>
+          )}
         </>
       )}
     </div>

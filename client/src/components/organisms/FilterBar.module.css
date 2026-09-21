@@ -1,0 +1,69 @@
+/* Phone (the default): pills on one line that scrolls sideways inside itself
+   (never the whole page), and sort on its own line below. */
+.bar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.pills {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  /* Room for the focus ring, which overflow would otherwise clip. */
+  padding: calc(var(--space-1) / 2) 2px;
+  scrollbar-width: none;
+}
+
+.pills::-webkit-scrollbar {
+  display: none;
+}
+
+/* The number on each pill, a little quieter than the label. */
+.count {
+  margin-left: calc(var(--space-1) / 2);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.sortLabel {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.select {
+  height: var(--space-4);
+  padding: 0 var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+/* 640px and up: one row, pills left and sort right, as in the wireframe. */
+@media (min-width: 640px) {
+  .bar {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .pills {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .sort {
+    flex: none;
+  }
+}
