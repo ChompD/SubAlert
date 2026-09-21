@@ -4,14 +4,24 @@ import { createSubscription, deleteSubscription, getSubscription, updateSubscrip
 import Button from '../components/atoms/Button.jsx'
 import DecisionToggle, { THREE_OPTIONS } from '../components/molecules/DecisionToggle.jsx'
 import FormField from '../components/molecules/FormField.jsx'
+import IconPicker from '../components/molecules/IconPicker.jsx'
 import SelectField from '../components/molecules/SelectField.jsx'
 import { friendlyError } from '../utils/errors.js'
+import { DEFAULT_COLOR, DEFAULT_ICON } from '../utils/icons.js'
 import { CURRENCIES, DEFAULT_CURRENCY } from '../utils/money.js'
 import { validateSubscription } from '../utils/validation.js'
 import formStyles from './AuthForm.module.css'
 import styles from './SubscriptionFormPage.module.css'
 
-const EMPTY = { name: '', trialEndDate: '', price: '', currency: DEFAULT_CURRENCY, status: 'undecided' }
+const EMPTY = {
+  name: '',
+  trialEndDate: '',
+  price: '',
+  currency: DEFAULT_CURRENCY,
+  icon: DEFAULT_ICON,
+  color: DEFAULT_COLOR,
+  status: 'undecided',
+}
 
 const CURRENCY_OPTIONS = CURRENCIES.map(({ code, label }) => ({ value: code, label }))
 
@@ -79,6 +89,8 @@ export default function SubscriptionFormPage() {
       trialEndDate: form.trialEndDate,
       price: Number(form.price),
       currency: form.currency,
+      icon: form.icon,
+      color: form.color,
       status: form.status,
     }
 
@@ -136,6 +148,13 @@ export default function SubscriptionFormPage() {
             value={form.name}
             onChange={handleChange}
             error={errors.name}
+          />
+
+          <IconPicker
+            name={form.name.trim()}
+            icon={form.icon}
+            color={form.color}
+            onChange={(changes) => setForm({ ...form, ...changes })}
           />
 
           <FormField

@@ -10,6 +10,7 @@
 
 import { getToken } from './token.js'
 import { CURRENCY_CODES, LEGACY_CURRENCY } from '../utils/money.js'
+import { COLOR_KEYS, DEFAULT_COLOR, DEFAULT_ICON, ICON_KEYS } from '../utils/icons.js'
 
 // A real network is not instant. Keeping this delay is what forces you to build
 // a loading state now, while it is cheap, instead of discovering you need one
@@ -111,18 +112,28 @@ function cleanSubscription(input) {
   // Rows saved before currencies existed have none, and were all in dollars.
   const currency = input.currency ?? LEGACY_CURRENCY
   const status = STATUSES.includes(input.status) ? input.status : 'undecided'
+  // Rows saved before icons existed get the plain letter look.
+  const icon = input.icon ?? DEFAULT_ICON
+  const color = input.color ?? DEFAULT_COLOR
 
   if (!name || name.length > 80) fail(400, 'Enter a service name of 80 characters or fewer')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(trialEndDate)) fail(400, 'Enter the trial end date')
   if (!Number.isFinite(price) || price < 0 || price > 9999999) fail(400, 'Enter a price from 0 to 9,999,999')
   if (!CURRENCY_CODES.includes(currency)) fail(400, 'Pick a currency from the list')
+  if (!ICON_KEYS.includes(icon)) fail(400, 'Pick an icon from the list')
+  if (!COLOR_KEYS.includes(color)) fail(400, 'Pick a colour from the list')
 
-  return { name, trialEndDate, price: Math.round(price * 100) / 100, currency, status }
+  return { name, trialEndDate, price: Math.round(price * 100) / 100, currency, icon, color, status }
 }
 
 // Only what the page needs: the owner's id stays inside the "database".
-// Older rows get their currency filled in on the way out.
-const publicSubscription = ({ userId, ...row }) => ({ currency: LEGACY_CURRENCY, ...row })
+// Older rows get a currency, icon and colour filled in on the way out.
+const publicSubscription = ({ userId, ...row }) => ({
+  currency: LEGACY_CURRENCY,
+  icon: DEFAULT_ICON,
+  color: DEFAULT_COLOR,
+  ...row,
+})
 
 export async function listSubscriptions() {
   await delay()

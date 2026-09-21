@@ -1,0 +1,103 @@
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* How the subscription will look in the list. */
+.preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.previewName {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.legend {
+  margin-bottom: var(--space-1);
+  padding: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+/* Phone: 6 across. Desktop: 9 across, so 17 icons fit in two rows. */
+.icons {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+
+.colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.option {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* The real radio button: invisible, but still there for keyboards and
+   screen readers. */
+.radio {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.face {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--space-1) / 4);
+  border: 2px solid transparent;
+  border-radius: 50%;
+}
+
+.swatch {
+  width: var(--control-height);
+  height: var(--control-height);
+  border-width: 1px;
+}
+
+/* Chosen: a ring in the primary colour. */
+.radio:checked + .face {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.radio:checked + .swatch {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Keyboard focus lands on the hidden radio, so draw the ring on its picture. */
+.radio:focus-visible + .face {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (min-width: 640px) {
+  .icons {
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+  }
+}

@@ -16,6 +16,16 @@
   --color-border: #8A949E;      /* input and button outlines */
   --color-divider: #E3E7EA;     /* card edges, row lines */
 
+  /* Service icon colours: a soft tint behind a dark icon of the same hue.
+     The icon is decorative (the name is always next to it), but the dark
+     shade still clears 4.5:1 on its tint for the letter version. */
+  --icon-blue-bg: #E0ECF8;    --icon-blue-fg: #1F5585;
+  --icon-green-bg: #E3F0E9;   --icon-green-fg: #2C5C4A;
+  --icon-orange-bg: #FBEBDD;  --icon-orange-fg: #8A3E0E;
+  --icon-red-bg: #FBE6E6;     --icon-red-fg: #8E2F35;
+  --icon-purple-bg: #ECE7F8;  --icon-purple-fg: #4B3690;
+  --icon-gray-bg: #EDEFF1;    --icon-gray-fg: #3F4852;
+
   /* Type */
   --font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-size-lg: 24px;         /* headings */

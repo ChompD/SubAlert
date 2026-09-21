@@ -1,4 +1,4 @@
-import Avatar from '../atoms/Avatar.jsx'
+import ServiceIcon from '../atoms/ServiceIcon.jsx'
 import Badge from '../atoms/Badge.jsx'
 import DecisionToggle from './DecisionToggle.jsx'
 import { daysUntil, describeDaysLeft, urgencyLevel } from '../../utils/dates.js'
@@ -13,13 +13,13 @@ const BADGE_TEXT = { urgent: 'Urgent', soon: 'Soon' }
 // Days left and urgency are CALCULATED from the end date on every render, not
 // stored, so they are never out of date.
 export default function SubscriptionRow({ subscription, onDecisionChange, onEdit }) {
-  const { id, name, price, currency, trialEndDate, status } = subscription
+  const { id, name, price, currency, icon, color, trialEndDate, status } = subscription
   const days = daysUntil(trialEndDate)
   const level = urgencyLevel(days)
 
   return (
     <article className={`${styles.row} ${styles[level]}`} aria-label={name}>
-      <Avatar name={name} variant="neutral" />
+      <ServiceIcon name={name} icon={icon} color={color} />
 
       <div className={styles.service}>
         <h3 className={styles.name}>
