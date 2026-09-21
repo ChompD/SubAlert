@@ -4,12 +4,16 @@ import { createSubscription, deleteSubscription, getSubscription, updateSubscrip
 import Button from '../components/atoms/Button.jsx'
 import DecisionToggle, { THREE_OPTIONS } from '../components/molecules/DecisionToggle.jsx'
 import FormField from '../components/molecules/FormField.jsx'
+import SelectField from '../components/molecules/SelectField.jsx'
 import { friendlyError } from '../utils/errors.js'
+import { CURRENCIES, DEFAULT_CURRENCY } from '../utils/money.js'
 import { validateSubscription } from '../utils/validation.js'
 import formStyles from './AuthForm.module.css'
 import styles from './SubscriptionFormPage.module.css'
 
-const EMPTY = { name: '', trialEndDate: '', price: '', status: 'undecided' }
+const EMPTY = { name: '', trialEndDate: '', price: '', currency: DEFAULT_CURRENCY, status: 'undecided' }
+
+const CURRENCY_OPTIONS = CURRENCIES.map(({ code, label }) => ({ value: code, label }))
 
 // One page for two routes: /add starts blank, /edit/:id loads the existing
 // subscription first. Building it once means the two screens cannot drift
@@ -74,6 +78,7 @@ export default function SubscriptionFormPage() {
       name: form.name.trim(),
       trialEndDate: form.trialEndDate,
       price: Number(form.price),
+      currency: form.currency,
       status: form.status,
     }
 
@@ -143,20 +148,33 @@ export default function SubscriptionFormPage() {
             error={errors.trialEndDate}
           />
 
-          {/* inputMode="decimal" brings up the number keypad on phones. */}
-          <FormField
-            id="sub-price"
-            name="price"
-            label="Renewal price ($ per month)"
-            type="number"
-            inputMode="decimal"
-            min="0"
-            step="0.01"
-            placeholder="0.00"
-            value={form.price}
-            onChange={handleChange}
-            error={errors.price}
-          />
+          {/* Currency and amount share a row: [PHP ▾] [ 549.00 ]. */}
+          <div className={styles.priceRow}>
+            <SelectField
+              id="sub-currency"
+              name="currency"
+              label="Currency"
+              options={CURRENCY_OPTIONS}
+              value={form.currency}
+              onChange={handleChange}
+              error={errors.currency}
+            />
+
+            {/* inputMode="decimal" brings up the number keypad on phones. */}
+            <FormField
+              id="sub-price"
+              name="price"
+              label="Renewal price (per month)"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              value={form.price}
+              onChange={handleChange}
+              error={errors.price}
+            />
+          </div>
 
           <div className={styles.decision}>
             {/* Visual label only: the toggle's own aria-label names the group. */}

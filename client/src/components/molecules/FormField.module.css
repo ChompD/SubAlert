@@ -23,6 +23,12 @@
   color: var(--color-text-muted);
 }
 
+/* Room on the right for the browser's drop-down arrow. */
+.select {
+  padding-right: var(--space-4);
+  cursor: pointer;
+}
+
 .invalid {
   border: 2px solid var(--color-accent);
 }

@@ -9,6 +9,7 @@
 // project. See content/extending-your-app page 3.
 
 import { getToken } from './token.js'
+import { CURRENCY_CODES, LEGACY_CURRENCY } from '../utils/money.js'
 
 // A real network is not instant. Keeping this delay is what forces you to build
 // a loading state now, while it is cheap, instead of discovering you need one
@@ -107,17 +108,21 @@ function cleanSubscription(input) {
   const name = input.name?.trim() ?? ''
   const trialEndDate = input.trialEndDate ?? ''
   const price = Number(input.price)
+  // Rows saved before currencies existed have none, and were all in dollars.
+  const currency = input.currency ?? LEGACY_CURRENCY
   const status = STATUSES.includes(input.status) ? input.status : 'undecided'
 
   if (!name || name.length > 80) fail(400, 'Enter a service name of 80 characters or fewer')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(trialEndDate)) fail(400, 'Enter the trial end date')
-  if (!Number.isFinite(price) || price < 0 || price > 99999) fail(400, 'Enter a price from 0 to 99,999')
+  if (!Number.isFinite(price) || price < 0 || price > 9999999) fail(400, 'Enter a price from 0 to 9,999,999')
+  if (!CURRENCY_CODES.includes(currency)) fail(400, 'Pick a currency from the list')
 
-  return { name, trialEndDate, price: Math.round(price * 100) / 100, status }
+  return { name, trialEndDate, price: Math.round(price * 100) / 100, currency, status }
 }
 
 // Only what the page needs: the owner's id stays inside the "database".
-const publicSubscription = ({ userId, ...row }) => row
+// Older rows get their currency filled in on the way out.
+const publicSubscription = ({ userId, ...row }) => ({ currency: LEGACY_CURRENCY, ...row })
 
 export async function listSubscriptions() {
   await delay()

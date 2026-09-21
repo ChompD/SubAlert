@@ -6,7 +6,7 @@ import SubscriptionRow from '../components/molecules/SubscriptionRow.jsx'
 import SummaryCard from '../components/molecules/SummaryCard.jsx'
 import { daysUntil } from '../utils/dates.js'
 import { friendlyError } from '../utils/errors.js'
-import { formatPrice } from '../utils/money.js'
+import { formatTotals } from '../utils/money.js'
 import styles from './DashboardPage.module.css'
 
 // The Dashboard (/): summary numbers, then every subscription sorted by the
@@ -48,9 +48,9 @@ export default function DashboardPage() {
   // disagree with it.
   const active = subscriptions.filter((sub) => daysUntil(sub.trialEndDate) >= 0)
   const endingSoon = active.filter((sub) => daysUntil(sub.trialEndDate) <= 2).length
-  const saved = subscriptions
-    .filter((sub) => sub.status === 'cancel')
-    .reduce((total, sub) => total + Number(sub.price), 0)
+  // Added up per currency: pesos and dollars can't be summed without an
+  // exchange rate, so mixed currencies show as "₱549.00 + $15.99".
+  const saved = formatTotals(subscriptions.filter((sub) => sub.status === 'cancel'))
 
   return (
     <div className={styles.page}>
@@ -89,7 +89,7 @@ export default function DashboardPage() {
           <div className={styles.summary}>
             <SummaryCard label="Ending in 48h" value={endingSoon} />
             <SummaryCard label="Active trials" value={active.length} />
-            <SummaryCard label="Saved by cancelling" value={`${formatPrice(saved)}/mo`} />
+            <SummaryCard label="Saved by cancelling" value={`${saved}/mo`} />
           </div>
 
           <div className={styles.list}>

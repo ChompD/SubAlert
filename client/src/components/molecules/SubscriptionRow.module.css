@@ -88,7 +88,7 @@
      [avatar] [name + badge] [ends] [price] [Keep|Cancel] [...]   */
 @media (min-width: 640px) {
   .row {
-    grid-template-columns: 32px minmax(0, 1.6fr) minmax(0, 1fr) 80px 180px var(--control-height);
+    grid-template-columns: 32px minmax(0, 1.6fr) minmax(0, 1fr) 96px 180px var(--control-height);
     grid-template-areas: 'avatar service ends price decision menu';
     padding: var(--space-1) var(--space-2);
     border-radius: 0;

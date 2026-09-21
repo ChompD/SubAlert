@@ -1,3 +1,5 @@
+import { CURRENCY_CODES } from './money.js'
+
 // Checks the forms run before sending anything. They make mistakes quick to
 // fix, but they are for convenience only: the server checks everything again,
 // because anyone can skip the browser and send a request directly.
@@ -30,9 +32,10 @@ export function validateLogin({ email, password }) {
   return errors
 }
 
-export const PRICE_MAX = 99999
+// High enough for currencies with big numbers, like KRW and JPY.
+export const PRICE_MAX = 9999999
 
-export function validateSubscription({ name, trialEndDate, price }) {
+export function validateSubscription({ name, trialEndDate, price, currency }) {
   const errors = {}
 
   if (!name.trim()) errors.name = 'Enter the service name'
@@ -45,6 +48,8 @@ export function validateSubscription({ name, trialEndDate, price }) {
   if (price === '') errors.price = 'Enter the renewal price, or 0 if it is free'
   else if (!Number.isFinite(amount) || amount < 0) errors.price = 'Enter a price of 0 or more'
   else if (amount > PRICE_MAX) errors.price = `Enter a price under ${PRICE_MAX.toLocaleString()}`
+
+  if (!CURRENCY_CODES.includes(currency)) errors.currency = 'Pick a currency from the list'
 
   return errors
 }

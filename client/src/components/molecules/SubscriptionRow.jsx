@@ -13,7 +13,7 @@ const BADGE_TEXT = { urgent: 'Urgent', soon: 'Soon' }
 // Days left and urgency are CALCULATED from the end date on every render, not
 // stored, so they are never out of date.
 export default function SubscriptionRow({ subscription, onDecisionChange, onEdit }) {
-  const { id, name, price, trialEndDate, status } = subscription
+  const { id, name, price, currency, trialEndDate, status } = subscription
   const days = daysUntil(trialEndDate)
   const level = urgencyLevel(days)
 
@@ -26,7 +26,7 @@ export default function SubscriptionRow({ subscription, onDecisionChange, onEdit
           {name}
           {BADGE_TEXT[level] && <Badge level={level}>{BADGE_TEXT[level]}</Badge>}
         </h3>
-        <p className={styles.pricePhone}>{formatPrice(price)}/mo</p>
+        <p className={styles.pricePhone}>{formatPrice(price, currency)}/mo</p>
       </div>
 
       <p className={styles.ends}>
@@ -34,7 +34,7 @@ export default function SubscriptionRow({ subscription, onDecisionChange, onEdit
         <time dateTime={trialEndDate}>{describeDaysLeft(days)}</time>
       </p>
 
-      <p className={styles.priceDesktop}>{formatPrice(price)}</p>
+      <p className={styles.priceDesktop}>{formatPrice(price, currency)}</p>
 
       <div className={styles.decision}>
         <DecisionToggle

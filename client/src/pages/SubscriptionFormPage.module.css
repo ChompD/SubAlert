@@ -21,6 +21,15 @@
   color: var(--color-text-muted);
 }
 
+/* Currency and price side by side, each taking half. They line up at the top,
+   so an error under one field doesn't push the other out of line. */
+.priceRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-2);
+}
+
 .decision {
   display: flex;
   flex-direction: column;
