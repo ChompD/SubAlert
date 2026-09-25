@@ -3,6 +3,7 @@ import DemoNotice from './components/DemoNotice.jsx'
 import GuestRoute from './components/routing/GuestRoute.jsx'
 import ProtectedRoute from './components/routing/ProtectedRoute.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 import AppLayout from './layouts/AppLayout.jsx'
 import AuthLayout from './layouts/AuthLayout.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
@@ -20,34 +21,36 @@ import SubscriptionFormPage from './pages/SubscriptionFormPage.jsx'
 export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <AuthProvider>
-        <DemoNotice />
-        <Routes>
-          {/* Logged in only. Anyone else is sent to /login. */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/add" element={<SubscriptionFormPage />} />
-              <Route path="/edit/:id" element={<SubscriptionFormPage />} />
+      <ThemeProvider>
+        <AuthProvider>
+          <DemoNotice />
+          <Routes>
+            {/* Logged in only. Anyone else is sent to /login. */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/add" element={<SubscriptionFormPage />} />
+                <Route path="/edit/:id" element={<SubscriptionFormPage />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Logged out only. Anyone logged in is sent to the Dashboard. */}
-          <Route element={<GuestRoute />}>
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+            {/* Logged out only. Anyone logged in is sent to the Dashboard. */}
+            <Route element={<GuestRoute />}>
+              <Route element={<AuthLayout />}>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+              </Route>
             </Route>
-          </Route>
 
-          {/* Every design-system component on one page. Development only:
-              import.meta.env.DEV is false in the build GitHub Pages serves. */}
-          {import.meta.env.DEV && <Route path="/styleguide" element={<StyleguidePage />} />}
+            {/* Every design-system component on one page. Development only:
+                import.meta.env.DEV is false in the build GitHub Pages serves. */}
+            {import.meta.env.DEV && <Route path="/styleguide" element={<StyleguidePage />} />}
 
-          {/* Any other URL, for example a mistyped one, goes home. */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthProvider>
+            {/* Any other URL, for example a mistyped one, goes home. */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   )
 }

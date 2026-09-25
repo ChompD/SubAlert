@@ -32,7 +32,7 @@
   border: 1px solid var(--color-divider);
   border-radius: var(--radius);
   background: var(--color-surface);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+  box-shadow: var(--shadow-menu);
 }
 
 .email {
@@ -46,6 +46,52 @@
 .email strong {
   color: var(--color-text);
   font-weight: 500;
+}
+
+/* The light/dark choice: three buttons in one row, like the decision toggle. */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space-1) / 2);
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.sectionLabel {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.themes {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.theme {
+  flex: 1;
+  padding: calc(var(--space-1) / 2) 0;
+  border: 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.theme + .theme {
+  border-left: 1px solid var(--color-border);
+}
+
+.themeOn {
+  background: var(--color-primary);
+  color: var(--color-surface);
+  font-weight: 600;
+}
+
+/* The ring would be clipped by overflow: hidden, so it is drawn inside. */
+.theme:focus-visible {
+  outline-offset: -3px;
 }
 
 .item {

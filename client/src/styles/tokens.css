@@ -4,6 +4,8 @@
    so changing one line here restyles the whole app. */
 
 :root {
+  color-scheme: light;
+
   /* Colour */
   --color-primary: #0E6E5C;     /* buttons, links, selected states, focus */
   --color-accent: #C2410C;      /* trials about to charge you, and errors */
@@ -40,7 +42,45 @@
   --space-4: 32px;
   --radius: 8px;
 
+  /* Shadow under menus and pop-ups */
+  --shadow-menu: 0 8px 24px rgb(0 0 0 / 0.08);
+
   /* Sizes */
   --control-height: 40px;       /* buttons and inputs: 5 x 8, easy to tap */
   --content-max: 1120px;        /* widest the page content gets on desktop */
+}
+
+/* Dark mode. Only the colours change: sizes, spacing and type are the same.
+   `data-theme` is set on <html> by src/context/ThemeContext.jsx, which also
+   resolves "system" to light or dark, so this file needs one block rather
+   than one for the setting and another for the media query.
+
+   Two things make this work with no component changes:
+   - primary and accent are LIGHTER here, and the components that put text on
+     them already use `color: var(--color-surface)`, which is dark here. So a
+     teal button becomes light teal with dark text, which reads correctly.
+   - every pair was checked: the lowest is 3.7:1 for input outlines (needs 3)
+     and 6.8:1 for text (needs 4.5). */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-primary: #4FB79C;
+  --color-accent: #FF8F63;
+  --color-bg: #12161B;
+  --color-surface: #1A1F26;
+  --color-text: #E8EDF2;
+
+  --color-text-muted: #A7B2BE;
+  --color-border: #6C7986;
+  --color-divider: #2A323B;
+
+  --icon-blue-bg: #1B2A3A;    --icon-blue-fg: #9CC7F0;
+  --icon-green-bg: #172C24;   --icon-green-fg: #8FD3B4;
+  --icon-orange-bg: #33210F;  --icon-orange-fg: #F2B183;
+  --icon-red-bg: #331B1E;     --icon-red-fg: #F2A0A5;
+  --icon-purple-bg: #251F3B;  --icon-purple-fg: #BFB0F0;
+  --icon-gray-bg: #232A32;    --icon-gray-fg: #C2CCD6;
+
+  /* A soft shadow disappears on a dark background, so it is deepened. */
+  --shadow-menu: 0 8px 24px rgb(0 0 0 / 0.5);
 }

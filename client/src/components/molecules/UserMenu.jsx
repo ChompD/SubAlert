@@ -1,15 +1,23 @@
 import { useCallback, useRef, useState } from 'react'
 import Avatar from '../atoms/Avatar.jsx'
 import useDismiss from '../../hooks/useDismiss.js'
+import { useTheme } from '../../context/ThemeContext.jsx'
 import styles from './UserMenu.module.css'
 
-// The avatar (and, on desktop, the name) in the header. Opens a small menu with
-// the signed-in email and "Log out".
+const THEMES = [
+  { key: 'system', label: 'System' },
+  { key: 'light', label: 'Light' },
+  { key: 'dark', label: 'Dark' },
+]
+
+// The avatar (and, on desktop, the name) in the header. Opens a small menu
+// with the signed-in email, the light/dark choice, and "Log out".
 export default function UserMenu({ user, onLogout }) {
   const [open, setOpen] = useState(false)
   const wrapper = useRef(null)
   const close = useCallback(() => setOpen(false), [])
   useDismiss(wrapper, open, close)
+  const { preference, setPreference } = useTheme()
 
   return (
     <div className={styles.wrapper} ref={wrapper}>
@@ -31,6 +39,25 @@ export default function UserMenu({ user, onLogout }) {
           <p className={styles.email}>
             Signed in as <strong>{user.email}</strong>
           </p>
+
+          {/* "System" follows the phone or laptop's own light/dark setting. */}
+          <div className={styles.section} role="group" aria-label="Appearance">
+            <span className={styles.sectionLabel}>Appearance</span>
+            <div className={styles.themes}>
+              {THEMES.map((option) => (
+                <button
+                  key={option.key}
+                  type="button"
+                  className={`${styles.theme} ${preference === option.key ? styles.themeOn : ''}`}
+                  aria-pressed={preference === option.key}
+                  onClick={() => setPreference(option.key)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <button type="button" className={styles.item} onClick={onLogout}>
             Log out
           </button>
