@@ -4,6 +4,7 @@ import Badge from '../atoms/Badge.jsx'
 import Button from '../atoms/Button.jsx'
 import ServiceIcon from '../atoms/ServiceIcon.jsx'
 import { daysUntil, describeDaysLeft, formatLongDate, urgencyLevel } from '../../utils/dates.js'
+import { effectiveDate, isRenewal } from '../../utils/schedule.js'
 import { FREQUENCIES, formatPrice, monthlyAmount, perFrequency } from '../../utils/money.js'
 import styles from './SubscriptionDetails.module.css'
 
@@ -35,7 +36,10 @@ export default function SubscriptionDetails({ subscription, onClose, onEdit }) {
   if (!subscription) return <dialog ref={dialog} className={styles.dialog} onClose={onClose} />
 
   const { id, name, icon, color, price, currency, frequency, endDate, status, note } = subscription
-  const days = daysUntil(endDate)
+  // Kept subscriptions show their next charge date, not the one that passed.
+  const date = effectiveDate(subscription)
+  const renewed = isRenewal(subscription)
+  const days = daysUntil(date)
   const level = urgencyLevel(days)
   const frequencyLabel = FREQUENCIES.find((f) => f.key === frequency)?.label ?? 'Monthly'
 
@@ -67,12 +71,18 @@ export default function SubscriptionDetails({ subscription, onClose, onEdit }) {
 
         <dl className={styles.facts}>
           <div>
-            <dt>Ends</dt>
+            <dt>{renewed ? 'Next charge' : 'Ends'}</dt>
             <dd>
-              {formatLongDate(endDate)}
+              {formatLongDate(date)}
               <span className={styles.muted}> · {describeDaysLeft(days)}</span>
             </dd>
           </div>
+          {renewed && (
+            <div>
+              <dt>Started as</dt>
+              <dd className={styles.muted}>{formatLongDate(endDate)}</dd>
+            </div>
+          )}
           <div>
             <dt>Billed</dt>
             <dd>{frequencyLabel}</dd>

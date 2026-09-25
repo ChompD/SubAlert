@@ -98,6 +98,21 @@
   font-size: var(--font-size-sm);
 }
 
+/* Finished: still readable, but clearly no longer live. */
+.ended .icon,
+.ended .priceColumn,
+.ended .meta {
+  opacity: 0.75;
+}
+
+/* "Did you cancel this?" under a row nobody ever decided on. */
+.prompt {
+  margin-top: calc(var(--space-1) / 2);
+  color: var(--color-accent);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
 .urgent .ends {
   color: var(--color-accent);
   font-weight: 600;

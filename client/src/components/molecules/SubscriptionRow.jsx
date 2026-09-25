@@ -2,6 +2,7 @@ import Badge from '../atoms/Badge.jsx'
 import ServiceIcon from '../atoms/ServiceIcon.jsx'
 import DecisionToggle from './DecisionToggle.jsx'
 import { daysUntil, describeDaysLeft, urgencyLevel } from '../../utils/dates.js'
+import { effectiveDate, hasEnded, isRenewal } from '../../utils/schedule.js'
 import { formatPrice, perFrequency } from '../../utils/money.js'
 import styles from './SubscriptionRow.module.css'
 
@@ -24,16 +25,25 @@ const BADGE_TEXT = { urgent: 'Urgent', soon: 'Soon' }
 // keyboard and screen-reader users can open it too; a tap anywhere else on
 // the card does the same, unless it landed on the toggle or the ··· button.
 export default function SubscriptionRow({ subscription, onDecisionChange, onEdit, onOpen }) {
-  const { id, name, price, currency, frequency, icon, color, endDate, status } = subscription
-  const days = daysUntil(endDate)
+  const { id, name, price, currency, frequency, icon, color, status } = subscription
+  // Kept subscriptions renew: the date shown rolls forward by the billing
+  // cycle instead of saying "Ended". See utils/schedule.js.
+  const date = effectiveDate(subscription)
+  const days = daysUntil(date)
+  const renewed = isRenewal(subscription)
+  const ended = hasEnded(subscription)
   const amount = `${formatPrice(price, currency)}${perFrequency(frequency)}`
   const level = urgencyLevel(days)
   const badge = BADGE_TEXT[level] && <Badge level={level}>{BADGE_TEXT[level]}</Badge>
-  const daysLeft = <time dateTime={endDate}>{describeDaysLeft(days)}</time>
+  const daysLeft = (
+    <time dateTime={date}>
+      {renewed ? `Renews ${describeDaysLeft(days).toLowerCase()}` : describeDaysLeft(days)}
+    </time>
+  )
 
   return (
     <article
-      className={`${styles.row} ${styles[level]} ${onOpen ? styles.clickable : ''}`}
+      className={`${styles.row} ${styles[level]} ${ended ? styles.ended : ''} ${onOpen ? styles.clickable : ''}`}
       aria-label={name}
       onClick={(event) => {
         if (onOpen && !event.target.closest('button, a, input, select, textarea')) onOpen(id)
@@ -61,15 +71,20 @@ export default function SubscriptionRow({ subscription, onDecisionChange, onEdit
           <span>{amount}</span>
           <span aria-hidden="true">·</span>
           <span className={styles.ends}>
-            <span className="sr-only">Ends: </span>
+            <span className="sr-only">{renewed ? 'Next charge: ' : 'Ends: '}</span>
             {daysLeft}
           </span>
         </p>
+
+        {/* It is past its date and no decision was ever made. */}
+        {status === 'undecided' && ended && (
+          <p className={styles.prompt}>Did you cancel this?</p>
+        )}
       </div>
 
       {/* Desktop: its own columns, lined up with the list's headings. */}
       <p className={styles.endsColumn}>
-        <span className="sr-only">Ends: </span>
+        <span className="sr-only">{renewed ? 'Next charge: ' : 'Ends: '}</span>
         {daysLeft}
       </p>
       <p className={styles.priceColumn}>{amount}</p>

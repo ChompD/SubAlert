@@ -1,20 +1,22 @@
 import { daysUntil } from './dates.js'
 import { monthlyAmount } from './money.js'
+import { effectiveDate, hasEnded } from './schedule.js'
 
 // Search, filter and sort for the Dashboard list. Plain functions with no
 // React in them, so they are easy to test on their own.
 
 export const FILTERS = [
   { key: 'all', label: 'All' },
-  { key: 'soon', label: 'Ending soon' },
+  { key: 'soon', label: 'Due soon' },
   { key: 'keep', label: 'Keep' },
   { key: 'cancel', label: 'Cancel' },
   { key: 'undecided', label: 'Undecided' },
+  { key: 'ended', label: 'Ended' },
 ]
 
 export const SORTS = [
-  { key: 'endDate', label: 'End date (soonest)' },
-  { key: 'endDateDesc', label: 'End date (latest)' },
+  { key: 'endDate', label: 'Date (soonest)' },
+  { key: 'endDateDesc', label: 'Date (latest)' },
   { key: 'name', label: 'Name (A to Z)' },
   { key: 'price', label: 'Price (highest)' },
 ]
@@ -22,22 +24,25 @@ export const SORTS = [
 export const DEFAULT_FILTER = 'all'
 export const DEFAULT_SORT = 'endDate'
 
-// "Ending soon" means the same as the Urgent and Soon badges: ends today or
-// within the next 7 days. Subscriptions that already ended don't count.
-function isEndingSoon(subscription) {
-  const days = daysUntil(subscription.endDate)
+// "Due soon" means the same as the Urgent and Soon badges: charges today or
+// within the next 7 days. A kept subscription uses its next charge date, so a
+// renewal counts; a finished one does not.
+function isDueSoon(subscription) {
+  const days = daysUntil(effectiveDate(subscription))
   return days >= 0 && days <= 7
 }
 
 function matchesFilter(subscription, filter) {
-  if (filter === 'soon') return isEndingSoon(subscription)
+  if (filter === 'soon') return isDueSoon(subscription)
+  if (filter === 'ended') return hasEnded(subscription)
   if (filter === 'keep' || filter === 'cancel' || filter === 'undecided') {
     return subscription.status === filter
   }
   return true
 }
 
-const byEndDate = (a, b) => a.endDate.localeCompare(b.endDate)
+// Sorted by the date actually shown, so a renewal sits by its next charge.
+const byEndDate = (a, b) => effectiveDate(a).localeCompare(effectiveDate(b))
 
 const COMPARATORS = {
   endDate: byEndDate,

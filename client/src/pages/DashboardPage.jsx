@@ -8,6 +8,7 @@ import FilterBar from '../components/organisms/FilterBar.jsx'
 import SubscriptionDetails from '../components/organisms/SubscriptionDetails.jsx'
 import useDashboardFilters from '../hooks/useDashboardFilters.js'
 import { daysUntil } from '../utils/dates.js'
+import { effectiveDate, hasEnded } from '../utils/schedule.js'
 import { friendlyError } from '../utils/errors.js'
 import { formatMonthlyTotals } from '../utils/money.js'
 import { applyFilters, countByFilter, FILTERS } from '../utils/subscriptionFilters.js'
@@ -53,8 +54,10 @@ export default function DashboardPage() {
 
   // Worked out from the list on every render, never stored, so they can't
   // disagree with it.
-  const active = subscriptions.filter((sub) => daysUntil(sub.endDate) >= 0)
-  const endingSoon = active.filter((sub) => daysUntil(sub.endDate) <= 2).length
+  // Active means "still going": anything kept (it renews) and anything whose
+  // date has not passed yet. Finished ones drop out of both numbers.
+  const active = subscriptions.filter((sub) => !hasEnded(sub))
+  const dueSoon = active.filter((sub) => daysUntil(effectiveDate(sub)) <= 2).length
   // Per month and per currency: a yearly plan counts as a twelfth of its
   // price, and mixed currencies show as "₱549.00 + $15.99".
   const saved = formatMonthlyTotals(subscriptions.filter((sub) => sub.status === 'cancel'))
@@ -99,7 +102,7 @@ export default function DashboardPage() {
           )}
 
           <div className={styles.summary}>
-            <SummaryCard label="Ending in 48h" value={endingSoon} />
+            <SummaryCard label="Due in 48h" value={dueSoon} />
             <SummaryCard label="Active" value={active.length} />
             <SummaryCard label="Saved by cancelling" value={`${saved}/mo`} />
           </div>
@@ -135,7 +138,7 @@ export default function DashboardPage() {
               <div className={styles.headings} aria-hidden="true">
                 <span />
                 <span>Service</span>
-                <span>Ends</span>
+                <span>Ends / renews</span>
                 <span>Price</span>
                 <span>Decision</span>
               </div>
