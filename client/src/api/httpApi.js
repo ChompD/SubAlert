@@ -50,6 +50,16 @@ export const login = (input) =>
 
 export const getMe = () => request('/api/auth/me')
 
+// Account settings.
+export const updateProfile = (input) =>
+  request('/api/auth/me', { method: 'PATCH', body: JSON.stringify(input) })
+
+export const changePassword = (input) =>
+  request('/api/auth/password', { method: 'POST', body: JSON.stringify(input) })
+
+export const deleteAccount = (input) =>
+  request('/api/auth/me', { method: 'DELETE', body: JSON.stringify(input) })
+
 // Subscriptions, always the logged-in user's own.
 export const listSubscriptions = () => request('/api/subscriptions')
 

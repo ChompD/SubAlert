@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Avatar from '../atoms/Avatar.jsx'
 import useDismiss from '../../hooks/useDismiss.js'
 import { useTheme } from '../../context/ThemeContext.jsx'
@@ -57,6 +58,10 @@ export default function UserMenu({ user, onLogout }) {
               ))}
             </div>
           </div>
+
+          <Link to="/account" className={styles.item} onClick={close}>
+            Account settings
+          </Link>
 
           <button type="button" className={styles.item} onClick={onLogout}>
             Log out

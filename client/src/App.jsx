@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import AppLayout from './layouts/AppLayout.jsx'
 import AuthLayout from './layouts/AuthLayout.jsx'
+import AccountPage from './pages/AccountPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
@@ -31,6 +32,7 @@ export default function App() {
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/add" element={<SubscriptionFormPage />} />
                 <Route path="/edit/:id" element={<SubscriptionFormPage />} />
+              <Route path="/account" element={<AccountPage />} />
               </Route>
             </Route>
 

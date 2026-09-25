@@ -7,6 +7,7 @@ import FormField from '../components/molecules/FormField.jsx'
 import IconPicker from '../components/molecules/IconPicker.jsx'
 import SelectField from '../components/molecules/SelectField.jsx'
 import TextAreaField from '../components/molecules/TextAreaField.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import { friendlyError } from '../utils/errors.js'
 import { DEFAULT_COLOR, DEFAULT_ICON } from '../utils/icons.js'
 import { CURRENCIES, DEFAULT_CURRENCY, DEFAULT_FREQUENCY, FREQUENCIES } from '../utils/money.js'
@@ -33,11 +34,13 @@ const FREQUENCY_OPTIONS = FREQUENCIES.map(({ key, label }) => ({ value: key, lab
 // subscription first. Building it once means the two screens cannot drift
 // apart, which is the whole point of reusing a component.
 export default function SubscriptionFormPage() {
+  const { user } = useAuth()
   const { id } = useParams()
   const isEdit = Boolean(id)
   const navigate = useNavigate()
 
-  const [form, setForm] = useState(EMPTY)
+  // A new subscription starts in the currency chosen on the account page.
+  const [form, setForm] = useState(() => ({ ...EMPTY, currency: user.defaultCurrency ?? EMPTY.currency }))
   const [errors, setErrors] = useState({})
   const [formMessage, setFormMessage] = useState(null)
   const [saving, setSaving] = useState(false)

@@ -43,13 +43,19 @@ export function AuthProvider({ children }) {
     setUser(user)
   }
 
+  // Used by the account page after saving a new name or default currency,
+  // so the header and the forms show the change without a reload.
+  function updateUser(next) {
+    setUser(next)
+  }
+
   function logout() {
     clearToken()
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, status, login, register, logout }}>
+    <AuthContext.Provider value={{ user, status, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )

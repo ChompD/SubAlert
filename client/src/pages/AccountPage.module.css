@@ -1,0 +1,76 @@
+/* One column at every width, centred and kept narrow on desktop, like the
+   add and edit form. */
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-2) var(--space-4);
+}
+
+.back {
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+}
+
+.title {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.email {
+  margin-top: calc(var(--space-1) / 2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.email strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* Each job in its own card, so it is obvious which button saves what. */
+.card {
+  margin-top: var(--space-3);
+  padding: var(--space-2);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.heading {
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.success {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+/* The one card you cannot undo gets the accent edge. */
+.danger {
+  border-color: var(--color-accent);
+}
+
+.dangerText {
+  margin-bottom: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding: var(--space-4) var(--space-2);
+  }
+
+  .card {
+    padding: var(--space-3);
+  }
+}

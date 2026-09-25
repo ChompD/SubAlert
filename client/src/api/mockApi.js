@@ -9,7 +9,13 @@
 // project. See content/extending-your-app page 3.
 
 import { getToken } from './token.js'
-import { CURRENCY_CODES, DEFAULT_FREQUENCY, FREQUENCY_KEYS, LEGACY_CURRENCY } from '../utils/money.js'
+import {
+  CURRENCY_CODES,
+  DEFAULT_CURRENCY,
+  DEFAULT_FREQUENCY,
+  FREQUENCY_KEYS,
+  LEGACY_CURRENCY,
+} from '../utils/money.js'
 import { COLOR_KEYS, DEFAULT_COLOR, DEFAULT_ICON, ICON_KEYS } from '../utils/icons.js'
 
 // A real network is not instant. Keeping this delay is what forces you to build
@@ -46,7 +52,9 @@ async function hash(text) {
   return Array.from(new Uint8Array(bytes), (b) => b.toString(16).padStart(2, '0')).join('')
 }
 
-const publicUser = ({ passwordHash, ...user }) => user
+// The hash never leaves this file. Accounts made before the account page
+// existed get the default currency filled in on the way out.
+const publicUser = ({ passwordHash, ...user }) => ({ defaultCurrency: DEFAULT_CURRENCY, ...user })
 
 // The logged-in user's id, read from the token ("mock.<id>"), or a 401.
 function currentUserId() {
@@ -94,6 +102,56 @@ export async function getMe() {
   await delay()
   const id = currentUserId()
   return { user: publicUser(readList(USERS_KEY).find((row) => row.id === id)) }
+}
+
+// Change the name and the currency new subscriptions start with.
+export async function updateProfile({ name, defaultCurrency }) {
+  await delay()
+  const id = currentUserId()
+  const cleanName = name?.trim() ?? ''
+  const currency = defaultCurrency ?? DEFAULT_CURRENCY
+
+  if (!cleanName || cleanName.length > 80) fail(400, 'Enter a name of 80 characters or fewer')
+  if (!CURRENCY_CODES.includes(currency)) fail(400, 'Pick a currency from the list')
+
+  const rows = readList(USERS_KEY)
+  const index = rows.findIndex((row) => row.id === id)
+  rows[index] = { ...rows[index], name: cleanName, defaultCurrency: currency }
+  writeList(USERS_KEY, rows)
+  return { user: publicUser(rows[index]) }
+}
+
+// The current password is required, so someone who walks up to an unlocked
+// laptop cannot lock the owner out of their own account.
+export async function changePassword({ currentPassword, newPassword }) {
+  await delay()
+  const id = currentUserId()
+  const rows = readList(USERS_KEY)
+  const index = rows.findIndex((row) => row.id === id)
+
+  if (rows[index].passwordHash !== (await hash(currentPassword ?? ''))) {
+    fail(401, 'That is not your current password')
+  }
+  if ((newPassword ?? '').length < 8) fail(400, 'Use at least 8 characters')
+
+  rows[index] = { ...rows[index], passwordHash: await hash(newPassword) }
+  writeList(USERS_KEY, rows)
+  return null
+}
+
+// Deletes the account and everything in it. The subscriptions go too, which
+// the real database will do by itself with ON DELETE CASCADE.
+export async function deleteAccount({ password }) {
+  await delay()
+  const id = currentUserId()
+  const rows = readList(USERS_KEY)
+  const found = rows.find((row) => row.id === id)
+
+  if (found.passwordHash !== (await hash(password ?? ''))) fail(401, 'Wrong password')
+
+  writeList(USERS_KEY, rows.filter((row) => row.id !== id))
+  writeList(SUBSCRIPTIONS_KEY, readList(SUBSCRIPTIONS_KEY).filter((row) => row.userId !== id))
+  return null
 }
 
 // ---------------------------------------------------------------------------
