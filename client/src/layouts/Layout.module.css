@@ -15,15 +15,41 @@
   display: none;
 }
 
-/* Header search: desktop only. */
+/* Header search: desktop only. Phones get the magnifier below instead. */
 .headerSearch {
   display: none;
+}
+
+/* Phone: the magnifier in the header, and the row it opens underneath. */
+.searchToggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height);
+  height: var(--control-height);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.phoneSearchRow {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--color-divider);
+  background: var(--color-surface);
 }
 
 @media (min-width: 640px) {
   .headerSearch {
     display: flex;
     width: 220px;
+  }
+
+  .searchToggle,
+  .phoneSearchRow {
+    display: none;
   }
 
   .addShort {
