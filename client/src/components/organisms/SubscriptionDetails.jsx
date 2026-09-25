@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import Badge from '../atoms/Badge.jsx'
 import Button from '../atoms/Button.jsx'
@@ -18,14 +18,48 @@ const BADGE_TEXT = { urgent: 'Urgent', soon: 'Soon' }
 // free: focus moves into it and can't Tab out behind it, Escape closes it, the
 // page behind is dimmed and can't be clicked, and when it closes, focus goes
 // back to the button that opened it (the subscription's name).
+//
+// Closing is animated: a <dialog> vanishes the moment close() is called, so
+// instead it gets the `closing` class first, plays its way out, and only then
+// really closes. Until then it keeps showing the subscription it had, even
+// though the Dashboard has already let go of it.
 export default function SubscriptionDetails({ subscription, onClose, onEdit }) {
   const dialog = useRef(null)
+  const [closing, setClosing] = useState(false)
+  const last = useRef(subscription)
+  if (subscription) last.current = subscription
+  const shown = subscription ?? last.current
 
   useEffect(() => {
     const element = dialog.current
-    if (subscription && !element.open) element.showModal()
-    if (!subscription && element.open) element.close()
+    if (subscription) {
+      setClosing(false)
+      if (!element.open) element.showModal()
+      return undefined
+    }
+    if (!element.open) return undefined
+    setClosing(true)
+    // Normally animationend closes it (below). This is the safety net, so it
+    // can never get stuck half-closed.
+    const timer = setTimeout(finishClosing, 400)
+    return () => clearTimeout(timer)
   }, [subscription])
+
+  function finishClosing() {
+    if (dialog.current?.open) dialog.current.close()
+    setClosing(false)
+  }
+
+  function handleAnimationEnd(event) {
+    if (closing && event.target === dialog.current) finishClosing()
+  }
+
+  // Escape: the browser would close it at once, so ask for the animated
+  // close instead.
+  function handleCancel(event) {
+    event.preventDefault()
+    onClose()
+  }
 
   // A click on the dimmed area around the box lands on the <dialog> itself
   // (the box is its child), so that means "close".
@@ -33,12 +67,12 @@ export default function SubscriptionDetails({ subscription, onClose, onEdit }) {
     if (event.target === dialog.current) onClose()
   }
 
-  if (!subscription) return <dialog ref={dialog} className={styles.dialog} onClose={onClose} />
+  if (!shown) return <dialog ref={dialog} className={styles.dialog} onClose={onClose} />
 
-  const { id, name, icon, color, price, currency, frequency, endDate, status, note } = subscription
+  const { id, name, icon, color, price, currency, frequency, endDate, status, note } = shown
   // Kept subscriptions show their next charge date, not the one that passed.
-  const date = effectiveDate(subscription)
-  const renewed = isRenewal(subscription)
+  const date = effectiveDate(shown)
+  const renewed = isRenewal(shown)
   const days = daysUntil(date)
   const level = urgencyLevel(days)
   const frequencyLabel = FREQUENCIES.find((f) => f.key === frequency)?.label ?? 'Monthly'
@@ -46,9 +80,11 @@ export default function SubscriptionDetails({ subscription, onClose, onEdit }) {
   return (
     <dialog
       ref={dialog}
-      className={styles.dialog}
+      className={`${styles.dialog} ${closing ? styles.closing : ''}`}
       onClose={onClose}
+      onCancel={handleCancel}
       onClick={handleClick}
+      onAnimationEnd={handleAnimationEnd}
       aria-labelledby="details-title"
     >
       <div className={styles.box}>

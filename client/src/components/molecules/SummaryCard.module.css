@@ -3,6 +3,9 @@
   border: 1px solid var(--color-divider);
   border-radius: var(--radius);
   background: var(--color-surface);
+  /* --i comes from SummaryCard.jsx: 0, 1, 2, so they arrive left to right. */
+  animation: rise var(--duration-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger) * 2);
 }
 
 .label {
@@ -15,4 +18,26 @@
   font-size: var(--font-size-lg);
   font-weight: 700;
   line-height: 1.25;
+  /* Every digit the same width, so a counting number doesn't wobble. */
+  font-variant-numeric: tabular-nums;
+  transform-origin: left center;
+}
+
+/* A value that just changed: a quick swell, and teal for a moment. */
+.pop {
+  animation: pop var(--duration-slow) var(--ease-spring);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes pop {
+  40% {
+    color: var(--color-primary);
+    transform: scale(1.08);
+  }
 }

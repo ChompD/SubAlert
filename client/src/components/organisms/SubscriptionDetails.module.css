@@ -16,6 +16,80 @@
   background: rgb(26 29 33 / 0.45);
 }
 
+/* In: the sheet rises from the bottom edge while the page behind dims.
+   Out (the `closing` class, see SubscriptionDetails.jsx): the same, reversed,
+   a little quicker, because leaving should never feel like waiting. */
+.dialog[open] {
+  animation: sheetIn var(--duration-slow) var(--ease-out);
+}
+
+.dialog[open]::backdrop {
+  animation: dimIn var(--duration-slow) var(--ease-out);
+}
+
+.dialog.closing {
+  animation: sheetOut var(--duration) var(--ease-out) forwards;
+}
+
+.dialog.closing::backdrop {
+  animation: dimOut var(--duration) var(--ease-out) forwards;
+}
+
+/* The content follows a moment behind the box, so it settles in layers. */
+.dialog[open] .box > * {
+  animation: contentIn var(--duration-slow) var(--ease-out) both;
+}
+
+.dialog[open] .box > :nth-child(2) { animation-delay: calc(var(--stagger) * 1); }
+.dialog[open] .box > :nth-child(3) { animation-delay: calc(var(--stagger) * 2); }
+.dialog[open] .box > :nth-child(4) { animation-delay: calc(var(--stagger) * 3); }
+
+@keyframes sheetIn {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes sheetOut {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes dimIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dimOut {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes contentIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Desktop's centred box grows in from slightly smaller instead. */
+@keyframes boxIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+}
+
+@keyframes boxOut {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+}
+
 .box {
   display: flex;
   flex-direction: column;
@@ -63,10 +137,14 @@
   background: none;
   color: var(--color-text);
   cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    transform var(--duration) var(--ease-spring);
 }
 
 .close:hover {
   background: var(--color-bg);
+  transform: rotate(90deg);
 }
 
 /* Label on the left, value on the right, a thin line between rows. */
@@ -128,6 +206,14 @@
     max-width: 480px;
     margin: auto;
     border-radius: var(--radius);
+  }
+
+  .dialog[open] {
+    animation-name: boxIn;
+  }
+
+  .dialog.closing {
+    animation-name: boxOut;
   }
 
   .box {

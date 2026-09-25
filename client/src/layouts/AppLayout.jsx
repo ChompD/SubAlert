@@ -86,7 +86,9 @@ export default function AppLayout() {
       )}
 
       <main className={styles.main}>
-        <Outlet />
+        <div key={pathname} className={styles.page}>
+          <Outlet />
+        </div>
       </main>
       <Footer />
     </div>

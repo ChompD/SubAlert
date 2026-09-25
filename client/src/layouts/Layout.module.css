@@ -33,12 +33,40 @@
   background: var(--color-surface);
   color: var(--color-text);
   cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.searchToggle:active {
+  transform: scale(0.94);
 }
 
 .phoneSearchRow {
   padding: var(--space-1) var(--space-2);
   border-bottom: 1px solid var(--color-divider);
   background: var(--color-surface);
+  animation: slideDown var(--duration) var(--ease-out);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* Each page fades up as you arrive on it. The layout gives it a new key per
+   URL, which is what replays this. */
+.page {
+  animation: pageIn var(--duration-slow) var(--ease-out);
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 }
 
 @media (min-width: 640px) {

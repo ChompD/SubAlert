@@ -39,6 +39,35 @@ input {
   outline-offset: 2px;
 }
 
+/* Some people get dizzy or sick from things sliding around, and ask their
+   phone or laptop for less motion. Everything still happens, it just happens
+   at once. A tiny duration rather than `none`, so `animationend` still fires
+   (the details pop-up waits for it before closing). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}
+
+/* Set on <html> for a moment while switching light and dark (see
+   ThemeContext.jsx), so every colour crossfades together instead of snapping. */
+.theme-changing,
+.theme-changing *,
+.theme-changing *::before,
+.theme-changing *::after {
+  transition:
+    background-color var(--duration-slow) var(--ease-out),
+    border-color var(--duration-slow) var(--ease-out),
+    color var(--duration-slow) var(--ease-out),
+    fill var(--duration-slow) var(--ease-out) !important;
+}
+
 /* Hidden on screen, still read out by screen readers. */
 .sr-only {
   position: absolute;

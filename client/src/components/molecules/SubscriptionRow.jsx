@@ -21,10 +21,12 @@ const BADGE_TEXT = { urgent: 'Urgent', soon: 'Soon' }
 // one. That keeps each layout simple instead of one layout fighting the other.
 // Days left and urgency are CALCULATED from the end date on every render.
 //
+// index: its place in the list, so the rows arrive one after another.
+//
 // onOpen: tapping the card opens its details. The name is a real button, so
 // keyboard and screen-reader users can open it too; a tap anywhere else on
 // the card does the same, unless it landed on the toggle or the ··· button.
-export default function SubscriptionRow({ subscription, onDecisionChange, onEdit, onOpen }) {
+export default function SubscriptionRow({ subscription, index = 0, onDecisionChange, onEdit, onOpen }) {
   const { id, name, price, currency, frequency, icon, color, status } = subscription
   // Kept subscriptions renew: the date shown rolls forward by the billing
   // cycle instead of saying "Ended". See utils/schedule.js.
@@ -45,6 +47,8 @@ export default function SubscriptionRow({ subscription, onDecisionChange, onEdit
     <article
       className={`${styles.row} ${styles[level]} ${ended ? styles.ended : ''} ${onOpen ? styles.clickable : ''}`}
       aria-label={name}
+      // Past the 8th row the rest arrive together; waiting longer feels slow.
+      style={{ '--i': Math.min(index, 8) }}
       onClick={(event) => {
         if (onOpen && !event.target.closest('button, a, input, select, textarea')) onOpen(id)
       }}

@@ -21,6 +21,11 @@
   background: var(--color-surface);
   color: var(--color-text);
   font-size: var(--font-size-sm);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.input:focus {
+  border-color: var(--color-primary);
 }
 
 .input::placeholder {

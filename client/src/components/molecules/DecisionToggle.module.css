@@ -1,5 +1,10 @@
+/* A grid of equal columns, each as wide as the widest label, so the sliding
+   block below is exactly one column wide wherever it stops. */
 .toggle {
-  display: inline-flex;
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  grid-template-columns: repeat(var(--count), minmax(0, 1fr));
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
@@ -7,12 +12,31 @@
 }
 
 .fullWidth {
-  display: flex;
+  display: grid;
   width: 100%;
 }
 
+/* The coloured block behind the chosen option. --count and --index come
+   from DecisionToggle.jsx. */
+.indicator {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 0;
+  width: calc(100% / var(--count));
+  background: var(--color-primary);
+  transform: translateX(calc(var(--index) * 100%));
+  transition:
+    transform var(--duration-slow) var(--ease-spring),
+    opacity var(--duration) var(--ease-out);
+}
+
+.indicatorHidden {
+  opacity: 0;
+}
+
 .option {
-  flex: 1;
+  position: relative;
+  z-index: 1;
   height: calc(var(--control-height) - 4px);
   padding: 0 var(--space-2);
   border: 0;
@@ -20,20 +44,39 @@
   color: var(--color-text);
   font-size: var(--font-size-sm);
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
+  transition: color var(--duration) var(--ease-out);
 }
 
+/* The divider, drawn as a shadow so it takes no width and every column
+   stays exactly the same size. */
 .option + .option {
-  border-left: 1px solid var(--color-border);
+  box-shadow: inset 1px 0 0 var(--color-border);
+}
+
+@media (hover: hover) {
+  .option:not(.selected):hover {
+    background: var(--color-bg);
+  }
+}
+
+.option:active {
+  transform: scale(0.96);
 }
 
 .selected {
-  background: var(--color-primary);
   color: var(--color-surface);
   font-weight: 600;
 }
 
-/* The focus ring would be clipped by overflow: hidden, so draw it inside. */
+/* The focus ring would be clipped by overflow: hidden, so draw it inside.
+   On the chosen option it's in the surface colour, since a teal ring on the
+   teal block would be invisible. */
 .option:focus-visible {
   outline-offset: -3px;
+}
+
+.selected:focus-visible {
+  outline-color: var(--color-surface);
 }

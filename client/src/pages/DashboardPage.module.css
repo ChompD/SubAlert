@@ -25,6 +25,19 @@
   font-weight: 500;
 }
 
+/* Empty states and errors fade in rather than appearing with a jolt. */
+.empty,
+.error {
+  animation: fadeIn var(--duration-slow) var(--ease-out) both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
 .empty {
   display: flex;
   flex-direction: column;
@@ -56,6 +69,43 @@
 
 .summary > :nth-child(3) {
   grid-column: 1 / -1;
+}
+
+/* Loading placeholders. A lighter band sweeps across each one. */
+.skeleton {
+  border-radius: var(--radius);
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--color-surface) 50%,
+      transparent 100%
+    )
+    0 0 / 50% 100% no-repeat,
+    var(--color-divider);
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.skeletonCard {
+  height: 88px;
+}
+
+.skeletonList {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.skeletonRow {
+  height: 104px;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -100% 0, 0 0;
+  }
+  to {
+    background-position: 200% 0, 0 0;
+  }
 }
 
 /* Phone: a stack of cards with a small gap. */
@@ -99,6 +149,15 @@
 
   .summary > :nth-child(3) {
     grid-column: auto;
+  }
+
+  .skeletonList {
+    gap: 1px;
+  }
+
+  .skeletonRow {
+    height: 56px;
+    border-radius: 0;
   }
 
   .list {

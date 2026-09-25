@@ -16,6 +16,22 @@
   font-size: var(--font-size-sm);
   font-weight: 500;
   cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .trigger:hover {
+    background: var(--color-bg);
+  }
+}
+
+/* The caret flips while the menu is open. */
+.caret {
+  transition: transform var(--duration) var(--ease-out);
+}
+
+.trigger[aria-expanded='true'] .caret {
+  transform: rotate(180deg);
 }
 
 .name,
@@ -33,6 +49,16 @@
   border-radius: var(--radius);
   background: var(--color-surface);
   box-shadow: var(--shadow-menu);
+  /* Grows out of the avatar it belongs to, in the top right corner. */
+  transform-origin: top right;
+  animation: menuIn var(--duration) var(--ease-out);
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+  }
 }
 
 .email {
@@ -77,6 +103,9 @@
   color: var(--color-text);
   font-size: var(--font-size-sm);
   cursor: pointer;
+  transition:
+    background-color var(--duration) var(--ease-out),
+    color var(--duration) var(--ease-out);
 }
 
 .theme + .theme {
@@ -106,6 +135,7 @@
   font-weight: 500;
   text-align: left;
   cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
 }
 
 .item {

@@ -71,10 +71,25 @@ export default function DashboardPage() {
     <div className={styles.page}>
       <h1 className={styles.title}>Your subscriptions</h1>
 
+      {/* Grey shapes where the cards and rows will be, gently shimmering, so
+          the page doesn't jump when they arrive. Screen readers get the
+          sentence instead. */}
       {status === 'loading' && (
-        <p className={styles.muted} role="status">
-          Loading your subscriptions…
-        </p>
+        <>
+          <p className="sr-only" role="status">
+            Loading your subscriptions…
+          </p>
+          <div className={styles.summary} aria-hidden="true">
+            {[0, 1, 2].map((n) => (
+              <div key={n} className={`${styles.skeleton} ${styles.skeletonCard}`} />
+            ))}
+          </div>
+          <div className={styles.skeletonList} aria-hidden="true">
+            {[0, 1, 2, 3].map((n) => (
+              <div key={n} className={`${styles.skeleton} ${styles.skeletonRow}`} />
+            ))}
+          </div>
+        </>
       )}
 
       {status === 'error' && (
@@ -102,9 +117,9 @@ export default function DashboardPage() {
           )}
 
           <div className={styles.summary}>
-            <SummaryCard label="Due in 48h" value={dueSoon} />
-            <SummaryCard label="Active" value={active.length} />
-            <SummaryCard label="Saved by cancelling" value={`${saved}/mo`} />
+            <SummaryCard label="Due in 48h" value={dueSoon} index={0} />
+            <SummaryCard label="Active" value={active.length} index={1} />
+            <SummaryCard label="Saved by cancelling" value={`${saved}/mo`} index={2} />
           </div>
 
           <FilterBar
@@ -142,10 +157,11 @@ export default function DashboardPage() {
                 <span>Price</span>
                 <span>Decision</span>
               </div>
-              {visible.map((sub) => (
+              {visible.map((sub, index) => (
                 <SubscriptionRow
                   key={sub.id}
                   subscription={sub}
+                  index={index}
                   onDecisionChange={changeDecision}
                   onEdit={(id) => navigate(`/edit/${id}`)}
                   onOpen={setOpenId}

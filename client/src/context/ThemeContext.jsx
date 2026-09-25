@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 
 // Light or dark, available to every component through useTheme().
 //
@@ -44,12 +44,28 @@ export function ThemeProvider({ children }) {
 
   const resolved = preference === 'system' ? (systemDark ? 'dark' : 'light') : preference
 
+  // Only a real switch fades, not the first load.
+  const previous = useRef(resolved)
+
   useEffect(() => {
-    document.documentElement.dataset.theme = resolved
+    const root = document.documentElement
+    let timer
+    if (previous.current !== resolved) {
+      // Crossfade every colour for a moment (the class is in global.css),
+      // then take it off so it can't slow down anything else.
+      root.classList.add('theme-changing')
+      timer = setTimeout(() => root.classList.remove('theme-changing'), 400)
+    }
+    previous.current = resolved
+    root.dataset.theme = resolved
     // The browser's own chrome on a phone (the address bar) follows this.
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute('content', resolved === 'dark' ? '#12161B' : '#FFFFFF')
+    return () => {
+      clearTimeout(timer)
+      root.classList.remove('theme-changing')
+    }
   }, [resolved])
 
   function setPreference(value) {

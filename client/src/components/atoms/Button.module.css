@@ -11,11 +11,33 @@
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    filter var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+/* Pressed: sinks in a little, so a tap feels like it landed. */
+.button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .button:disabled {
   cursor: progress;
   opacity: 0.7;
+}
+
+/* Hover only where there is a mouse; on phones it sticks after a tap. */
+@media (hover: hover) {
+  .primary:hover:not(:disabled) {
+    filter: brightness(0.92);
+  }
+
+  .secondary:hover:not(:disabled),
+  .danger:hover:not(:disabled) {
+    background: var(--color-bg);
+  }
 }
 
 .primary {
