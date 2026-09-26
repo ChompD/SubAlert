@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit'
 import { pool } from './db/pool.js'
 import * as users from './usersRepo.js'
 import * as subscriptions from './subscriptionsRepo.js'
+import { FIELDS, validateSubscription } from './subscriptionRules.js'
 
 // Same idea as DATABASE_URL in pool.js: fail at boot with one clear line. A
 // missing secret would otherwise sign every token with "undefined".
@@ -199,7 +200,67 @@ app.get('/api/subscriptions/:id', requireAuth, async (request, response, next) =
   }
 })
 
-// Creating, changing and deleting subscriptions go here, from section 6.
+// ---------------------------------------------------------------------------
+// Subscriptions: creating, changing, deleting.
+
+// Only the fields a user may set, from a body that must be a JSON object.
+function pickFields(body) {
+  const picked = {}
+  if (body && typeof body === 'object' && !Array.isArray(body)) {
+    for (const field of FIELDS) if (field in body) picked[field] = body[field]
+  }
+  return picked
+}
+
+app.post('/api/subscriptions', requireAuth, async (request, response, next) => {
+  const { errors, value } = validateSubscription(pickFields(request.body))
+  if (errors.length > 0) return response.status(400).json({ error: errors.join('. ') })
+
+  try {
+    const row = await subscriptions.createForUser(pool, request.userId, value)
+    response.status(201).json(subscriptions.toPublicSubscription(row))
+  } catch (error) {
+    next(error)
+  }
+})
+
+// PATCH, not PUT: send only what changed. The Keep/Cancel toggle sends just
+// { status }, the edit form sends everything.
+app.patch('/api/subscriptions/:id', requireAuth, async (request, response, next) => {
+  if (!UUID_PATTERN.test(request.params.id)) return response.status(404).json({ error: NOT_FOUND })
+
+  try {
+    const current = await subscriptions.getForUser(pool, request.params.id, request.userId)
+    if (!current) return response.status(404).json({ error: NOT_FOUND })
+
+    // The change laid over what's saved, then the WHOLE result checked, so a
+    // partial update can never leave a row that would fail a full one.
+    const merged = { ...subscriptions.toPublicSubscription(current), ...pickFields(request.body) }
+    const { errors, value } = validateSubscription(merged)
+    if (errors.length > 0) return response.status(400).json({ error: errors.join('. ') })
+
+    const row = await subscriptions.updateForUser(pool, request.params.id, request.userId, value)
+    // Deleted in another tab between the read and the write.
+    if (!row) return response.status(404).json({ error: NOT_FOUND })
+    response.json(subscriptions.toPublicSubscription(row))
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.delete('/api/subscriptions/:id', requireAuth, async (request, response, next) => {
+  if (!UUID_PATTERN.test(request.params.id)) return response.status(404).json({ error: NOT_FOUND })
+
+  try {
+    const removed = await subscriptions.removeForUser(pool, request.params.id, request.userId)
+    if (!removed) return response.status(404).json({ error: NOT_FOUND })
+    response.status(204).end()
+  } catch (error) {
+    next(error)
+  }
+})
+
+// Account settings (profile, password, delete account) go here, from section 7.
 
 app.use((request, response) => {
   response.status(404).json({ error: 'No such route' })
@@ -208,6 +269,15 @@ app.use((request, response) => {
 // The detail goes in your logs; the visitor gets a plain message. Sending a
 // stack trace to a stranger tells them about your file layout and dependencies.
 app.use((error, request, response, next) => {
+  // The request itself was bad: broken JSON, or a body over the 100kb limit.
+  // That's a 400-something, not our fault, and it is NOT logged whole,
+  // because the error carries the raw body, which on /login is a password.
+  if (error.status >= 400 && error.status < 500) {
+    console.warn(`${request.method} ${request.path}: ${error.type ?? error.message}`)
+    const message = error.type === 'entity.too.large' ? 'That request is too large' : 'That request could not be read'
+    return response.status(error.status).json({ error: message })
+  }
+
   console.error(error)
   response.status(500).json({ error: 'Something went wrong on the server' })
 })
