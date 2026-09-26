@@ -5,7 +5,7 @@
 // you add a currency or an icon there, add it here too, or saving one will
 // fail with a 400.
 
-const CURRENCIES = ['PHP', 'USD', 'EUR', 'GBP', 'JPY', 'KRW', 'SGD', 'AUD', 'CAD']
+export const CURRENCIES = ['PHP', 'USD', 'EUR', 'GBP', 'JPY', 'KRW', 'SGD', 'AUD', 'CAD']
 const FREQUENCIES = ['weekly', 'monthly', 'quarterly', 'yearly']
 const STATUSES = ['keep', 'cancel', 'undecided']
 const ICONS = [

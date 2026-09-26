@@ -46,3 +46,30 @@ export async function create(pool, { name, email, passwordHash }) {
   )
   return result.rows[0]
 }
+
+// Only for checking a password the user just typed (change password, delete
+// account). Returns the hash or null.
+export async function getPasswordHash(pool, id) {
+  const result = await pool.query('SELECT password_hash FROM users WHERE id = $1', [id])
+  return result.rows[0]?.password_hash ?? null
+}
+
+export async function updateProfile(pool, id, { name, defaultCurrency }) {
+  const result = await pool.query(
+    `UPDATE users SET name = $2, default_currency = $3
+     WHERE id = $1
+     RETURNING id, name, email, default_currency`,
+    [id, name, defaultCurrency]
+  )
+  return result.rows[0] ?? null
+}
+
+export async function updatePasswordHash(pool, id, passwordHash) {
+  await pool.query('UPDATE users SET password_hash = $2 WHERE id = $1', [id, passwordHash])
+}
+
+// Their subscriptions go with them: ON DELETE CASCADE in schema.sql.
+export async function remove(pool, id) {
+  const result = await pool.query('DELETE FROM users WHERE id = $1', [id])
+  return result.rowCount > 0
+}

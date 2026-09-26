@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit'
 import { pool } from './db/pool.js'
 import * as users from './usersRepo.js'
 import * as subscriptions from './subscriptionsRepo.js'
-import { FIELDS, validateSubscription } from './subscriptionRules.js'
+import { CURRENCIES, FIELDS, validateSubscription } from './subscriptionRules.js'
 
 // Same idea as DATABASE_URL in pool.js: fail at boot with one clear line. A
 // missing secret would otherwise sign every token with "undefined".
@@ -80,6 +80,16 @@ const signToken = (userId) =>
 // tell a stranger which emails are registered.
 const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', 12)
 
+// The one password rule, for registering and for changing it. Returns the
+// problem as a sentence, or null if the password is fine.
+function passwordProblem(password) {
+  if (password.length < 8) return 'Use a password of at least 8 characters'
+  // bcrypt only reads the first 72 BYTES, and an emoji is 4 of them. Past
+  // that, two different passwords would both work.
+  if (Buffer.byteLength(password) > 72) return 'Use a password of 72 characters or fewer'
+  return null
+}
+
 function validateRegistration(body) {
   const name = typeof body.name === 'string' ? body.name.trim() : ''
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
@@ -88,10 +98,8 @@ function validateRegistration(body) {
 
   if (!name || name.length > 80) errors.push('Enter a name of 80 characters or fewer')
   if (!EMAIL_PATTERN.test(email) || email.length > 254) errors.push('Enter a valid email, like name@email.com')
-  if (password.length < 8) errors.push('Use a password of at least 8 characters')
-  // bcrypt only reads the first 72 BYTES, and an emoji is 4 of them. Past
-  // that, two different passwords would both work.
-  if (Buffer.byteLength(password) > 72) errors.push('Use a password of 72 characters or fewer')
+  const problem = passwordProblem(password)
+  if (problem) errors.push(problem)
 
   return { errors, value: { name, email, password } }
 }
@@ -138,21 +146,34 @@ app.post('/api/auth/login', authLimiter, async (request, response, next) => {
 
 const SESSION_ENDED = 'Your session has ended. Log in again'
 
-function requireAuth(request, response, next) {
+async function requireAuth(request, response, next) {
   // "Authorization: Bearer <token>", as client/src/api/httpApi.js sends it.
   const [scheme, token] = (request.get('Authorization') ?? '').split(' ')
   if (scheme !== 'Bearer' || !token) return response.status(401).json({ error: SESSION_ENDED })
 
+  let payload
   try {
     // algorithms is pinned so a forged token can't pick a weaker one (or
     // "none") for itself. verify also rejects expired tokens.
-    const payload = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] })
-    request.userId = payload.sub
-    next()
+    payload = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] })
   } catch {
     // Expired, tampered with, or signed with another secret: all the same to
     // the visitor, and the client answers a 401 by logging them out.
-    response.status(401).json({ error: SESSION_ENDED })
+    return response.status(401).json({ error: SESSION_ENDED })
+  }
+
+  try {
+    // A token outlives the account it was made for: it is still validly
+    // signed after the account is deleted. Without this check, adding a
+    // subscription with it would point at a user who isn't there (a 500).
+    // One lookup by primary key per request, which is cheap.
+    if (!(await users.findById(pool, payload.sub))) {
+      return response.status(401).json({ error: SESSION_ENDED })
+    }
+    request.userId = payload.sub
+    next()
+  } catch (error) {
+    next(error)
   }
 }
 
@@ -260,7 +281,71 @@ app.delete('/api/subscriptions/:id', requireAuth, async (request, response, next
   }
 })
 
-// Account settings (profile, password, delete account) go here, from section 7.
+// ---------------------------------------------------------------------------
+// Account settings: name and default currency, password, deleting the account.
+
+const text = (value) => (typeof value === 'string' ? value : '')
+
+app.patch('/api/auth/me', requireAuth, async (request, response, next) => {
+  const name = text(request.body?.name).trim()
+  const defaultCurrency = request.body?.defaultCurrency
+  const errors = []
+  if (!name || name.length > 80) errors.push('Enter a name of 80 characters or fewer')
+  if (!CURRENCIES.includes(defaultCurrency)) errors.push('Pick a currency from the list')
+  if (errors.length > 0) return response.status(400).json({ error: errors.join('. ') })
+
+  try {
+    const row = await users.updateProfile(pool, request.userId, { name, defaultCurrency })
+    if (!row) return response.status(401).json({ error: SESSION_ENDED })
+    response.json({ user: users.toPublicUser(row) })
+  } catch (error) {
+    next(error)
+  }
+})
+
+// Needs the current password, so someone at an unlocked laptop can't lock
+// the owner out. Rate limited like login: it's another place to guess one.
+//
+// Known limit: tokens already handed out stay valid until they expire (7
+// days), so a device that is logged in stays logged in after a change.
+app.post('/api/auth/password', requireAuth, authLimiter, async (request, response, next) => {
+  const currentPassword = text(request.body?.currentPassword)
+  const newPassword = text(request.body?.newPassword)
+
+  try {
+    const hash = await users.getPasswordHash(pool, request.userId)
+    if (!hash) return response.status(401).json({ error: SESSION_ENDED })
+    // 401 with this message is what AccountPage.jsx shows on the field.
+    if (!(await bcrypt.compare(currentPassword, hash))) {
+      return response.status(401).json({ error: 'That is not your current password' })
+    }
+
+    const problem = passwordProblem(newPassword)
+    if (problem) return response.status(400).json({ error: problem })
+
+    await users.updatePasswordHash(pool, request.userId, await bcrypt.hash(newPassword, 12))
+    response.status(204).end()
+  } catch (error) {
+    next(error)
+  }
+})
+
+// Deletes the account and, through ON DELETE CASCADE, every subscription in
+// it. Asks for the password again, because this can't be undone.
+app.delete('/api/auth/me', requireAuth, authLimiter, async (request, response, next) => {
+  try {
+    const hash = await users.getPasswordHash(pool, request.userId)
+    if (!hash) return response.status(401).json({ error: SESSION_ENDED })
+    if (!(await bcrypt.compare(text(request.body?.password), hash))) {
+      return response.status(401).json({ error: 'Wrong password' })
+    }
+
+    await users.remove(pool, request.userId)
+    response.status(204).end()
+  } catch (error) {
+    next(error)
+  }
+})
 
 app.use((request, response) => {
   response.status(404).json({ error: 'No such route' })
