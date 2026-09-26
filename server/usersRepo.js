@@ -25,6 +25,16 @@ export async function findByEmail(pool, email) {
   return result.rows[0] ?? null
 }
 
+// For "who is this token for?". No password_hash: nothing that only needs to
+// know who you are should ever load it.
+export async function findById(pool, id) {
+  const result = await pool.query(
+    'SELECT id, name, email, default_currency FROM users WHERE id = $1',
+    [id]
+  )
+  return result.rows[0] ?? null
+}
+
 // Throws a Postgres error with code '23505' if the email is already taken;
 // the route turns that into a 409.
 export async function create(pool, { name, email, passwordHash }) {

@@ -128,7 +128,46 @@ app.post('/api/auth/login', authLimiter, async (request, response, next) => {
   }
 })
 
-// Subscriptions and the rest of the account routes go here, from section 4.
+// ---------------------------------------------------------------------------
+// The door in front of everything personal. Put requireAuth on a route and it
+// only runs for a request carrying a valid token, with request.userId set to
+// whose it is. Every query after this uses request.userId, never an id the
+// browser sent, so nobody can ask for somebody else's data.
+
+const SESSION_ENDED = 'Your session has ended. Log in again'
+
+function requireAuth(request, response, next) {
+  // "Authorization: Bearer <token>", as client/src/api/httpApi.js sends it.
+  const [scheme, token] = (request.get('Authorization') ?? '').split(' ')
+  if (scheme !== 'Bearer' || !token) return response.status(401).json({ error: SESSION_ENDED })
+
+  try {
+    // algorithms is pinned so a forged token can't pick a weaker one (or
+    // "none") for itself. verify also rejects expired tokens.
+    const payload = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] })
+    request.userId = payload.sub
+    next()
+  } catch {
+    // Expired, tampered with, or signed with another secret: all the same to
+    // the visitor, and the client answers a 401 by logging them out.
+    response.status(401).json({ error: SESSION_ENDED })
+  }
+}
+
+// Who am I? The client asks on every page load to turn a saved token back
+// into a logged-in user.
+app.get('/api/auth/me', requireAuth, async (request, response, next) => {
+  try {
+    const row = await users.findById(pool, request.userId)
+    // A token that is still valid for an account that has since been deleted.
+    if (!row) return response.status(401).json({ error: SESSION_ENDED })
+    response.json({ user: users.toPublicUser(row) })
+  } catch (error) {
+    next(error)
+  }
+})
+
+// Subscriptions and the rest of the account routes go here, from section 5.
 
 app.use((request, response) => {
   response.status(404).json({ error: 'No such route' })
