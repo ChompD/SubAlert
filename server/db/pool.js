@@ -1,5 +1,12 @@
 import pg from 'pg'
 
+// DATE columns come back as the plain text Postgres stores ("2026-10-01"),
+// not as a JavaScript Date. A Date is a moment in time: pg would make it
+// midnight in the SERVER's timezone, and on a host running in UTC the client
+// could then show 30 September for a subscription ending 1 October. 1082 is
+// Postgres's internal number for the DATE type.
+pg.types.setTypeParser(1082, (value) => value)
+
 // Fail at boot with one clear line, rather than with a mystery 500 an hour
 // later. The commonest deployment mistake is setting a variable in .env on your
 // laptop and never setting it in the host's dashboard.

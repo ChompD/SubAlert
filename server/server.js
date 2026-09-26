@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import rateLimit from 'express-rate-limit'
 import { pool } from './db/pool.js'
 import * as users from './usersRepo.js'
+import * as subscriptions from './subscriptionsRepo.js'
 
 // Same idea as DATABASE_URL in pool.js: fail at boot with one clear line. A
 // missing secret would otherwise sign every token with "undefined".
@@ -167,7 +168,38 @@ app.get('/api/auth/me', requireAuth, async (request, response, next) => {
   }
 })
 
-// Subscriptions and the rest of the account routes go here, from section 5.
+// ---------------------------------------------------------------------------
+// Subscriptions: reading. Only ever the logged-in user's own.
+
+const NOT_FOUND = 'That subscription no longer exists'
+// Ids are UUIDs. Anything else can't be one of ours, and passing it to
+// Postgres would be a 500 ("invalid input syntax for type uuid"), not a 404.
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+app.get('/api/subscriptions', requireAuth, async (request, response, next) => {
+  try {
+    const rows = await subscriptions.listForUser(pool, request.userId)
+    response.json(rows.map(subscriptions.toPublicSubscription))
+  } catch (error) {
+    next(error)
+  }
+})
+
+app.get('/api/subscriptions/:id', requireAuth, async (request, response, next) => {
+  if (!UUID_PATTERN.test(request.params.id)) return response.status(404).json({ error: NOT_FOUND })
+
+  try {
+    const row = await subscriptions.getForUser(pool, request.params.id, request.userId)
+    // Someone else's id looks exactly like one that doesn't exist. Never
+    // "that belongs to another account", which would confirm it's real.
+    if (!row) return response.status(404).json({ error: NOT_FOUND })
+    response.json(subscriptions.toPublicSubscription(row))
+  } catch (error) {
+    next(error)
+  }
+})
+
+// Creating, changing and deleting subscriptions go here, from section 6.
 
 app.use((request, response) => {
   response.status(404).json({ error: 'No such route' })
