@@ -1,0 +1,6 @@
+{
+  "name": "subalert",
+  "private": true,
+  "description": "Only here so api/index.js can use import/export. The real apps are client/ and server/, each with its own package.json.",
+  "type": "module"
+}
