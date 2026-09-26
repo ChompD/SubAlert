@@ -1,0 +1,64 @@
+/* The page frame, heading, messages and loading shimmer are the Dashboard's,
+   borrowed with `composes` so the two pages can't drift apart. */
+.page {
+  composes: page from './DashboardPage.module.css';
+}
+
+.title {
+  composes: title from './DashboardPage.module.css';
+}
+
+.muted {
+  composes: muted from './DashboardPage.module.css';
+}
+
+.error {
+  composes: error from './DashboardPage.module.css';
+}
+
+.empty {
+  composes: empty from './DashboardPage.module.css';
+}
+
+.skeleton {
+  composes: skeleton from './DashboardPage.module.css';
+}
+
+/* Phone: headline cards two by two, then the panels stacked. */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.panels {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.skeletonCard {
+  height: 88px;
+}
+
+.skeletonPanel {
+  height: 240px;
+}
+
+/* 640px and up: four cards in a row. 900px and up: panels side by side. */
+@media (min-width: 640px) {
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .panels {
+    gap: var(--space-3);
+  }
+}
+
+@media (min-width: 900px) {
+  .panels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

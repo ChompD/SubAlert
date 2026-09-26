@@ -1,0 +1,82 @@
+.tabs {
+  display: flex;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--space-1) * 0.75);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-button);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--color-text);
+  }
+}
+
+/* The current page: its label in full colour, and a teal bar under it that
+   grows in from the middle when you switch. */
+.tab[aria-current='page'] {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transition: transform var(--duration) var(--ease-out);
+}
+
+.tab[aria-current='page']::after {
+  transform: scaleX(1);
+}
+
+/* In the header, beside the logo. Wide screens only: the header also holds
+   the search box, "+ Add subscription" and the user menu, and all of it only
+   fits in one line from about 1000px. */
+.header {
+  display: none;
+  align-self: stretch;
+  gap: var(--space-3);
+  margin-right: auto;
+}
+
+.header .tab {
+  height: 100%;
+}
+
+/* Phones and tablets: its own row under the header, two halves, easy to
+   reach with a thumb. */
+.row {
+  border-bottom: 1px solid var(--color-divider);
+  background: var(--color-surface);
+}
+
+.row .tab {
+  flex: 1;
+  height: var(--control-height);
+}
+
+@media (min-width: 1024px) {
+  .header {
+    display: flex;
+  }
+
+  .row {
+    display: none;
+  }
+}

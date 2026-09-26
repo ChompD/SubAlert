@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Search, X } from 'lucide-react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Button from '../components/atoms/Button.jsx'
+import AppTabs from '../components/molecules/AppTabs.jsx'
 import SearchBar from '../components/molecules/SearchBar.jsx'
 import Footer from '../components/organisms/Footer.jsx'
 import Header from '../components/organisms/Header.jsx'
@@ -44,7 +45,7 @@ export default function AppLayout() {
 
   return (
     <div className={styles.layout}>
-      <Header user={user} onLogout={handleLogout}>
+      <Header user={user} onLogout={handleLogout} nav={<AppTabs variant="header" />}>
         {isDashboard && (
           <>
             <SearchBar
@@ -71,6 +72,9 @@ export default function AppLayout() {
           <span className={styles.addLong}>+ Add subscription</span>
         </Button>
       </Header>
+
+      {/* Phone only: the tabs get their own row, the header being full. */}
+      <AppTabs variant="row" />
 
       {isDashboard && searchOpen && (
         <div

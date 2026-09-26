@@ -7,6 +7,7 @@ import { ThemeProvider } from './context/ThemeContext.jsx'
 import AppLayout from './layouts/AppLayout.jsx'
 import AuthLayout from './layouts/AuthLayout.jsx'
 import AccountPage from './pages/AccountPage.jsx'
+import AnalyticsPage from './pages/AnalyticsPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
@@ -30,9 +31,10 @@ export default function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
                 <Route path="/" element={<DashboardPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
                 <Route path="/add" element={<SubscriptionFormPage />} />
                 <Route path="/edit/:id" element={<SubscriptionFormPage />} />
-              <Route path="/account" element={<AccountPage />} />
+                <Route path="/account" element={<AccountPage />} />
               </Route>
             </Route>
 
