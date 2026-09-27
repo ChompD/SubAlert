@@ -119,8 +119,7 @@ write down how to cancel.
 
 ---
 
-## Week of: September 24–37, 2026
-
+## Week of: September 24–27
 ## What changed this week
 
 The backend went from nothing to live, and the app now runs against a real
