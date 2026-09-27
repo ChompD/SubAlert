@@ -58,6 +58,20 @@ export function formatPrice(amount, currency = LEGACY_CURRENCY) {
   return formatters.get(currency).format(Number(amount) || 0)
 }
 
+// "₱2,076" with no centavos, for chart labels and axis ticks where space is
+// short. Exact amounts stay in the tooltips and the table view.
+const wholeFormatters = new Map()
+
+export function formatWholePrice(amount, currency = LEGACY_CURRENCY) {
+  if (!wholeFormatters.has(currency)) {
+    wholeFormatters.set(
+      currency,
+      new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 0, maximumFractionDigits: 0 })
+    )
+  }
+  return wholeFormatters.get(currency).format(Math.round(Number(amount) || 0))
+}
+
 // Adds up what the subscriptions cost PER MONTH, per currency: a yearly plan
 // counts as a twelfth of its price. Pesos and dollars can't be added together
 // without an exchange rate, so the result looks like "₱549.00 + $15.99", or a

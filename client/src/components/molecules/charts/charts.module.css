@@ -1,0 +1,329 @@
+/* Shared by the three Analytics charts. The marks are thin (at most 24px),
+   square where they start and rounded (4px) at the end that carries the
+   value, separated by a 2px gap of the card's own colour rather than a
+   border. Text is always in text colours; only the marks wear chart colours. */
+
+/* ---------------------------------------------------------------------------
+   The tooltip. Every mark is focusable, and hovering or tabbing to it shows
+   the same box: the exact value first and strongest, the name after it. The
+   same words are the mark's aria-label, and all of it is in the table view,
+   so the tooltip adds detail but never hides anything. */
+.mark {
+  position: relative;
+  outline-offset: 2px;
+}
+
+.tip {
+  position: absolute;
+  bottom: calc(100% + var(--space-1));
+  left: 50%;
+  z-index: 5;
+  display: grid;
+  gap: 2px;
+  min-width: max-content;
+  padding: var(--space-1) calc(var(--space-1) * 1.5);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-menu);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+/* Marks near the left or right edge keep their tooltip on the card. */
+.tipStart {
+  left: 0;
+  transform: translate(0, 4px);
+}
+
+.tipEnd {
+  right: 0;
+  left: auto;
+  transform: translate(0, 4px);
+}
+
+.mark:hover .tip,
+.mark:focus-visible .tip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.mark:hover .tipStart,
+.mark:focus-visible .tipStart,
+.mark:hover .tipEnd,
+.mark:focus-visible .tipEnd {
+  transform: translate(0, 0);
+}
+
+.tipValue {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The name, keyed by a short stroke of the series colour. */
+.tipLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+}
+
+.tipLabel::before {
+  content: '';
+  width: 10px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--key, var(--chart-1));
+}
+
+/* Bars grow out of their baseline, one after another. --i is the index. */
+@keyframes growX {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes growY {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Where your money goes: one row per category, a bar, the amount at its tip. */
+.bars {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 32%) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-1);
+  padding-block: 2px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) {
+  .barRow:hover {
+    background: var(--color-bg);
+  }
+}
+
+.barLabel {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barTrack {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* Room is kept for the amount after the bar, so the longest bar and its
+   label always fit on the line. */
+.bar {
+  flex: none;
+  width: max(2px, calc((100% - 4.5rem) * var(--size)));
+  height: 14px;
+  border-radius: 0 4px 4px 0;
+  background: var(--chart-1);
+  transform-origin: left center;
+  animation: growX var(--duration-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+
+.barValue {
+  flex: none;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   Your decisions: one bar split Keep | Undecided | Cancel, then a legend. */
+.stack {
+  display: flex;
+  gap: 2px;
+}
+
+/* The hit area is taller than the 16px bar, so it's easy to point at. */
+.segment {
+  display: flex;
+  align-items: center;
+  min-width: 6px;
+  padding-block: var(--space-1);
+}
+
+.segmentFill {
+  width: 100%;
+  height: 16px;
+  background: var(--key);
+  transform-origin: left center;
+  animation: growX var(--duration-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger) * 2);
+}
+
+.segment:last-child .segmentFill {
+  border-radius: 0 4px 4px 0;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-sm);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--key);
+}
+
+.legendCount {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.legendShare {
+  color: var(--color-text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Next 12 months: a column per month over a hairline grid, a clean y scale. */
+.forecast {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--space-1);
+  /* Room above the plot for the peak label when the tallest column reaches
+     the top of the scale. */
+  padding-top: var(--space-3);
+}
+
+.yAxis {
+  position: relative;
+  height: 160px;
+  min-width: 2.5rem;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.yTick {
+  position: absolute;
+  right: 0;
+  bottom: var(--at);
+  line-height: 1;
+  transform: translateY(50%);
+}
+
+.plot {
+  position: relative;
+  height: 160px;
+}
+
+.gridline {
+  position: absolute;
+  right: 0;
+  bottom: var(--at);
+  left: 0;
+  height: 1px;
+  background: var(--chart-grid);
+}
+
+.columns {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+/* Each month's whole slot, top to bottom, is its hit area. On a phone that is
+   about 22px wide by 160px tall: just under the 24px guideline, which allows
+   it because the same numbers are one tap away through the Table button. */
+.slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+@media (hover: hover) {
+  .slot:hover {
+    background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  }
+}
+
+.column {
+  width: min(24px, 60%);
+  height: var(--size);
+  border-radius: 4px 4px 0 0;
+  background: var(--chart-1);
+  transform-origin: center bottom;
+  animation: growY var(--duration-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+
+/* The one direct label: the biggest month's amount, on its cap. */
+.peak {
+  margin-bottom: 4px;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.xAxis {
+  display: grid;
+  grid-column: 2;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+/* A phone has room for every other month's name; the tooltip and the table
+   still have all twelve. */
+@media (max-width: 639px) {
+  .xAxis span:nth-child(even) {
+    visibility: hidden;
+  }
+}
+
+.empty {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}

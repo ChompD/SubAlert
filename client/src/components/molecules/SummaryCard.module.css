@@ -15,12 +15,24 @@
 
 .value {
   margin-top: var(--space-1);
-  font-size: var(--font-size-lg);
+  /* Full size from about 480px wide; a little smaller on narrow phones, so
+     "₱17,832.00" fits half a phone's width without breaking. */
+  font-size: clamp(18px, 5vw, var(--font-size-lg));
   font-weight: 700;
   line-height: 1.25;
   /* Every digit the same width, so a counting number doesn't wobble. */
   font-variant-numeric: tabular-nums;
   transform-origin: left center;
+  /* Last resort for a very long amount: break rather than spill out. */
+  overflow-wrap: anywhere;
+}
+
+/* The small line under the value: other currencies, or a name. */
+.detail {
+  margin-top: calc(var(--space-1) / 2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
 }
 
 /* A value that just changed: a quick swell, and teal for a moment. */

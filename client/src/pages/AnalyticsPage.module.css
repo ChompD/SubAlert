@@ -24,7 +24,14 @@
   composes: skeleton from './DashboardPage.module.css';
 }
 
-/* Phone: headline cards two by two, then the panels stacked. */
+/* The "Based on 4 active subscriptions" line above the cards. */
+.intro {
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+/* Phone and tablet: headline cards two by two, then the panels stacked.
+   Four in a row only from 900px: "₱17,832.00" needs the width. */
 .cards {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -37,6 +44,11 @@
   gap: var(--space-2);
 }
 
+/* The 12-month forecast takes the whole width under the other two. */
+.wide {
+  grid-column: 1 / -1;
+}
+
 .skeletonCard {
   height: 88px;
 }
@@ -45,19 +57,20 @@
   height: 240px;
 }
 
-/* 640px and up: four cards in a row. 900px and up: panels side by side. */
+/* 640px and up: roomier gaps. 900px and up: four cards in a row, and the
+   panels side by side. */
 @media (min-width: 640px) {
-  .cards {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: var(--space-3);
-  }
-
+  .cards,
   .panels {
     gap: var(--space-3);
   }
 }
 
 @media (min-width: 900px) {
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .panels {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

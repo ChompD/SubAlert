@@ -1,0 +1,73 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  animation: panelIn var(--duration-slow) var(--ease-out) both;
+}
+
+/* Title on the left, the Chart | Table switch always top right: the title
+   and description wrap to make room rather than pushing the switch down. */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.heading {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Never squeezed: the text beside it wraps instead. */
+.switch {
+  flex: none;
+}
+
+.title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.description {
+  margin-top: calc(var(--space-1) / 2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Switching Chart <-> Table fades the new view in. */
+.body {
+  min-width: 0;
+  animation: fadeIn var(--duration) var(--ease-out);
+}
+
+.note {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+@keyframes panelIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .panel {
+    padding: var(--space-3);
+  }
+}

@@ -1,0 +1,33 @@
+/* Scrolls sideways inside itself if a phone is too narrow, never the page. */
+.wrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.table th,
+.table td {
+  padding: var(--space-1);
+  border-bottom: 1px solid var(--color-divider);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table thead th {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.table tbody th {
+  font-weight: 500;
+}
+
+/* Numbers line up on the right, every digit the same width. */
+.table .numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

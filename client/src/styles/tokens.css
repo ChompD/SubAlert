@@ -28,6 +28,16 @@
   --icon-purple-bg: #ECE7F8;  --icon-purple-fg: #4B3690;
   --icon-gray-bg: #EDEFF1;    --icon-gray-fg: #3F4852;
 
+  /* Charts (Analytics). Validated as a set with the dataviz palette checker:
+     colour-blind safe side by side, and >= 3:1 against the card. The brand
+     teal was too muted to hold its own next to other hues, so --chart-1 is
+     a more vivid step of it. Order matters: 1 | 2 | 3 is the order they sit
+     next to each other in the decisions bar. */
+  --chart-1: #00876a;           /* the one-colour charts, and Keep */
+  --chart-2: #4a3aa7;           /* Undecided */
+  --chart-3: #eb6834;           /* Cancel */
+  --chart-grid: var(--color-divider);
+
   /* Type */
   --font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-size-lg: 24px;         /* headings */
@@ -90,6 +100,11 @@
   --icon-red-bg: #331B1E;     --icon-red-fg: #F2A0A5;
   --icon-purple-bg: #251F3B;  --icon-purple-fg: #BFB0F0;
   --icon-gray-bg: #232A32;    --icon-gray-fg: #C2CCD6;
+
+  /* Chart steps chosen and validated for the dark card, not flipped. */
+  --chart-1: #22a882;
+  --chart-2: #9085e9;
+  --chart-3: #d95926;
 
   /* A soft shadow disappears on a dark background, so it is deepened. */
   --shadow-menu: 0 8px 24px rgb(0 0 0 / 0.5);
