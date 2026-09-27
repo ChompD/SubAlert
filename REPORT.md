@@ -119,7 +119,7 @@ write down how to cancel.
 
 ---
 
-## Week of: September 24–30, 2026
+## Week of: September 24–37, 2026
 
 ## What changed this week
 
