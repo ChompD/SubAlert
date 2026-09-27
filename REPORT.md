@@ -116,3 +116,139 @@ write down how to cancel.
   check every screen again against the real API's loading and error states.
 - Smaller things: search on phones (the header has no room for it), and a
   proper README with the live link and a screenshot.
+
+---
+
+## Week of: September 24–30, 2026
+
+## What changed this week
+
+The backend went from nothing to live, and the app now runs against a real
+database. 17 commits.
+
+**Client**
+
+- Search on phones: a magnifier button in the header opens a full-width search
+  row under it, since the phone header has no room for the search box.
+- Dark mode with a System, Light and Dark choice in the user menu. Only the
+  colours change; `tokens.css` has one dark block, and switching crossfades
+  instead of snapping.
+- An Account page: change name and default currency, change password (needs
+  the current one), and delete the account (asks for the password again).
+- Kept subscriptions roll forward to their next charge date ("Renews in 12
+  days") instead of showing "Ended", and a new Ended filter pill.
+- Motion across the app: timing tokens, a Keep/Cancel highlight that slides,
+  summary numbers that count up, loading skeletons instead of "Loading…",
+  pop-ups that animate in and out. All of it switches off for people who ask
+  their device for reduced motion.
+
+**Backend (Express + PostgreSQL on Supabase)**
+
+- `schema.sql` with `users` and `subscriptions`. The limits match the client's
+  validation (80-character names, 500-character notes), prices are
+  `NUMERIC(10,2)` rather than floats, end dates are `DATE` with no timezone,
+  and deleting a user deletes their subscriptions (`ON DELETE CASCADE`).
+- Register and log in: passwords hashed with bcrypt, a signed token (JWT) that
+  lasts 7 days, and the same "Wrong email or password" whether the email or
+  the password is wrong, so the API never confirms which emails have accounts.
+  Ten attempts per 15 minutes per IP.
+- `requireAuth` in front of every personal route: it checks the token's
+  signature and expiry, pins the algorithm, and checks the account still
+  exists. `GET /api/auth/me` keeps you logged in after a reload.
+- All five subscription routes. The ownership check is in every query
+  (`WHERE id = $1 AND user_id = $2`), the owner always comes from the token and
+  never from the request body, and another user's subscription gets the same
+  404 as one that doesn't exist.
+- Server-side validation (`subscriptionRules.js`), because the browser can be
+  bypassed. `PATCH` merges the change into the saved row and checks the whole
+  result, so the Keep/Cancel toggle can send only `{ status }`.
+- Account routes: update profile, change password, delete account.
+- `helmet` for security headers, and `npm audit fix` (3 moderate issues in
+  Express's dependencies, down to 0).
+
+**Deployment**
+
+- The site and the API are one Vercel project at one address: `vercel.json`
+  builds the client and sends `/api/...` to the Express app (`api/index.js`).
+  `server.js` is split into `app.js` (the routes) and `server.js` (starts it
+  locally), so both run the same code.
+- Demo mode is off in production (`VITE_USE_MOCK_API=false`). The database
+  password and token secret are Vercel secrets, not in the repository.
+
+**Analytics tab**
+
+- A Dashboard | Analytics switch, and an `/analytics` page with loading,
+  error and empty states.
+- `utils/analytics.js`: spend per month and per year, saved by cancelling,
+  most expensive, spend per category, decisions, upcoming charges and a
+  12-month forecast. Checked against figures worked out by hand for nine test
+  subscriptions, and in three timezones.
+- Four headline cards, and three charts (spending by category, decisions,
+  next 12 months), each with a Table view holding every exact number.
+
+## Why
+
+The backend was all of last week's "What is left". Switching the client over
+was one environment variable, as the week 1 plan intended: no page had to
+change, because `httpApi.js` already had the same functions as `mockApi.js`.
+
+Supabase is only the database. Login, passwords and the ownership checks stay
+in Express, where the course expects them. Supabase also publishes every table
+through its own API, so Row Level Security is switched on with no policies,
+which closes that door; the Express server connects as the tables' owner and
+isn't affected.
+
+One Vercel project instead of two means one link, one dashboard, and no
+cross-site (CORS) requests, since the page and the API share an address.
+
+Analytics came from using the app: the question I actually wanted answered was
+"how much am I paying a month, and a year?"
+
+## What broke or what I got stuck on
+
+- **Registering on the live site never reached the database.** The site was
+  still in demo mode, and the server wasn't deployed anywhere: the Vercel
+  project only built `client/`. Fixed by deploying both from the top of the
+  repository as one project.
+- **Dates again, on the server this time.** The `pg` library turns a `DATE`
+  into a JavaScript `Date` at midnight in the server's timezone, so on a host
+  running in UTC a subscription ending 1 October could come back as 30
+  September. It now returns the plain `"2026-10-01"` text. Prices also came
+  back as strings (`"549.00"`) and are converted to numbers.
+- **Broken JSON crashed with a 500 and logged the raw request**, which on the
+  login route would have written a password into the logs. Now it's a 400 (or
+  413 for a request that is too big) and only the error type is logged.
+- **A deleted account's token still worked.** It is still validly signed after
+  the account is gone, and adding a subscription with it would have failed with
+  a 500. `requireAuth` now checks the account exists.
+- **Secrets on screen.** While setting the Vercel environment variables, the
+  database password and token secret were visible in a screenshot. Both were
+  replaced before saving: a new database password in Supabase and a new
+  random token secret.
+- **`NODE_ENV=production` would have broken the Vercel build**, because it also
+  applies while installing and would skip Vite. It isn't set; Vercel runs the
+  server in production mode already.
+- **The header overflowed at tablet width** once the tabs were added: the search
+  box shrank to its icon. The tabs now get their own row below 1024px.
+- **Numbers broke in half on phones** ("₱17,832.0 / 0"). The first check said
+  they fit, but it measured before the web font loaded. They now shrink a
+  little on narrow screens, and "/mo" moved to the line underneath.
+- **My brand teal was too muted for charts.** A colour-blindness checker
+  rejected it next to other colours, so the charts use a more vivid step of it.
+- **Personal email in commits.** New commits use the GitHub no-reply address;
+  the older commits still carry my email, and rewriting that history is still
+  undecided.
+
+## What is left
+
+- Analytics, last part: the "charging in the next 30 days" list, the most
+  expensive subscriptions, and a final polish pass.
+- Turn on secret scanning and push protection in the GitHub settings.
+- Remove the GitHub Pages workflow, which fails on every push now that the site
+  is on Vercel.
+- The README is still the template's: live link, screenshot, and how to run it.
+- Fill in `docs/06-security-and-privacy.md`, including two known limits: the
+  login rate limit is counted per server instance on Vercel, and changing a
+  password doesn't log out other devices until their tokens expire.
+- Add this week's entries to `AI-USAGE.md`.
+- Add what billing you used when subscribing
