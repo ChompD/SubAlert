@@ -17,14 +17,19 @@ const STEPS = {
   yearly: { months: 12 },
 }
 
+// One billing cycle later: "2026-09-20" monthly is "2026-10-20".
+export function addCycle(date, frequency) {
+  const step = STEPS[frequency] ?? STEPS.monthly
+  return step.days ? addDays(date, step.days) : addMonths(date, step.months)
+}
+
 // Rolls forward until the date is today or later. The guard stops a runaway
 // loop if a date is ever stored wrong: weekly for 10 years is about 520 steps.
 export function nextChargeDate(endDate, frequency, today = new Date()) {
-  const step = STEPS[frequency] ?? STEPS.monthly
   let date = endDate
 
   for (let guard = 0; daysUntil(date, today) < 0 && guard < 600; guard += 1) {
-    date = step.days ? addDays(date, step.days) : addMonths(date, step.months)
+    date = addCycle(date, frequency)
   }
   return date
 }
