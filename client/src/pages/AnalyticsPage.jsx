@@ -7,7 +7,10 @@ import SummaryCard from '../components/molecules/SummaryCard.jsx'
 import CategoryBars from '../components/molecules/charts/CategoryBars.jsx'
 import DecisionBar from '../components/molecules/charts/DecisionBar.jsx'
 import ForecastColumns from '../components/molecules/charts/ForecastColumns.jsx'
+import TopList from '../components/molecules/lists/TopList.jsx'
+import UpcomingList from '../components/molecules/lists/UpcomingList.jsx'
 import ChartPanel from '../components/organisms/ChartPanel.jsx'
+import SubscriptionDetails from '../components/organisms/SubscriptionDetails.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import {
   decisionCounts,
@@ -17,6 +20,8 @@ import {
   spendByCategory,
   spendingSubscriptions,
   spendTotals,
+  topSubscriptions,
+  upcomingCharges,
 } from '../utils/analytics.js'
 import { friendlyError } from '../utils/errors.js'
 import { DEFAULT_CURRENCY, FREQUENCIES, formatPrice } from '../utils/money.js'
@@ -39,6 +44,9 @@ export default function AnalyticsPage() {
   const [status, setStatus] = useState('loading') // loading | ready | error
   const [subscriptions, setSubscriptions] = useState([])
   const [error, setError] = useState(null)
+  // Which subscription's details pop-up is open, by id, or null for none:
+  // the same pop-up the Dashboard opens.
+  const [openId, setOpenId] = useState(null)
 
   async function load() {
     setStatus('loading')
@@ -75,6 +83,8 @@ export default function AnalyticsPage() {
   const top = mostExpensive(subscriptions, currency)
   const categories = spendByCategory(subscriptions, currency)
   const decisions = decisionCounts(subscriptions)
+  const upcoming = upcomingCharges(subscriptions, currency, 30)
+  const priciest = topSubscriptions(subscriptions, currency, 5)
   const forecast = monthlyForecast(subscriptions, currency)
   // Other currencies that appear anywhere in the forecast get a table column.
   const forecastCurrencies = [...new Set(forecast.flatMap((m) => m.others.map((o) => o.currency)))]
@@ -112,6 +122,7 @@ export default function AnalyticsPage() {
           <div className={styles.panels} aria-hidden="true">
             <div className={`${styles.skeleton} ${styles.skeletonPanel}`} />
             <div className={`${styles.skeleton} ${styles.skeletonPanel}`} />
+            <div className={`${styles.skeleton} ${styles.skeletonPanel} ${styles.wide}`} />
           </div>
         </>
       )}
@@ -259,9 +270,34 @@ export default function AnalyticsPage() {
               }
               note={forecastOthers && `Also ${forecastOthers} over these 12 months in other currencies, shown in the table.`}
             />
+
+            <ChartPanel
+              title="Charging in the next 30 days"
+              description="Soonest first. Tap one for its details."
+              chart={
+                <UpcomingList
+                  charges={upcoming.charges}
+                  totals={upcoming.totals}
+                  currency={currency}
+                  onOpen={setOpenId}
+                />
+              }
+            />
+
+            <ChartPanel
+              title="Most expensive"
+              description={`Per month, in ${currency}`}
+              chart={<TopList rows={priciest} currency={currency} onOpen={setOpenId} />}
+            />
           </div>
         </>
       )}
+
+      <SubscriptionDetails
+        subscription={subscriptions.find((sub) => sub.id === openId) ?? null}
+        onClose={() => setOpenId(null)}
+        onEdit={(id) => navigate(`/edit/${id}`)}
+      />
     </div>
   )
 }

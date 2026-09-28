@@ -13,7 +13,8 @@ const VIEWS = [
 // someone who just wants the figures gets the same information.
 //
 // `chart` and `table` are what to show in each view; `note` is an optional
-// line under either (for example, money in other currencies).
+// line under either (for example, money in other currencies). Without a
+// `table` there is no switch: a list of exact figures is its own table.
 export default function ChartPanel({ title, description, chart, table, note, className = '' }) {
   const [view, setView] = useState('chart')
   const titleId = useId()
@@ -27,13 +28,15 @@ export default function ChartPanel({ title, description, chart, table, note, cla
           </h2>
           {description && <p className={styles.description}>{description}</p>}
         </div>
-        <div className={styles.switch}>
-          <DecisionToggle value={view} onChange={setView} options={VIEWS} label={`Show ${title} as`} />
-        </div>
+        {table && (
+          <div className={styles.switch}>
+            <DecisionToggle value={view} onChange={setView} options={VIEWS} label={`Show ${title} as`} />
+          </div>
+        )}
       </header>
 
       <div key={view} className={styles.body}>
-        {view === 'chart' ? chart : table}
+        {view === 'table' && table ? table : chart}
       </div>
 
       {note && <p className={styles.note}>{note}</p>}

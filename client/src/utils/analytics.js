@@ -65,16 +65,21 @@ export function savedByCancelling(subscriptions, mainCurrency) {
   return splitByCurrency(monthlyEntries(subscriptions.filter((sub) => sub.status === 'cancel')), mainCurrency)
 }
 
-// The priciest per month, in the main currency only: ₱1,200 and $20 can't be
-// ranked against each other. null when nothing is in the main currency.
+// The priciest per month, biggest first, in the main currency only: ₱1,200
+// and $20 can't be ranked against each other. Ties go alphabetically, so the
+// order never jumps around between visits.
+export function topSubscriptions(subscriptions, mainCurrency, limit = 5, today = new Date()) {
+  return spendingSubscriptions(subscriptions, today)
+    .filter((sub) => currencyOf(sub) === mainCurrency)
+    .map((sub) => ({ subscription: sub, monthly: monthlyAmount(sub.price, sub.frequency) }))
+    .sort((a, b) => b.monthly - a.monthly || a.subscription.name.localeCompare(b.subscription.name))
+    .slice(0, limit)
+}
+
+// The single priciest one: the top of that same list, so the headline card
+// and the list can never disagree. null when nothing is in the main currency.
 export function mostExpensive(subscriptions, mainCurrency, today = new Date()) {
-  let best = null
-  for (const sub of spendingSubscriptions(subscriptions, today)) {
-    if (currencyOf(sub) !== mainCurrency) continue
-    const monthly = monthlyAmount(sub.price, sub.frequency)
-    if (!best || monthly > best.monthly) best = { subscription: sub, monthly }
-  }
-  return best
+  return topSubscriptions(subscriptions, mainCurrency, 1, today)[0] ?? null
 }
 
 const categoryLabel = (key) =>

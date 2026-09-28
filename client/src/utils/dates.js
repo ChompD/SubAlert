@@ -68,6 +68,17 @@ export function formatLongDate(dateString) {
   })
 }
 
+// "Sat, Oct 3" for lists, where the year would only be noise. Built from the
+// parts, like formatLongDate, so it can't slip to the day before.
+export function formatShortDate(dateString) {
+  const [year, month, day] = dateString.split('-').map(Number)
+  return localMidnight(year, month - 1, day).toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  })
+}
+
 // A "YYYY-MM-DD" string for a date some days from today, in local time.
 // Used for sample data, so the demo always has trials ending soon.
 export function isoDateFromToday(offsetDays, today = new Date()) {
