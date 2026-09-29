@@ -16,8 +16,14 @@
   /* Room for the focus ring, which overflow would otherwise clip. */
   padding: calc(var(--space-1) / 2) 2px;
   scrollbar-width: none;
-  /* Fade the last few pixels, so it's obvious there are more pills to see. */
+  /* Fade the last few pixels, so it's obvious there are more pills to see.
+     The -webkit- copy is for older iPhones, which only know that name. */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--space-4)), transparent);
   mask-image: linear-gradient(to right, #000 calc(100% - var(--space-4)), transparent);
+  /* The pills that are scrolled out of view must not count as page width.
+     Chrome already keeps them in; iPhone Safari needs to be told, or it
+     shrinks the whole Dashboard to make room for them. */
+  contain: paint;
 }
 
 .pills::-webkit-scrollbar {
@@ -84,7 +90,9 @@
   .pills {
     flex-wrap: wrap;
     overflow: visible;
+    -webkit-mask-image: none;
     mask-image: none;
+    contain: none;
   }
 
   .sort {

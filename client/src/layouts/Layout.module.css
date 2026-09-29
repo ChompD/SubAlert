@@ -4,6 +4,12 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  /* Nothing may make a page wider than the screen. On an iPhone, Safari
+     answers even a few pixels of extra width by shrinking the WHOLE page to
+     fit, which left the Dashboard smaller with an empty strip down the right.
+     `clip` (not `hidden`) cuts the extra off without making this a scroll
+     area of its own. */
+  overflow-x: clip;
 }
 
 .main {
