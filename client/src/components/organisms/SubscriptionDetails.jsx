@@ -130,10 +130,6 @@ export default function SubscriptionDetails({ subscription, onClose, onEdit }) {
               <dd>≈ {formatPrice(monthlyAmount(price, frequency), currency)}</dd>
             </div>
           )}
-          <div>
-            <dt>Currency</dt>
-            <dd>{currency}</dd>
-          </div>
           {paymentMethod && (
             <div>
               <dt>Paid with</dt>
