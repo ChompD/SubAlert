@@ -24,6 +24,33 @@
   border-color: var(--color-primary);
 }
 
+/* Date boxes: on an iPhone (Safari and Chrome alike, same engine) a date
+   input has a built-in minimum width and ignores width: 100%, so it ran off
+   the right edge of the form. It may shrink like any other box. */
+.input[type='date'] {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* iPhone only (-webkit-touch-callout exists only there): drop the built-in
+   look that sets that width, keep the box's height when no date is picked
+   yet, and line the chosen date up on the left like every other field.
+   Desktop browsers keep their own date box, calendar icon included. */
+@supports (-webkit-touch-callout: none) {
+  .input[type='date'] {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    min-height: var(--control-height);
+    line-height: calc(var(--control-height) - 2px);
+  }
+
+  .input[type='date']::-webkit-date-and-time-value {
+    margin: 0;
+    text-align: left;
+  }
+}
+
 .input::placeholder {
   color: var(--color-text-muted);
 }
