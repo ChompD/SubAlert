@@ -16,7 +16,7 @@ const COLORS = ['blue', 'green', 'orange', 'red', 'purple', 'gray']
 
 // Only these can be set by a request. Anything else in the body (user_id,
 // id, created_at...) is ignored, so nobody can move a row to another account.
-export const FIELDS = ['name', 'price', 'currency', 'frequency', 'endDate', 'status', 'icon', 'color', 'note']
+export const FIELDS = ['name', 'price', 'currency', 'frequency', 'endDate', 'status', 'icon', 'color', 'note', 'paymentMethod']
 
 // A real calendar day in YYYY-MM-DD. The pattern alone would let 2026-02-30
 // through, and Postgres would answer that with a 500.
@@ -25,6 +25,13 @@ function isRealDate(text) {
   const [year, month, day] = text.split('-').map(Number)
   const date = new Date(Date.UTC(year, month - 1, day))
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+}
+
+// "Paid with": the name of the wallet, bank or card type, like "GCash". It
+// must never be an account or card number, so six or more digits in a row are
+// refused, even split by spaces or dashes ("1234 5678 9012").
+function looksLikeAccountNumber(text) {
+  return /[0-9]{6}/.test(text.replace(/[\s-]/g, ''))
 }
 
 // Takes a whole subscription (for a create, or an edit already merged with
@@ -63,6 +70,17 @@ export function validateSubscription(input) {
   const note = input.note == null ? '' : typeof input.note === 'string' ? input.note.trim() : null
   if (note === null || note.length > 500) errors.push('Keep the note under 500 characters')
 
+  // Optional. Runs of spaces are squeezed, so "G  Cash" and "G Cash" match.
+  const paymentMethod =
+    input.paymentMethod == null ? '' : typeof input.paymentMethod === 'string' ? input.paymentMethod.trim().replace(/\s+/g, ' ') : null
+  if (paymentMethod === null) {
+    errors.push('Write "Paid with" as text, like GCash')
+  } else if (paymentMethod.length > 40) {
+    errors.push('Keep "Paid with" under 40 characters')
+  } else if (looksLikeAccountNumber(paymentMethod)) {
+    errors.push('For "Paid with", write just the name, like GCash. Never an account or card number')
+  }
+
   return {
     errors,
     value: {
@@ -76,6 +94,7 @@ export function validateSubscription(input) {
       icon,
       color,
       note,
+      paymentMethod,
     },
   }
 }

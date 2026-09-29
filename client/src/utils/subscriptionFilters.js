@@ -67,7 +67,8 @@ export function applyFilters(subscriptions, { query = '', filter = DEFAULT_FILTE
   const needle = query.trim().toLowerCase()
 
   return subscriptions
-    .filter((sub) => !needle || sub.name.toLowerCase().includes(needle))
+    // The name, or how it's paid: searching "gcash" finds everything on GCash.
+    .filter((sub) => !needle || sub.name.toLowerCase().includes(needle) || (sub.paymentMethod ?? '').toLowerCase().includes(needle))
     .filter((sub) => matchesFilter(sub, filter))
     // A copy before sorting: .sort() changes the array it is called on, and
     // the original is React state, which must never be changed in place.

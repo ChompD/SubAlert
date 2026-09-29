@@ -6,7 +6,7 @@
 
 // A fixed list written here, never anything a user sent, so it is safe to put
 // in the SQL text. Values from the request always go in the $1, $2 array.
-const COLUMNS = 'id, name, price, currency, frequency, end_date, status, icon, color, note'
+const COLUMNS = 'id, name, price, currency, frequency, end_date, status, icon, color, note, payment_method'
 
 // The shape the client gets, the same one client/src/api/mockApi.js returns.
 export function toPublicSubscription(row) {
@@ -23,6 +23,7 @@ export function toPublicSubscription(row) {
     icon: row.icon,
     color: row.color,
     note: row.note,
+    paymentMethod: row.payment_method,
   }
 }
 
@@ -47,10 +48,10 @@ export async function getForUser(pool, id, userId) {
 // userId comes from the login token, never from the request body.
 export async function createForUser(pool, userId, s) {
   const result = await pool.query(
-    `INSERT INTO subscriptions (user_id, name, price, currency, frequency, end_date, status, icon, color, note)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    `INSERT INTO subscriptions (user_id, name, price, currency, frequency, end_date, status, icon, color, note, payment_method)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING ${COLUMNS}`,
-    [userId, s.name, s.price, s.currency, s.frequency, s.endDate, s.status, s.icon, s.color, s.note]
+    [userId, s.name, s.price, s.currency, s.frequency, s.endDate, s.status, s.icon, s.color, s.note, s.paymentMethod]
   )
   return result.rows[0]
 }
@@ -61,10 +62,10 @@ export async function updateForUser(pool, id, userId, s) {
   const result = await pool.query(
     `UPDATE subscriptions
      SET name = $3, price = $4, currency = $5, frequency = $6, end_date = $7,
-         status = $8, icon = $9, color = $10, note = $11
+         status = $8, icon = $9, color = $10, note = $11, payment_method = $12
      WHERE id = $1 AND user_id = $2
      RETURNING ${COLUMNS}`,
-    [id, userId, s.name, s.price, s.currency, s.frequency, s.endDate, s.status, s.icon, s.color, s.note]
+    [id, userId, s.name, s.price, s.currency, s.frequency, s.endDate, s.status, s.icon, s.color, s.note, s.paymentMethod]
   )
   return result.rows[0] ?? null
 }

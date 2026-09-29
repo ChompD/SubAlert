@@ -5,13 +5,14 @@ import styles from './FormField.module.css'
 // htmlFor/id ties the label to the input, so clicking the label focuses the
 // input and screen readers announce it. aria-describedby ties the error to the
 // input, so the error is read out, not only shown in orange.
-export default function FormField({ id, label, error, ...inputProps }) {
+export default function FormField({ id, label, hint, error, ...inputProps }) {
   const errorId = `${id}-error`
 
   return (
     <div className={styles.field}>
       <label htmlFor={id} className={styles.label}>
         {label}
+        {hint && <span className={styles.hint}> {hint}</span>}
       </label>
       <input
         id={id}

@@ -17,6 +17,7 @@ import {
   LEGACY_CURRENCY,
 } from '../utils/money.js'
 import { COLOR_KEYS, DEFAULT_COLOR, DEFAULT_ICON, ICON_KEYS } from '../utils/icons.js'
+import { ACCOUNT_NUMBER_MESSAGE, looksLikeAccountNumber, PAYMENT_MAX, tidyPaymentMethod } from '../utils/payments.js'
 
 // A real network is not instant. Keeping this delay is what forces you to build
 // a loading state now, while it is cheap, instead of discovering you need one
@@ -177,6 +178,8 @@ function cleanSubscription(input) {
   const frequency = input.frequency ?? DEFAULT_FREQUENCY
   // Optional. Rows saved before notes existed have none.
   const note = typeof input.note === 'string' ? input.note.trim() : ''
+  // Optional. Rows saved before it existed have none.
+  const paymentMethod = typeof input.paymentMethod === 'string' ? tidyPaymentMethod(input.paymentMethod) : ''
 
   if (!name || name.length > 80) fail(400, 'Enter a service name of 80 characters or fewer')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(endDate)) fail(400, 'Enter the subscription end date')
@@ -186,8 +189,10 @@ function cleanSubscription(input) {
   if (!COLOR_KEYS.includes(color)) fail(400, 'Pick a colour from the list')
   if (!FREQUENCY_KEYS.includes(frequency)) fail(400, 'Pick how often it bills')
   if (note.length > 500) fail(400, 'Keep the note under 500 characters')
+  if (paymentMethod.length > PAYMENT_MAX) fail(400, 'Keep "Paid with" under 40 characters')
+  if (looksLikeAccountNumber(paymentMethod)) fail(400, `For "Paid with", ${ACCOUNT_NUMBER_MESSAGE.charAt(0).toLowerCase()}${ACCOUNT_NUMBER_MESSAGE.slice(1)}`)
 
-  return { name, endDate, price: Math.round(price * 100) / 100, currency, frequency, icon, color, status, note }
+  return { name, endDate, price: Math.round(price * 100) / 100, currency, frequency, icon, color, status, note, paymentMethod }
 }
 
 // Only what the page needs: the owner's id stays inside the "database".
@@ -195,6 +200,7 @@ function cleanSubscription(input) {
 // out, and an old trialEndDate is handed over as endDate.
 const publicSubscription = ({ userId, trialEndDate, ...row }) => ({
   note: '',
+  paymentMethod: '',
   currency: LEGACY_CURRENCY,
   frequency: DEFAULT_FREQUENCY,
   icon: DEFAULT_ICON,

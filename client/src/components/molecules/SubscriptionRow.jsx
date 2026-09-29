@@ -4,6 +4,7 @@ import DecisionToggle from './DecisionToggle.jsx'
 import { daysUntil, describeDaysLeft, urgencyLevel } from '../../utils/dates.js'
 import { effectiveDate, hasEnded, isRenewal } from '../../utils/schedule.js'
 import { formatPrice, perFrequency } from '../../utils/money.js'
+import { paymentLabel } from '../../utils/payments.js'
 import styles from './SubscriptionRow.module.css'
 
 const BADGE_TEXT = { urgent: 'Urgent', soon: 'Soon' }
@@ -27,7 +28,7 @@ const BADGE_TEXT = { urgent: 'Urgent', soon: 'Soon' }
 // keyboard and screen-reader users can open it too; a tap anywhere else on
 // the card does the same, unless it landed on the toggle or the ··· button.
 export default function SubscriptionRow({ subscription, index = 0, onDecisionChange, onEdit, onOpen }) {
-  const { id, name, price, currency, frequency, icon, color, status } = subscription
+  const { id, name, price, currency, frequency, icon, color, status, paymentMethod } = subscription
   // Kept subscriptions renew: the date shown rolls forward by the billing
   // cycle instead of saying "Ended". See utils/schedule.js.
   const date = effectiveDate(subscription)
@@ -78,6 +79,16 @@ export default function SubscriptionRow({ subscription, index = 0, onDecisionCha
             <span className="sr-only">{renewed ? 'Next charge: ' : 'Ends: '}</span>
             {daysLeft}
           </span>
+          {/* How it's paid, when known: "₱549.00/mo · Tomorrow · GCash". */}
+          {paymentMethod && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>
+                <span className="sr-only">Paid with </span>
+                {paymentLabel(paymentMethod)}
+              </span>
+            </>
+          )}
         </p>
 
         {/* It is past its date and no decision was ever made. */}

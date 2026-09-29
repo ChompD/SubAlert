@@ -40,8 +40,20 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   icon TEXT NOT NULL DEFAULT 'letter' CHECK (char_length(icon) <= 40),
   color TEXT NOT NULL DEFAULT 'gray' CHECK (char_length(color) <= 40),
   note TEXT NOT NULL DEFAULT '' CHECK (char_length(note) <= 500),
+  payment_method TEXT NOT NULL DEFAULT '' CHECK (char_length(payment_method) <= 40 AND payment_method !~ '[0-9]{6}'),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Added after the table already existed on the live database: CREATE TABLE IF
+-- NOT EXISTS skips a table that's there, so the new column needs its own line.
+-- Does nothing on a database that already has it.
+--
+-- "Paid with": the NAME of how it's paid (GCash, MariBank, Credit card), never
+-- an account or card number. Six digits in a row is refused here as a last
+-- line; the API checks first and explains why.
+ALTER TABLE subscriptions
+  ADD COLUMN IF NOT EXISTS payment_method TEXT NOT NULL DEFAULT ''
+  CHECK (char_length(payment_method) <= 40 AND payment_method !~ '[0-9]{6}');
 
 -- The Dashboard asks for one user's subscriptions, soonest first, on every
 -- visit. This index answers exactly that question without reading the table.

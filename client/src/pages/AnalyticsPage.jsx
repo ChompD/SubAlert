@@ -18,6 +18,7 @@ import {
   mostExpensive,
   savedByCancelling,
   spendByCategory,
+  spendByPaymentMethod,
   spendingSubscriptions,
   spendTotals,
   topSubscriptions,
@@ -82,6 +83,9 @@ export default function AnalyticsPage() {
   const saved = savedByCancelling(subscriptions, currency)
   const top = mostExpensive(subscriptions, currency)
   const categories = spendByCategory(subscriptions, currency)
+  const payments = spendByPaymentMethod(subscriptions, currency)
+  // Nobody has filled in "Paid with" yet: say how, rather than one bar of 100%.
+  const noPaymentsSet = payments.every((p) => p.key === 'unset')
   const decisions = decisionCounts(subscriptions)
   const upcoming = upcomingCharges(subscriptions, currency, 30)
   const priciest = topSubscriptions(subscriptions, currency, 5)
@@ -219,6 +223,41 @@ export default function AnalyticsPage() {
             />
 
             <ChartPanel
+              title="By payment method"
+              description={`Per month, in ${currency}, by "Paid with"`}
+              chart={
+                categories.length === 0 ? (
+                  <p className={styles.muted}>Nothing billed in {currency} yet.</p>
+                ) : noPaymentsSet ? (
+                  <p className={styles.muted}>
+                    Add &quot;Paid with&quot; to your subscriptions (GCash, MariBank, a credit card…) to see which one
+                    pays for what.
+                  </p>
+                ) : (
+                  <CategoryBars rows={payments} currency={currency} />
+                )
+              }
+              table={
+                <DataTable
+                  caption={`Spending per payment method, per month, in ${currency}`}
+                  columns={[
+                    { key: 'label', label: 'Paid with' },
+                    { key: 'monthly', label: 'Per month', numeric: true },
+                    { key: 'count', label: 'Subscriptions', numeric: true },
+                    { key: 'share', label: 'Share', numeric: true },
+                  ]}
+                  rows={payments.map((p) => ({
+                    label: p.label,
+                    monthly: formatPrice(p.monthly, currency),
+                    count: p.count,
+                    share: percent(p.share, 1),
+                  }))}
+                />
+              }
+            />
+
+            <ChartPanel
+              className={styles.wide}
               title="Your decisions"
               description="Subscriptions still running"
               chart={<DecisionBar counts={decisions} />}

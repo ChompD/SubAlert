@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { friendlyError } from '../utils/errors.js'
 import { DEFAULT_COLOR, DEFAULT_ICON } from '../utils/icons.js'
 import { CURRENCIES, DEFAULT_CURRENCY, DEFAULT_FREQUENCY, FREQUENCIES } from '../utils/money.js'
+import { PAYMENT_MAX, PAYMENT_SUGGESTIONS, tidyPaymentMethod } from '../utils/payments.js'
 import { NOTE_MAX, validateSubscription } from '../utils/validation.js'
 import formStyles from './AuthForm.module.css'
 import styles from './SubscriptionFormPage.module.css'
@@ -25,6 +26,7 @@ const EMPTY = {
   color: DEFAULT_COLOR,
   status: 'undecided',
   note: '',
+  paymentMethod: '',
 }
 
 const CURRENCY_OPTIONS = CURRENCIES.map(({ code, label }) => ({ value: code, label }))
@@ -54,8 +56,9 @@ export default function SubscriptionFormPage() {
     getSubscription(id)
       .then((found) => {
         if (cancelled) return
-        // price comes back as a number; inputs want a string.
-        setForm({ ...found, price: String(found.price) })
+        // price comes back as a number; inputs want a string. Older rows may
+        // have no paymentMethod, and an input must never get undefined.
+        setForm({ ...found, price: String(found.price), paymentMethod: found.paymentMethod ?? '' })
         setLoading(false)
       })
       .catch((error) => {
@@ -101,6 +104,7 @@ export default function SubscriptionFormPage() {
       color: form.color,
       status: form.status,
       note: form.note.trim(),
+      paymentMethod: tidyPaymentMethod(form.paymentMethod),
     }
 
     setSaving(true)
@@ -213,6 +217,27 @@ export default function SubscriptionFormPage() {
               error={errors.frequency}
             />
           </div>
+
+          {/* Type anything, or pick a suggestion: the <datalist> offers them
+              as you type, and on a phone above the keyboard. */}
+          <FormField
+            id="sub-paymentMethod"
+            name="paymentMethod"
+            label="Paid with"
+            hint="(optional)"
+            placeholder="GCash, MariBank, Credit card…"
+            list="payment-suggestions"
+            autoComplete="off"
+            maxLength={PAYMENT_MAX}
+            value={form.paymentMethod}
+            onChange={handleChange}
+            error={errors.paymentMethod}
+          />
+          <datalist id="payment-suggestions">
+            {PAYMENT_SUGGESTIONS.map((suggestion) => (
+              <option key={suggestion} value={suggestion} />
+            ))}
+          </datalist>
 
           <div className={styles.decision}>
             {/* Visual label only: the toggle's own aria-label names the group. */}

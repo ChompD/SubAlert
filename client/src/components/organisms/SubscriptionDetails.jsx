@@ -6,6 +6,7 @@ import ServiceIcon from '../atoms/ServiceIcon.jsx'
 import { daysUntil, describeDaysLeft, formatLongDate, urgencyLevel } from '../../utils/dates.js'
 import { effectiveDate, isRenewal } from '../../utils/schedule.js'
 import { FREQUENCIES, formatPrice, monthlyAmount, perFrequency } from '../../utils/money.js'
+import { paymentLabel } from '../../utils/payments.js'
 import styles from './SubscriptionDetails.module.css'
 
 const DECISION_TEXT = { keep: 'Keep', cancel: 'Cancel', undecided: 'Undecided' }
@@ -69,7 +70,7 @@ export default function SubscriptionDetails({ subscription, onClose, onEdit }) {
 
   if (!shown) return <dialog ref={dialog} className={styles.dialog} onClose={onClose} />
 
-  const { id, name, icon, color, price, currency, frequency, endDate, status, note } = shown
+  const { id, name, icon, color, price, currency, frequency, endDate, status, note, paymentMethod } = shown
   // Kept subscriptions show their next charge date, not the one that passed.
   const date = effectiveDate(shown)
   const renewed = isRenewal(shown)
@@ -133,6 +134,12 @@ export default function SubscriptionDetails({ subscription, onClose, onEdit }) {
             <dt>Currency</dt>
             <dd>{currency}</dd>
           </div>
+          {paymentMethod && (
+            <div>
+              <dt>Paid with</dt>
+              <dd>{paymentLabel(paymentMethod)}</dd>
+            </div>
+          )}
           <div>
             <dt>Decision</dt>
             <dd>{DECISION_TEXT[status] ?? 'Undecided'}</dd>

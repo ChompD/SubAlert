@@ -1,4 +1,5 @@
 import { CURRENCY_CODES, FREQUENCY_KEYS } from './money.js'
+import { ACCOUNT_NUMBER_MESSAGE, looksLikeAccountNumber, PAYMENT_MAX, tidyPaymentMethod } from './payments.js'
 
 // Checks the forms run before sending anything. They make mistakes quick to
 // fix, but they are for convenience only: the server checks everything again,
@@ -37,7 +38,7 @@ export const PRICE_MAX = 9999999
 
 export const NOTE_MAX = 500
 
-export function validateSubscription({ name, endDate, price, currency, frequency, note = '' }) {
+export function validateSubscription({ name, endDate, price, currency, frequency, note = '', paymentMethod = '' }) {
   const errors = {}
 
   if (!name.trim()) errors.name = 'Enter the service name'
@@ -57,6 +58,11 @@ export function validateSubscription({ name, endDate, price, currency, frequency
   // Optional, so empty is fine. The box stops typing at the limit, but a
   // pasted note could still arrive longer.
   if (note.trim().length > NOTE_MAX) errors.note = `Keep the note under ${NOTE_MAX} characters`
+
+  // Optional too. Only the name of how it's paid, never a number.
+  const paidWith = tidyPaymentMethod(paymentMethod)
+  if (paidWith.length > PAYMENT_MAX) errors.paymentMethod = `Keep it under ${PAYMENT_MAX} characters`
+  else if (looksLikeAccountNumber(paidWith)) errors.paymentMethod = ACCOUNT_NUMBER_MESSAGE
 
   return errors
 }
