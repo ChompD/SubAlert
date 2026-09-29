@@ -45,6 +45,13 @@
   font-weight: 600;
 }
 
+/* The line under the currency picker saying what changing it does. */
+.help {
+  margin-top: calc(var(--space-1) * -1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
 .success {
   padding: var(--space-1) var(--space-2);
   border: 1px solid var(--color-primary);

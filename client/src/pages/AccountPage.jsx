@@ -6,7 +6,7 @@ import FormField from '../components/molecules/FormField.jsx'
 import SelectField from '../components/molecules/SelectField.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { friendlyError } from '../utils/errors.js'
-import { CURRENCIES } from '../utils/money.js'
+import { CURRENCIES, formatPrice } from '../utils/money.js'
 import { NAME_MAX, PASSWORD_MIN } from '../utils/validation.js'
 import formStyles from './AuthForm.module.css'
 import styles from './AccountPage.module.css'
@@ -19,7 +19,7 @@ export default function AccountPage() {
   const { user, updateUser, logout } = useAuth()
   const navigate = useNavigate()
 
-  // Profile: name and the currency new subscriptions start in.
+  // Profile: name and the account's currency, which every subscription uses.
   const [profile, setProfile] = useState({ name: user.name, defaultCurrency: user.defaultCurrency })
   const [profileErrors, setProfileErrors] = useState({})
   const [profileMessage, setProfileMessage] = useState(null)
@@ -44,6 +44,20 @@ export default function AccountPage() {
     if (!name || name.length > NAME_MAX) {
       setProfileErrors({ name: `Enter a name of ${NAME_MAX} characters or fewer` })
       document.getElementById('account-name')?.focus()
+      return
+    }
+
+    // Changing the currency relabels every subscription WITHOUT converting the
+    // amounts, so ask first, with an example of exactly what will happen.
+    const changingCurrency = profile.defaultCurrency !== user.defaultCurrency
+    if (
+      changingCurrency &&
+      !window.confirm(
+        `Change your currency to ${profile.defaultCurrency}? All your subscriptions will switch to ${profile.defaultCurrency}, ` +
+          `but their amounts won't be converted: ${formatPrice(549, user.defaultCurrency)} becomes ${formatPrice(549, profile.defaultCurrency)}. ` +
+          `You'd need to edit each price yourself.`
+      )
+    ) {
       return
     }
 
@@ -154,14 +168,19 @@ export default function AccountPage() {
           <SelectField
             id="account-defaultCurrency"
             name="defaultCurrency"
-            label="Default currency for new subscriptions"
+            label="Currency"
             options={CURRENCY_OPTIONS}
             value={profile.defaultCurrency}
+            aria-describedby="account-currency-help"
             onChange={(event) => {
               setProfile({ ...profile, defaultCurrency: event.target.value })
               setProfileMessage(null)
             }}
           />
+          <p id="account-currency-help" className={styles.help}>
+            Every subscription uses this currency, so your totals always add up. Changing it relabels your
+            subscriptions but doesn&apos;t convert their prices.
+          </p>
 
           <Button type="submit" disabled={savingProfile}>
             {savingProfile ? 'Saving…' : 'Save changes'}

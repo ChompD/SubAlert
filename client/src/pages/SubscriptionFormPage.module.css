@@ -31,8 +31,12 @@
   gap: var(--space-2);
 }
 
-.priceRow > :nth-child(3) {
-  grid-column: 1 / -1;
+/* Under the price: what to do about a service billed in dollars. Pulled up
+   close, since it belongs to the row above it. */
+.hint {
+  margin-top: calc(var(--space-1) * -1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
 }
 
 .decision {

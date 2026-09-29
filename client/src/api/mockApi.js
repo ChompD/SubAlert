@@ -119,8 +119,18 @@ export async function updateProfile({ name, defaultCurrency }) {
   const index = rows.findIndex((row) => row.id === id)
   rows[index] = { ...rows[index], name: cleanName, defaultCurrency: currency }
   writeList(USERS_KEY, rows)
+  // One currency per account: every subscription is relabelled to match, the
+  // same as the real server. Amounts are not converted.
+  writeList(
+    SUBSCRIPTIONS_KEY,
+    readList(SUBSCRIPTIONS_KEY).map((sub) => (sub.userId === id ? { ...sub, currency } : sub))
+  )
   return { user: publicUser(rows[index]) }
 }
+
+// The logged-in account's currency: every subscription uses it.
+const accountCurrency = (userId) =>
+  publicUser(readList(USERS_KEY).find((row) => row.id === userId)).defaultCurrency
 
 // The current password is required, so someone who walks up to an unlocked
 // laptop cannot lock the owner out of their own account.
@@ -232,7 +242,7 @@ export async function createSubscription(input) {
   await delay()
   const userId = currentUserId()
   const created = {
-    ...cleanSubscription(input),
+    ...cleanSubscription({ ...input, currency: accountCurrency(userId) }),
     id: crypto.randomUUID(),
     userId,
     created_at: new Date().toISOString(),
@@ -261,7 +271,7 @@ export async function updateSubscription(id, changes) {
   if (index === -1) fail(404, 'Not found')
 
   const { trialEndDate, ...current } = rows[index]
-  rows[index] = { ...current, ...cleanSubscription({ ...rows[index], ...changes }) }
+  rows[index] = { ...current, ...cleanSubscription({ ...rows[index], ...changes, currency: accountCurrency(userId) }) }
   writeList(SUBSCRIPTIONS_KEY, rows)
   return publicSubscription(rows[index])
 }

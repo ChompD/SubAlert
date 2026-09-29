@@ -54,9 +54,16 @@ export async function getPasswordHash(pool, id) {
   return result.rows[0]?.password_hash ?? null
 }
 
+// One currency per account, so changing it relabels every subscription to
+// match. Both updates are ONE statement (the WITH part runs with it), so they
+// happen together or not at all. Amounts are not converted: the Account page
+// says so before the user confirms.
 export async function updateProfile(pool, id, { name, defaultCurrency }) {
   const result = await pool.query(
-    `UPDATE users SET name = $2, default_currency = $3
+    `WITH relabelled AS (
+       UPDATE subscriptions SET currency = $3 WHERE user_id = $1 AND currency <> $3
+     )
+     UPDATE users SET name = $2, default_currency = $3
      WHERE id = $1
      RETURNING id, name, email, default_currency`,
     [id, name, defaultCurrency]

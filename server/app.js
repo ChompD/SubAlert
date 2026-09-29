@@ -175,10 +175,11 @@ async function requireAuth(request, response, next) {
     // signed after the account is deleted. Without this check, adding a
     // subscription with it would point at a user who isn't there (a 500).
     // One lookup by primary key per request, which is cheap.
-    if (!(await users.findById(pool, payload.sub))) {
-      return response.status(401).json({ error: SESSION_ENDED })
-    }
+    const user = await users.findById(pool, payload.sub)
+    if (!user) return response.status(401).json({ error: SESSION_ENDED })
     request.userId = payload.sub
+    // Kept for the routes: a subscription's currency is always its owner's.
+    request.user = user
     next()
   } catch (error) {
     next(error)
@@ -241,8 +242,10 @@ function pickFields(body) {
   return picked
 }
 
+// One currency per account: every subscription is in the account's currency
+// (Account settings), whatever the request says. Totals then always add up.
 app.post('/api/subscriptions', requireAuth, async (request, response, next) => {
-  const { errors, value } = validateSubscription(pickFields(request.body))
+  const { errors, value } = validateSubscription({ ...pickFields(request.body), currency: request.user.default_currency })
   if (errors.length > 0) return response.status(400).json({ error: errors.join('. ') })
 
   try {
@@ -264,7 +267,11 @@ app.patch('/api/subscriptions/:id', requireAuth, async (request, response, next)
 
     // The change laid over what's saved, then the WHOLE result checked, so a
     // partial update can never leave a row that would fail a full one.
-    const merged = { ...subscriptions.toPublicSubscription(current), ...pickFields(request.body) }
+    const merged = {
+      ...subscriptions.toPublicSubscription(current),
+      ...pickFields(request.body),
+      currency: request.user.default_currency,
+    }
     const { errors, value } = validateSubscription(merged)
     if (errors.length > 0) return response.status(400).json({ error: errors.join('. ') })
 

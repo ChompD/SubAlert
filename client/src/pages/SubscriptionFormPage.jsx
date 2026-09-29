@@ -10,7 +10,7 @@ import TextAreaField from '../components/molecules/TextAreaField.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { friendlyError } from '../utils/errors.js'
 import { DEFAULT_COLOR, DEFAULT_ICON } from '../utils/icons.js'
-import { CURRENCIES, DEFAULT_CURRENCY, DEFAULT_FREQUENCY, FREQUENCIES } from '../utils/money.js'
+import { DEFAULT_CURRENCY, DEFAULT_FREQUENCY, FREQUENCIES } from '../utils/money.js'
 import { PAYMENT_MAX, PAYMENT_SUGGESTIONS, tidyPaymentMethod } from '../utils/payments.js'
 import { NOTE_MAX, validateSubscription } from '../utils/validation.js'
 import formStyles from './AuthForm.module.css'
@@ -29,7 +29,6 @@ const EMPTY = {
   paymentMethod: '',
 }
 
-const CURRENCY_OPTIONS = CURRENCIES.map(({ code, label }) => ({ value: code, label }))
 const FREQUENCY_OPTIONS = FREQUENCIES.map(({ key, label }) => ({ value: key, label }))
 
 // One page for two routes: /add starts blank, /edit/:id loads the existing
@@ -41,8 +40,10 @@ export default function SubscriptionFormPage() {
   const isEdit = Boolean(id)
   const navigate = useNavigate()
 
-  // A new subscription starts in the currency chosen on the account page.
-  const [form, setForm] = useState(() => ({ ...EMPTY, currency: user.defaultCurrency ?? EMPTY.currency }))
+  // One currency per account, set on the Account page. The form doesn't ask:
+  // every subscription is in it, so every total adds up.
+  const currency = user.defaultCurrency ?? DEFAULT_CURRENCY
+  const [form, setForm] = useState(() => ({ ...EMPTY, currency }))
   const [errors, setErrors] = useState({})
   const [formMessage, setFormMessage] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -98,7 +99,7 @@ export default function SubscriptionFormPage() {
       name: form.name.trim(),
       endDate: form.endDate,
       price: Number(form.price),
-      currency: form.currency,
+      currency,
       frequency: form.frequency,
       icon: form.icon,
       color: form.color,
@@ -180,23 +181,14 @@ export default function SubscriptionFormPage() {
             error={errors.endDate}
           />
 
-          {/* Currency, amount and how often: [PHP ▾] [ 549.00 ] [Monthly ▾]. */}
+          {/* Amount and how often: [ 549.00 ] [Monthly ▾]. The currency is the
+              account's, so the label says which one. */}
           <div className={styles.priceRow}>
-            <SelectField
-              id="sub-currency"
-              name="currency"
-              label="Currency"
-              options={CURRENCY_OPTIONS}
-              value={form.currency}
-              onChange={handleChange}
-              error={errors.currency}
-            />
-
             {/* inputMode="decimal" brings up the number keypad on phones. */}
             <FormField
               id="sub-price"
               name="price"
-              label="Price"
+              label={`Price (${currency})`}
               type="number"
               inputMode="decimal"
               min="0"
@@ -217,6 +209,9 @@ export default function SubscriptionFormPage() {
               error={errors.frequency}
             />
           </div>
+          <p className={styles.hint}>
+            Billed in another currency, like US dollars? Enter what your bank or wallet charged you, in {currency}.
+          </p>
 
           {/* Type anything, or pick a suggestion: the <datalist> offers them
               as you type, and on a phone above the keyboard. */}
