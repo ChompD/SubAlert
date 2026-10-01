@@ -8,13 +8,43 @@
 
 /* A problem with the whole attempt, shown above the fields. */
 .formMessage {
-  padding: var(--space-1) var(--space-2);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2) var(--space-1) 12px;
   border: 1px solid var(--color-accent);
   border-radius: var(--radius);
-  background: var(--color-surface);
+  /* A faint orange wash, kept light enough that the orange text still passes
+     4.5:1 contrast in both themes. */
+  background: color-mix(in srgb, var(--color-accent) 6%, var(--color-surface));
   color: var(--color-accent);
   font-size: var(--font-size-sm);
   font-weight: 500;
+  line-height: 1.5;
+  animation: messageIn var(--duration) var(--ease-out);
+}
+
+/* A warning icon (a circle with "!") drawn in the text colour. It is a CSS
+   mask, so every form that shows this message gets it without extra markup;
+   screen readers skip it and read only the words. */
+.formMessage::before {
+  content: '';
+  flex: none;
+  width: 16px;
+  height: 16px;
+  /* Lines it up with the first line of text (13px at 1.5 line height). */
+  margin-top: 2px;
+  background: currentColor;
+  -webkit-mask: var(--warning-icon) center / contain no-repeat;
+  mask: var(--warning-icon) center / contain no-repeat;
+  --warning-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 7v6M12 17h.01'/%3E%3C/svg%3E");
+}
+
+@keyframes messageIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
 
 .submit {

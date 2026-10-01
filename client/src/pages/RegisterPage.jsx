@@ -118,7 +118,7 @@ export default function RegisterPage() {
           error={errors.confirmPassword}
         />
 
-        <Button type="submit" fullWidth disabled={submitting} className={styles.submit}>
+        <Button type="submit" fullWidth loading={submitting} className={styles.submit}>
           {submitting ? 'Creating account…' : 'Create account'}
         </Button>
       </form>

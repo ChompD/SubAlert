@@ -96,7 +96,7 @@ export default function LoginPage() {
           error={errors.password}
         />
 
-        <Button type="submit" fullWidth disabled={submitting} className={styles.submit}>
+        <Button type="submit" fullWidth loading={submitting} className={styles.submit}>
           {submitting ? 'Logging in…' : 'Log in'}
         </Button>
       </form>

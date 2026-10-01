@@ -5,10 +5,15 @@ import styles from './Button.module.css'
 //
 // type defaults to "button", not the browser's "submit", so a button inside a
 // form only submits it when you ask for that.
+//
+// loading: shows a small spinning ring before the label and disables the
+// button, so a slow server cannot be sent the same form twice.
 export default function Button({
   variant = 'primary',
   type = 'button',
   fullWidth = false,
+  loading = false,
+  disabled,
   className = '',
   children,
   ...rest
@@ -18,7 +23,14 @@ export default function Button({
     .join(' ')
 
   return (
-    <button type={type} className={classes} {...rest}>
+    <button
+      type={type}
+      className={classes}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      {...rest}
+    >
+      {loading && <span className={styles.spinner} aria-hidden="true" />}
       {children}
     </button>
   )
