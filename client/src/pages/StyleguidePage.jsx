@@ -148,8 +148,8 @@ export default function StyleguidePage() {
         <Section title="AuthCard">
           <div className={styles.authStage}>
             <AuthCard
-              title="Log in"
-              subtitle="Track your subscriptions before they bill you."
+              title="Welcome back"
+              subtitle="Log in to see what's charging you next."
               footer={<>Don&apos;t have an account? <a href="#register">Register</a></>}
             >
               <div className={styles.stack}>
