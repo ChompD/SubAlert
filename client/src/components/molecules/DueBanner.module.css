@@ -1,0 +1,74 @@
+/* Phone: bell and text side by side, "Show them" across the full width under
+   them, easy to tap. From 640px the button moves up to the right end. */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  margin-bottom: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, var(--color-divider));
+  border-radius: var(--radius);
+  /* A faint teal wash, so it reads as the app talking to you rather than
+     as one more card. */
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface));
+  animation: rise var(--duration-slow) var(--ease-out) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* The bell in a small teal square, like the logo mark. */
+.icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: var(--color-surface);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.total {
+  font-variant-numeric: tabular-nums;
+}
+
+.names {
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.names strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.action {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .action {
+    width: auto;
+  }
+}

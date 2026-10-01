@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { listSubscriptions, updateSubscription } from '../api'
 import Button from '../components/atoms/Button.jsx'
+import DueBanner from '../components/molecules/DueBanner.jsx'
 import SubscriptionRow from '../components/molecules/SubscriptionRow.jsx'
 import SummaryCard from '../components/molecules/SummaryCard.jsx'
 import FilterBar from '../components/organisms/FilterBar.jsx'
@@ -115,6 +116,12 @@ export default function DashboardPage() {
               {error}
             </p>
           )}
+
+          {/* Like the cards, it describes everything, not the filtered list. */}
+          <DueBanner
+            subscriptions={subscriptions}
+            onShow={filter === 'soon' ? null : () => setFilter('soon')}
+          />
 
           <div className={styles.summary}>
             <SummaryCard label="Due in 48h" value={dueSoon} index={0} />

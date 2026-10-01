@@ -79,6 +79,16 @@ export function formatShortDate(dateString) {
   })
 }
 
+// "today", "tomorrow" or "on Fri", for a date in the coming week, where the
+// weekday alone is clear. days is daysUntil(dateString), passed in so it is
+// not worked out twice.
+export function describeDayThisWeek(dateString, days) {
+  if (days === 0) return 'today'
+  if (days === 1) return 'tomorrow'
+  const [year, month, day] = dateString.split('-').map(Number)
+  return `on ${localMidnight(year, month - 1, day).toLocaleDateString('en-US', { weekday: 'short' })}`
+}
+
 // A "YYYY-MM-DD" string for a date some days from today, in local time.
 // Used for sample data, so the demo always has trials ending soon.
 export function isoDateFromToday(offsetDays, today = new Date()) {

@@ -32,6 +32,19 @@ function isDueSoon(subscription) {
   return days >= 0 && days <= 7
 }
 
+// For the Dashboard's "Due this week" banner: exactly what the "Due soon" pill
+// shows, soonest first, each with the date it charges and the days left, so
+// the banner and the pill always agree.
+export function dueThisWeek(subscriptions) {
+  return subscriptions
+    .filter(isDueSoon)
+    .map((sub) => {
+      const date = effectiveDate(sub)
+      return { ...sub, date, days: daysUntil(date) }
+    })
+    .sort((a, b) => a.days - b.days)
+}
+
 function matchesFilter(subscription, filter) {
   if (filter === 'soon') return isDueSoon(subscription)
   if (filter === 'ended') return hasEnded(subscription)

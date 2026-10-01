@@ -72,15 +72,22 @@ export function formatWholePrice(amount, currency = LEGACY_CURRENCY) {
   return wholeFormatters.get(currency).format(Math.round(Number(amount) || 0))
 }
 
-// Adds up what the subscriptions cost PER MONTH, per currency: a yearly plan
-// counts as a twelfth of its price. Pesos and dollars can't be added together
-// without an exchange rate, so the result looks like "₱549.00 + $15.99", or a
-// single amount when everything shares one currency.
-export function formatMonthlyTotals(items) {
+// Adds up the subscriptions' prices, per currency, each charge counted once:
+// "what leaves your account" for the Dashboard's "Due this week" banner.
+// Pesos and dollars can't be added together without an exchange rate, so the
+// result looks like "₱549.00 + $15.99", or a single amount when everything
+// shares one currency. amountOf picks the number to add up for each item.
+export function formatTotals(items, amountOf = (item) => Number(item.price)) {
   const totals = new Map()
-  for (const { price, currency = LEGACY_CURRENCY, frequency } of items) {
-    totals.set(currency, (totals.get(currency) ?? 0) + monthlyAmount(price, frequency))
+  for (const item of items) {
+    const currency = item.currency ?? LEGACY_CURRENCY
+    totals.set(currency, (totals.get(currency) ?? 0) + amountOf(item))
   }
   if (totals.size === 0) return formatPrice(0, DEFAULT_CURRENCY)
   return [...totals].map(([currency, total]) => formatPrice(total, currency)).join(' + ')
+}
+
+// The same, but PER MONTH: a yearly plan counts as a twelfth of its price.
+export function formatMonthlyTotals(items) {
+  return formatTotals(items, ({ price, frequency }) => monthlyAmount(price, frequency))
 }
