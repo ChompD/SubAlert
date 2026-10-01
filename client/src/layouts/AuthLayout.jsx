@@ -11,7 +11,7 @@ export default function AuthLayout() {
   return (
     <div className={styles.layout}>
       <Header variant="auth" />
-      <main className={styles.main}>
+      <main className={`${styles.main} ${styles.authMain}`}>
         <div key={pathname} className={styles.page}>
           <Outlet />
         </div>

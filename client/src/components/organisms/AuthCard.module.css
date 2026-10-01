@@ -36,11 +36,21 @@
   margin-top: var(--space-3);
 }
 
+/* "Don't have an account? Register": set apart by a thin line, with the link
+   in bold so the way to the other form is easy to spot. It keeps its
+   underline, so it is not told apart by colour alone. */
 .footer {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-divider);
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   text-align: center;
+}
+
+.footer a {
+  font-weight: 600;
+  text-underline-offset: 3px;
 }
 
 /* 640px and up: a centred card with the logo mark, like the wireframe. */
@@ -52,6 +62,7 @@
     border: 1px solid var(--color-divider);
     border-radius: var(--radius);
     background: var(--color-surface);
+    box-shadow: var(--shadow-card);
   }
 
   .mark {

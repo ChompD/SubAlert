@@ -16,6 +16,19 @@
   flex: 1;
 }
 
+/* Log in / Register from 640px: the card sits in the middle of the space
+   between header and footer instead of near the top of a tall screen. The
+   extra room at the bottom nudges it a little above centre, where the eye
+   expects it. Phones stay top-aligned, so the keyboard never covers the form. */
+@media (min-width: 640px) {
+  .authMain {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-bottom: var(--space-4);
+  }
+}
+
 /* The header's add button: "+ Add" on a phone, the full label from 640px. */
 .addLong {
   display: none;
