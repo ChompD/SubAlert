@@ -19,7 +19,6 @@
 
 import { addDays, addMonths, isoDateFromToday } from './dates.js'
 import { LEGACY_CURRENCY, monthlyAmount } from './money.js'
-import { paymentKey, paymentLabel } from './payments.js'
 import { addCycle, effectiveDate, hasEnded } from './schedule.js'
 
 const currencyOf = (sub) => sub.currency ?? LEGACY_CURRENCY
@@ -78,26 +77,6 @@ export function topSubscriptions(subscriptions, mainCurrency, limit = 5, today =
 // and the list can never disagree. null when nothing is in the main currency.
 export function mostExpensive(subscriptions, mainCurrency, today = new Date()) {
   return topSubscriptions(subscriptions, mainCurrency, 1, today)[0] ?? null
-}
-
-// Monthly spend per "Paid with", in the main currency, biggest first. share is
-// the fraction of that currency's total (0 to 1), for drawing bars. Spellings
-// are grouped ("Gcash", "GCash" and "g cash" are one), and subscriptions with
-// none go under "Not set", always last.
-export function spendByPaymentMethod(subscriptions, mainCurrency, today = new Date()) {
-  const groups = new Map()
-  for (const sub of spendingSubscriptions(subscriptions, today)) {
-    if (currencyOf(sub) !== mainCurrency) continue
-    const key = paymentKey(sub.paymentMethod ?? '') || 'unset'
-    const group = groups.get(key) ?? { key, label: key === 'unset' ? 'Not set' : paymentLabel(sub.paymentMethod), monthly: 0, count: 0 }
-    group.monthly += monthlyAmount(sub.price, sub.frequency)
-    group.count += 1
-    groups.set(key, group)
-  }
-  const total = [...groups.values()].reduce((sum, group) => sum + group.monthly, 0)
-  return [...groups.values()]
-    .map((group) => ({ ...group, share: total > 0 ? group.monthly / total : 0 }))
-    .sort((a, b) => (a.key === 'unset') - (b.key === 'unset') || b.monthly - a.monthly || a.label.localeCompare(b.label))
 }
 
 // How many of the still-running subscriptions have each decision.

@@ -1,4 +1,4 @@
-/* Shared by the three Analytics charts. The marks are thin (at most 24px),
+/* Shared by the Analytics charts. The marks are thin (at most 24px),
    square where they start and rounded (4px) at the end that carries the
    value, separated by a 2px gap of the card's own colour rather than a
    border. Text is always in text colours; only the marks wear chart colours. */
@@ -95,67 +95,6 @@
   from {
     transform: scaleY(0);
   }
-}
-
-/* ---------------------------------------------------------------------------
-   By payment method: one row per "Paid with", a bar, the amount at its tip. */
-.bars {
-  display: grid;
-  gap: var(--space-1);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.barRow {
-  display: grid;
-  grid-template-columns: minmax(5.5rem, 32%) minmax(0, 1fr);
-  align-items: center;
-  gap: var(--space-1);
-  padding-block: 2px;
-  border-radius: 4px;
-}
-
-@media (hover: hover) {
-  .barRow:hover {
-    background: var(--color-bg);
-  }
-}
-
-.barLabel {
-  overflow: hidden;
-  color: var(--color-text);
-  font-size: var(--font-size-sm);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.barTrack {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
-/* Room is kept for the amount after the bar, so the longest bar and its
-   label always fit on the line. */
-.bar {
-  flex: none;
-  width: max(2px, calc((100% - 4.5rem) * var(--size)));
-  height: 14px;
-  border-radius: 0 4px 4px 0;
-  background: var(--chart-1);
-  transform-origin: left center;
-  animation: growX var(--duration-slow) var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * var(--stagger));
-}
-
-.barValue {
-  flex: none;
-  color: var(--color-text);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
 }
 
 /* ---------------------------------------------------------------------------
