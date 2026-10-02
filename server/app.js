@@ -3,7 +3,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import rateLimit from 'express-rate-limit'
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit'
 import { pool } from './db/pool.js'
 import * as users from './usersRepo.js'
 import * as subscriptions from './subscriptionsRepo.js'
@@ -62,18 +62,55 @@ app.get('/readyz', async (request, response) => {
 // ---------------------------------------------------------------------------
 // Accounts: register and log in.
 
-// Guessing passwords means trying thousands. Ten tries per 15 minutes per IP
-// is plenty for a person who mistyped and useless for a script.
+// Guessing passwords means trying thousands, so tries are limited. There used
+// to be ONE count of 10 per IP shared by register, log in, change password and
+// delete account, with successful attempts counted too. A whole classroom
+// shares one IP on the school Wi-Fi, so a few people logging in locked
+// everyone out for 15 minutes. Now each limit fits what it protects:
 //
-// Known limit on Vercel: the count is kept in memory, and Vercel can run
-// several copies of this server at once, each with its own count. It still
-// slows guessing down a lot, but it is not a hard ten.
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+//   Log in             10 WRONG passwords per email per IP, and 50 wrong in
+//                      total per IP (one IP trying many emails). Logging in
+//                      correctly never uses up a try.
+//   Register           30 per IP, counted whether they work or not: this one
+//                      stops someone making accounts by the thousand.
+//   Password, delete   10 wrong passwords per ACCOUNT. Only a logged-in user
+//                      gets here, so their own mistakes can't lock out a
+//                      classmate, and a stolen token still can't guess fast.
+//
+// Known limit on Vercel: the counts are kept in memory, and Vercel can run
+// several copies of this server at once, each with its own counts. It still
+// slows guessing down a lot, but the numbers are not hard limits.
+const FIFTEEN_MINUTES = 15 * 60 * 1000
+const TOO_MANY = { error: 'Too many attempts. Wait 15 minutes and try again' }
+
+// ipKeyGenerator, not request.ip as it is: it groups an IPv6 address with the
+// rest of its block, which one person can otherwise hop around in freely.
+const ipKey = (request) => ipKeyGenerator(request.ip)
+const emailOf = (request) =>
+  typeof request.body?.email === 'string' ? request.body.email.trim().toLowerCase() : ''
+
+const limiter = (identifier, options) =>
+  rateLimit({
+    windowMs: FIFTEEN_MINUTES,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    identifier,
+    message: TOO_MANY,
+    ...options,
+  })
+
+const loginPerIp = limiter('login-ip', { limit: 50, skipSuccessfulRequests: true, keyGenerator: ipKey })
+const loginPerAccount = limiter('login-account', {
   limit: 10,
-  standardHeaders: 'draft-8',
-  legacyHeaders: false,
-  message: { error: 'Too many attempts. Wait 15 minutes and try again' },
+  skipSuccessfulRequests: true,
+  keyGenerator: (request) => `${ipKey(request)}|${emailOf(request)}`,
+})
+const registerPerIp = limiter('register', { limit: 30, keyGenerator: ipKey })
+// After requireAuth, so request.userId is the logged-in account.
+const accountActions = limiter('account', {
+  limit: 10,
+  skipSuccessfulRequests: true,
+  keyGenerator: (request) => request.userId,
 })
 
 // The same pattern the client checks (client/src/utils/validation.js).
@@ -116,7 +153,7 @@ function validateRegistration(body) {
   return { errors, value: { name, email, password } }
 }
 
-app.post('/api/auth/register', authLimiter, async (request, response, next) => {
+app.post('/api/auth/register', registerPerIp, async (request, response, next) => {
   const { errors, value } = validateRegistration(request.body ?? {})
   if (errors.length > 0) return response.status(400).json({ error: errors.join('. ') })
 
@@ -133,7 +170,7 @@ app.post('/api/auth/register', authLimiter, async (request, response, next) => {
   }
 })
 
-app.post('/api/auth/login', authLimiter, async (request, response, next) => {
+app.post('/api/auth/login', loginPerIp, loginPerAccount, async (request, response, next) => {
   const email = typeof request.body?.email === 'string' ? request.body.email.trim().toLowerCase() : ''
   const password = typeof request.body?.password === 'string' ? request.body.password : ''
 
@@ -329,11 +366,12 @@ app.patch('/api/auth/me', requireAuth, async (request, response, next) => {
 })
 
 // Needs the current password, so someone at an unlocked laptop can't lock
-// the owner out. Rate limited like login: it's another place to guess one.
+// the owner out. Limited to 10 wrong tries per account (accountActions): it's
+// another place to guess a password.
 //
 // Known limit: tokens already handed out stay valid until they expire (7
 // days), so a device that is logged in stays logged in after a change.
-app.post('/api/auth/password', requireAuth, authLimiter, async (request, response, next) => {
+app.post('/api/auth/password', requireAuth, accountActions, async (request, response, next) => {
   const currentPassword = text(request.body?.currentPassword)
   const newPassword = text(request.body?.newPassword)
 
@@ -357,7 +395,7 @@ app.post('/api/auth/password', requireAuth, authLimiter, async (request, respons
 
 // Deletes the account and, through ON DELETE CASCADE, every subscription in
 // it. Asks for the password again, because this can't be undone.
-app.delete('/api/auth/me', requireAuth, authLimiter, async (request, response, next) => {
+app.delete('/api/auth/me', requireAuth, accountActions, async (request, response, next) => {
   try {
     const hash = await users.getPasswordHash(pool, request.userId)
     if (!hash) return sessionEnded(response)
