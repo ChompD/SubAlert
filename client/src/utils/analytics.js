@@ -79,15 +79,6 @@ export function mostExpensive(subscriptions, mainCurrency, today = new Date()) {
   return topSubscriptions(subscriptions, mainCurrency, 1, today)[0] ?? null
 }
 
-// How many of the still-running subscriptions have each decision.
-export function decisionCounts(subscriptions, today = new Date()) {
-  const counts = { keep: 0, cancel: 0, undecided: 0 }
-  for (const sub of subscriptions) {
-    if (!hasEnded(sub, today) && sub.status in counts) counts[sub.status] += 1
-  }
-  return counts
-}
-
 // Every date a spending subscription charges, from its next charge up to and
 // including `until` ("YYYY-MM-DD"; ISO dates compare correctly as text).
 function chargeDates(sub, today, until) {

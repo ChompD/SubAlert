@@ -4,7 +4,6 @@ import { listSubscriptions } from '../api'
 import Button from '../components/atoms/Button.jsx'
 import DataTable from '../components/molecules/DataTable.jsx'
 import SummaryCard from '../components/molecules/SummaryCard.jsx'
-import DecisionBar from '../components/molecules/charts/DecisionBar.jsx'
 import ForecastColumns from '../components/molecules/charts/ForecastColumns.jsx'
 import TopList from '../components/molecules/lists/TopList.jsx'
 import UpcomingList from '../components/molecules/lists/UpcomingList.jsx'
@@ -12,7 +11,6 @@ import ChartPanel from '../components/organisms/ChartPanel.jsx'
 import SubscriptionDetails from '../components/organisms/SubscriptionDetails.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import {
-  decisionCounts,
   monthlyForecast,
   mostExpensive,
   savedByCancelling,
@@ -79,7 +77,6 @@ export default function AnalyticsPage() {
   const totals = spendTotals(subscriptions, currency)
   const saved = savedByCancelling(subscriptions, currency)
   const top = mostExpensive(subscriptions, currency)
-  const decisions = decisionCounts(subscriptions)
   const upcoming = upcomingCharges(subscriptions, currency, 30)
   const priciest = topSubscriptions(subscriptions, currency, 5)
   const forecast = monthlyForecast(subscriptions, currency)
@@ -88,8 +85,6 @@ export default function AnalyticsPage() {
   const forecastOthers = forecastCurrencies
     .map((code) => formatPrice(forecast.reduce((sum, m) => sum + (m.others.find((o) => o.currency === code)?.amount ?? 0), 0), code))
     .join(' + ')
-  const decided = decisions.keep + decisions.cancel + decisions.undecided
-  const percent = (part, whole) => `${whole > 0 ? Math.round((part / whole) * 100) : 0}%`
   // "Adobe", or "iCloud, ₱588.00 yearly" when it isn't billed monthly, so the
   // per-month figure above it isn't mistaken for what's actually charged.
   const topDetail =
@@ -182,32 +177,6 @@ export default function AnalyticsPage() {
           </div>
 
           <div className={styles.panels}>
-            <ChartPanel
-              className={styles.wide}
-              title="Your decisions"
-              description="Subscriptions still running"
-              chart={<DecisionBar counts={decisions} />}
-              table={
-                <DataTable
-                  caption="Subscriptions still running, by decision"
-                  columns={[
-                    { key: 'label', label: 'Decision' },
-                    { key: 'count', label: 'Subscriptions', numeric: true },
-                    { key: 'share', label: 'Share', numeric: true },
-                  ]}
-                  rows={[
-                    ['Keep', decisions.keep],
-                    ['Undecided', decisions.undecided],
-                    ['Cancel', decisions.cancel],
-                  ].map(([label, count]) => ({ label, count, share: percent(count, decided) }))}
-                />
-              }
-              note={
-                decisions.undecided > 0 &&
-                `${decisions.undecided} still undecided. Decide before ${decisions.undecided === 1 ? 'it charges' : 'they charge'} you.`
-              }
-            />
-
             <ChartPanel
               className={styles.wide}
               title="Next 12 months"

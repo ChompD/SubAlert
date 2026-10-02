@@ -84,77 +84,11 @@
   background: var(--key, var(--chart-1));
 }
 
-/* Bars grow out of their baseline, one after another. --i is the index. */
-@keyframes growX {
-  from {
-    transform: scaleX(0);
-  }
-}
-
+/* Columns grow out of their baseline, one after another. --i is the index. */
 @keyframes growY {
   from {
     transform: scaleY(0);
   }
-}
-
-/* ---------------------------------------------------------------------------
-   Your decisions: one bar split Keep | Undecided | Cancel, then a legend. */
-.stack {
-  display: flex;
-  gap: 2px;
-}
-
-/* The hit area is taller than the 16px bar, so it's easy to point at. */
-.segment {
-  display: flex;
-  align-items: center;
-  min-width: 6px;
-  padding-block: var(--space-1);
-}
-
-.segmentFill {
-  width: 100%;
-  height: 16px;
-  background: var(--key);
-  transform-origin: left center;
-  animation: growX var(--duration-slow) var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * var(--stagger) * 2);
-}
-
-.segment:last-child .segmentFill {
-  border-radius: 0 4px 4px 0;
-}
-
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--font-size-sm);
-}
-
-.legendItem {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  background: var(--key);
-}
-
-.legendCount {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.legendShare {
-  color: var(--color-text-muted);
 }
 
 /* ---------------------------------------------------------------------------
