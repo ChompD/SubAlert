@@ -6,7 +6,6 @@ import DataTable from '../components/molecules/DataTable.jsx'
 import SummaryCard from '../components/molecules/SummaryCard.jsx'
 import ForecastColumns from '../components/molecules/charts/ForecastColumns.jsx'
 import TopList from '../components/molecules/lists/TopList.jsx'
-import UpcomingList from '../components/molecules/lists/UpcomingList.jsx'
 import ChartPanel from '../components/organisms/ChartPanel.jsx'
 import SubscriptionDetails from '../components/organisms/SubscriptionDetails.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -17,7 +16,6 @@ import {
   spendingSubscriptions,
   spendTotals,
   topSubscriptions,
-  upcomingCharges,
 } from '../utils/analytics.js'
 import { friendlyError } from '../utils/errors.js'
 import { DEFAULT_CURRENCY, FREQUENCIES, formatPrice } from '../utils/money.js'
@@ -77,7 +75,6 @@ export default function AnalyticsPage() {
   const totals = spendTotals(subscriptions, currency)
   const saved = savedByCancelling(subscriptions, currency)
   const top = mostExpensive(subscriptions, currency)
-  const upcoming = upcomingCharges(subscriptions, currency, 30)
   const priciest = topSubscriptions(subscriptions, currency, 5)
   const forecast = monthlyForecast(subscriptions, currency)
   // Other currencies that appear anywhere in the forecast get a table column.
@@ -112,8 +109,7 @@ export default function AnalyticsPage() {
             ))}
           </div>
           <div className={styles.panels} aria-hidden="true">
-            <div className={`${styles.skeleton} ${styles.skeletonPanel}`} />
-            <div className={`${styles.skeleton} ${styles.skeletonPanel}`} />
+            <div className={`${styles.skeleton} ${styles.skeletonPanel} ${styles.wide}`} />
             <div className={`${styles.skeleton} ${styles.skeletonPanel} ${styles.wide}`} />
           </div>
         </>
@@ -206,19 +202,7 @@ export default function AnalyticsPage() {
             />
 
             <ChartPanel
-              title="Charging in the next 30 days"
-              description="Soonest first. Tap one for its details."
-              chart={
-                <UpcomingList
-                  charges={upcoming.charges}
-                  totals={upcoming.totals}
-                  currency={currency}
-                  onOpen={setOpenId}
-                />
-              }
-            />
-
-            <ChartPanel
+              className={styles.wide}
               title="Most expensive"
               description={`Per month, in ${currency}`}
               chart={<TopList rows={priciest} currency={currency} onOpen={setOpenId} />}

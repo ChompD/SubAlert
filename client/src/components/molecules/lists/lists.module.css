@@ -1,5 +1,5 @@
-/* The two Analytics lists. Each row is a real button that opens the
-   subscription's details, laid out as a small grid. */
+/* The Analytics "Most expensive" list. Each row is a real button that opens
+   the subscription's details, laid out as a small grid. */
 .list {
   display: grid;
   margin: 0;
@@ -46,26 +46,15 @@
   }
 }
 
-/* [date / days left] [icon] [name] [badge] [amount] */
-.upcoming {
-  grid-template-columns: 5.75rem auto minmax(0, 1fr) auto auto;
-}
-
 /* [rank] [icon] [name / how it's billed] [per month] */
 .top {
   grid-template-columns: 1.25rem auto minmax(0, 1fr) auto;
 }
 
-.when,
 .nameBlock {
   display: grid;
   min-width: 0;
   line-height: 1.3;
-}
-
-.whenDate {
-  font-weight: 600;
-  white-space: nowrap;
 }
 
 .muted {
@@ -98,43 +87,7 @@
   white-space: nowrap;
 }
 
-.more {
-  justify-self: start;
-  margin-top: var(--space-1);
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--color-primary);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.total {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-2);
-  margin-top: var(--space-1);
-  padding-top: var(--space-1);
-  border-top: 1px solid var(--color-divider);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-}
-
 .empty {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
-}
-
-/* A phone has no room for the badge column; the date and "In 2 days" under
-   it already say how soon. */
-@media (max-width: 639px) {
-  .upcoming {
-    grid-template-columns: 5.25rem auto minmax(0, 1fr) auto;
-  }
-
-  .upcoming .badge {
-    display: none;
-  }
 }

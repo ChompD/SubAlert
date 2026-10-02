@@ -91,24 +91,6 @@ function chargeDates(sub, today, until) {
   return dates
 }
 
-// Charges in the next `days` days (today included), soonest first, with the
-// total per currency.
-export function upcomingCharges(subscriptions, mainCurrency, days = 30, today = new Date()) {
-  const from = isoDateFromToday(0, today)
-  const until = addDays(from, days)
-  const charges = spendingSubscriptions(subscriptions, today)
-    .flatMap((sub) =>
-      chargeDates(sub, today, until).map((date) => ({
-        subscription: sub,
-        date,
-        amount: Number(sub.price),
-        currency: currencyOf(sub),
-      }))
-    )
-    .sort((a, b) => a.date.localeCompare(b.date) || a.subscription.name.localeCompare(b.subscription.name))
-  return { days, charges, totals: splitByCurrency(charges, mainCurrency) }
-}
-
 // What will be charged in each of the next 12 calendar months, this month
 // first (from today on). Real charges on real dates, so the month a yearly
 // plan renews stands out.
