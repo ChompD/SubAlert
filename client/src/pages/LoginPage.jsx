@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Button from '../components/atoms/Button.jsx'
 import FormField from '../components/molecules/FormField.jsx'
 import AuthCard from '../components/organisms/AuthCard.jsx'
@@ -10,9 +10,8 @@ import styles from './AuthForm.module.css'
 
 // Log in (/login). Checks the fields here, then AuthContext calls the API.
 export default function LoginPage() {
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
+  // notice: "Your session has ended…", when you were logged out by the server.
+  const { login, notice } = useAuth()
 
   const [form, setForm] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({})
@@ -45,9 +44,9 @@ export default function LoginPage() {
 
     setSubmitting(true)
     try {
+      // Once logged in, GuestRoute moves you on: back to the page ProtectedRoute
+      // sent you away from, or the Dashboard. Nothing to navigate here.
       await login(form.email.trim(), form.password)
-      // Back to the page ProtectedRoute sent them away from, or the Dashboard.
-      navigate(location.state?.from?.pathname ?? '/', { replace: true })
     } catch (error) {
       setFormMessage(friendlyError(error))
       setSubmitting(false)
@@ -67,10 +66,16 @@ export default function LoginPage() {
       {/* noValidate: use our own messages instead of the browser's pop-ups,
           which look different in every browser and can't be styled. */}
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
-        {formMessage && (
+        {formMessage ? (
           <p className={styles.formMessage} role="alert">
             {formMessage}
           </p>
+        ) : (
+          notice && (
+            <p className={styles.formMessage} role="status">
+              {notice}
+            </p>
+          )
         )}
 
         <FormField

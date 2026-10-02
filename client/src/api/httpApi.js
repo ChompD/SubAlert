@@ -26,15 +26,18 @@ async function request(path, options) {
   if (!response.ok) {
     // Try to use the API's own message; fall back to the status line.
     let message = `${response.status} ${response.statusText}`
+    let code
     try {
       const body = await response.json()
       if (body?.error) message = body.error
+      code = body?.code
     } catch {
       // The body was not JSON. The status line is all we have.
     }
     const error = new Error(message)
-    // Kept so the app can tell "you're logged out" (401) from other failures.
     error.status = response.status
+    // "session_ended" means you're logged out; api/index.js acts on it.
+    if (code) error.code = code
     throw error
   }
 

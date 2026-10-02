@@ -154,10 +154,16 @@ app.post('/api/auth/login', authLimiter, async (request, response, next) => {
 
 const SESSION_ENDED = 'Your session has ended. Log in again'
 
+// Every "you are not logged in any more" answer goes through here. The code
+// is what the client looks for to log you out and send you to Log in. A 401
+// alone isn't enough: "That is not your current password" is a 401 too, and
+// that one must keep you on the Account page.
+const sessionEnded = (response) => response.status(401).json({ error: SESSION_ENDED, code: 'session_ended' })
+
 async function requireAuth(request, response, next) {
   // "Authorization: Bearer <token>", as client/src/api/httpApi.js sends it.
   const [scheme, token] = (request.get('Authorization') ?? '').split(' ')
-  if (scheme !== 'Bearer' || !token) return response.status(401).json({ error: SESSION_ENDED })
+  if (scheme !== 'Bearer' || !token) return sessionEnded(response)
 
   let payload
   try {
@@ -167,7 +173,7 @@ async function requireAuth(request, response, next) {
   } catch {
     // Expired, tampered with, or signed with another secret: all the same to
     // the visitor, and the client answers a 401 by logging them out.
-    return response.status(401).json({ error: SESSION_ENDED })
+    return sessionEnded(response)
   }
 
   try {
@@ -176,7 +182,7 @@ async function requireAuth(request, response, next) {
     // subscription with it would point at a user who isn't there (a 500).
     // One lookup by primary key per request, which is cheap.
     const user = await users.findById(pool, payload.sub)
-    if (!user) return response.status(401).json({ error: SESSION_ENDED })
+    if (!user) return sessionEnded(response)
     request.userId = payload.sub
     // Kept for the routes: a subscription's currency is always its owner's.
     request.user = user
@@ -192,7 +198,7 @@ app.get('/api/auth/me', requireAuth, async (request, response, next) => {
   try {
     const row = await users.findById(pool, request.userId)
     // A token that is still valid for an account that has since been deleted.
-    if (!row) return response.status(401).json({ error: SESSION_ENDED })
+    if (!row) return sessionEnded(response)
     response.json({ user: users.toPublicUser(row) })
   } catch (error) {
     next(error)
@@ -311,7 +317,7 @@ app.patch('/api/auth/me', requireAuth, async (request, response, next) => {
 
   try {
     const row = await users.updateProfile(pool, request.userId, { name, defaultCurrency })
-    if (!row) return response.status(401).json({ error: SESSION_ENDED })
+    if (!row) return sessionEnded(response)
     response.json({ user: users.toPublicUser(row) })
   } catch (error) {
     next(error)
@@ -329,7 +335,7 @@ app.post('/api/auth/password', requireAuth, authLimiter, async (request, respons
 
   try {
     const hash = await users.getPasswordHash(pool, request.userId)
-    if (!hash) return response.status(401).json({ error: SESSION_ENDED })
+    if (!hash) return sessionEnded(response)
     // 401 with this message is what AccountPage.jsx shows on the field.
     if (!(await bcrypt.compare(currentPassword, hash))) {
       return response.status(401).json({ error: 'That is not your current password' })
@@ -350,7 +356,7 @@ app.post('/api/auth/password', requireAuth, authLimiter, async (request, respons
 app.delete('/api/auth/me', requireAuth, authLimiter, async (request, response, next) => {
   try {
     const hash = await users.getPasswordHash(pool, request.userId)
-    if (!hash) return response.status(401).json({ error: SESSION_ENDED })
+    if (!hash) return sessionEnded(response)
     if (!(await bcrypt.compare(text(request.body?.password), hash))) {
       return response.status(401).json({ error: 'Wrong password' })
     }

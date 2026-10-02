@@ -36,9 +36,10 @@ function readList(key) {
 
 const writeList = (key, rows) => localStorage.setItem(key, JSON.stringify(rows))
 
-function fail(status, message) {
+function fail(status, message, code) {
   const error = new Error(message)
   error.status = status
+  if (code) error.code = code
   throw error
 }
 
@@ -61,7 +62,8 @@ const publicUser = ({ passwordHash, ...user }) => ({ defaultCurrency: DEFAULT_CU
 function currentUserId() {
   const id = getToken()?.replace(/^mock\./, '')
   if (!id || !readList(USERS_KEY).some((row) => row.id === id)) {
-    fail(401, 'Your session has ended. Log in again')
+    // The same code the real server sends, so demo mode logs you out too.
+    fail(401, 'Your session has ended. Log in again', 'session_ended')
   }
   return id
 }

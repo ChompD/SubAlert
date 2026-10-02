@@ -15,6 +15,21 @@ export function AuthProvider({ children }) {
   // 'checking' while a saved token is turned back into a user. Without it,
   // a logged-in user would see the Log in page flash on every reload.
   const [status, setStatus] = useState(() => (getToken() ? 'checking' : 'ready'))
+  // Why you're on the Log in page, when it wasn't your choice: shown there
+  // until you log in again.
+  const [notice, setNotice] = useState(null)
+
+  // The server said the session is over (see api/index.js, which has already
+  // forgotten the token). Dropping the user is all it takes: ProtectedRoute
+  // sends you to Log in and remembers the page you were on.
+  useEffect(
+    () =>
+      api.onSessionEnded(() => {
+        setUser(null)
+        setNotice('Your session has ended. Log in again to carry on.')
+      }),
+    []
+  )
 
   useEffect(() => {
     if (!getToken()) return
@@ -35,12 +50,14 @@ export function AuthProvider({ children }) {
     const { token, user } = await api.login({ email, password })
     setToken(token)
     setUser(user)
+    setNotice(null)
   }
 
   async function register(name, email, password) {
     const { token, user } = await api.register({ name, email, password })
     setToken(token)
     setUser(user)
+    setNotice(null)
   }
 
   // Used by the account page after saving a new name or default currency,
@@ -55,7 +72,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, status, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, status, notice, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
