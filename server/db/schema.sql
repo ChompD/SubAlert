@@ -70,3 +70,33 @@ CREATE INDEX IF NOT EXISTS subscriptions_user_end_date_idx
 -- data is through our API, with its login and its "AND user_id = $2" checks.
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- ---------------------------------------------------------------------------
+-- A second lock behind RLS. Supabase gives its two public roles, anon (anyone
+-- holding the public key) and authenticated (anyone signed in through
+-- Supabase Auth, which SubAlert doesn't use), every permission on new tables.
+-- RLS stops them reading or changing rows, but RLS is one switch that could be
+-- turned off by mistake, and one of those permissions, TRUNCATE (empty the
+-- whole table), ignores RLS altogether. Taking the permissions away means the
+-- public roles can do nothing here whatever RLS says. Our server is not
+-- affected: it connects as postgres, which owns the tables.
+--
+-- rls_auto_enable() is Supabase's own helper that switches RLS on for every
+-- new table. Supabase's security check flags it because anyone may call it;
+-- only the database itself needs to. Its owner, postgres, keeps the right to
+-- run it, so it still switches RLS on for new tables.
+--
+-- Inside a check because these roles and that function exist only on
+-- Supabase: on a plain local PostgreSQL, REVOKE would stop with "role anon
+-- does not exist". Safe to run twice, like the rest of this file.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon')
+     AND EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+    REVOKE ALL ON users, subscriptions FROM anon, authenticated;
+    IF to_regprocedure('public.rls_auto_enable()') IS NOT NULL THEN
+      REVOKE EXECUTE ON FUNCTION public.rls_auto_enable() FROM PUBLIC, anon, authenticated;
+    END IF;
+  END IF;
+END
+$$;
