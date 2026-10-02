@@ -19,7 +19,7 @@
 
 import { addDays, addMonths, isoDateFromToday } from './dates.js'
 import { LEGACY_CURRENCY, monthlyAmount } from './money.js'
-import { addCycle, effectiveDate, hasEnded } from './schedule.js'
+import { chargeOn, hasEnded, nextChargeIndex } from './schedule.js'
 
 const currencyOf = (sub) => sub.currency ?? LEGACY_CURRENCY
 
@@ -81,12 +81,17 @@ export function mostExpensive(subscriptions, mainCurrency, today = new Date()) {
 
 // Every date a spending subscription charges, from its next charge up to and
 // including `until` ("YYYY-MM-DD"; ISO dates compare correctly as text).
+// Counted from the subscription's own date (chargeOn in schedule.js), the
+// same way the Dashboard works out "Renews in…", so a plan on the 31st
+// charges on the 31st (or the month's last day) here too.
 function chargeDates(sub, today, until) {
   const dates = []
-  let date = effectiveDate(sub, today)
-  for (let guard = 0; date <= until && guard < 600; guard += 1) {
+  let n = nextChargeIndex(sub.endDate, sub.frequency, today)
+  // At most 53 charges fit in a year (weekly); the cap is only a safety net.
+  for (let date = chargeOn(sub.endDate, sub.frequency, n); date <= until && dates.length < 600; ) {
     dates.push(date)
-    date = addCycle(date, sub.frequency)
+    n += 1
+    date = chargeOn(sub.endDate, sub.frequency, n)
   }
   return dates
 }

@@ -17,24 +17,39 @@ const STEPS = {
   yearly: { months: 12 },
 }
 
-// One billing cycle later: "2026-09-20" monthly is "2026-10-20".
-export function addCycle(date, frequency) {
+// The nth charge counted from the subscription's own date: n = 0 is endDate
+// itself, n = 1 one billing cycle later, and so on.
+//
+// Always counted from the ORIGINAL date, never from the charge before. Going
+// charge to charge, a plan on the 31st became 28 February (the clamp is right
+// for February), then 28 March, 28 April... stuck on the 28th for good, so the
+// app showed renewals up to 3 days early and missed "due today". From the
+// original date, addMonths clamps each month on its own: 31 Jan, 28 Feb,
+// 31 Mar, 30 Apr, 31 May.
+export function chargeOn(endDate, frequency, n) {
   const step = STEPS[frequency] ?? STEPS.monthly
-  return step.days ? addDays(date, step.days) : addMonths(date, step.months)
+  return step.days ? addDays(endDate, step.days * n) : addMonths(endDate, step.months * n)
 }
 
-// Rolls forward until the date is today or later. The guard stops a runaway
-// loop if a date is ever stored wrong. Dates start at 2000 (validation.js),
-// and weekly from 2000 to 2100 is about 5,300 steps, so 6,000 covers every
-// date the app accepts; 600 used to stop a weekly plan from before ~2015
-// short, leaving it "Renews ended".
-export function nextChargeDate(endDate, frequency, today = new Date()) {
-  let date = endDate
+// Which charge (n, as above) is the first one today or later. 0 when the
+// date hasn't passed yet, or isn't a usable date.
+export function nextChargeIndex(endDate, frequency, today = new Date()) {
+  const behind = -daysUntil(endDate, today)
+  if (!(behind > 0)) return 0
 
-  for (let guard = 0; daysUntil(date, today) < 0 && guard < 6000; guard += 1) {
-    date = addCycle(date, frequency)
-  }
-  return date
+  // Jump most of the way in one go instead of one cycle at a time: a week is
+  // exactly 7 days and a month at most 31, so this n is never past today.
+  // Then step forward to the first charge that is today or later; for a
+  // monthly plan from 2000 that's a few dozen steps, not a few hundred.
+  const step = STEPS[frequency] ?? STEPS.monthly
+  let n = Math.floor(behind / (step.days ?? 31 * step.months))
+  while (daysUntil(chargeOn(endDate, frequency, n), today) < 0) n += 1
+  return n
+}
+
+// The first charge on or after today: "Renews in 12 days" on a kept plan.
+export function nextChargeDate(endDate, frequency, today = new Date()) {
+  return chargeOn(endDate, frequency, nextChargeIndex(endDate, frequency, today))
 }
 
 // The date the app should actually show and sort by.
