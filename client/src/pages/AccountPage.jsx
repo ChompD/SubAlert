@@ -7,7 +7,7 @@ import SelectField from '../components/molecules/SelectField.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { friendlyError } from '../utils/errors.js'
 import { CURRENCIES, formatPrice } from '../utils/money.js'
-import { NAME_MAX, PASSWORD_MIN } from '../utils/validation.js'
+import { NAME_MAX, PASSWORD_MIN, passwordError } from '../utils/validation.js'
 import formStyles from './AuthForm.module.css'
 import styles from './AccountPage.module.css'
 
@@ -78,7 +78,9 @@ export default function AccountPage() {
     event.preventDefault()
     const found = {}
     if (!passwords.currentPassword) found.currentPassword = 'Enter your current password'
-    if (passwords.newPassword.length < PASSWORD_MIN) found.newPassword = `Use at least ${PASSWORD_MIN} characters`
+    // The same rule as Register, including the 72-byte limit.
+    const newPasswordProblem = passwordError(passwords.newPassword)
+    if (newPasswordProblem) found.newPassword = newPasswordProblem
     if (passwords.confirmPassword !== passwords.newPassword) found.confirmPassword = "Passwords don't match"
 
     setPasswordErrors(found)

@@ -18,6 +18,7 @@ import {
 } from '../utils/money.js'
 import { COLOR_KEYS, DEFAULT_COLOR, DEFAULT_ICON, ICON_KEYS } from '../utils/icons.js'
 import { ACCOUNT_NUMBER_MESSAGE, looksLikeAccountNumber, PAYMENT_MAX, tidyPaymentMethod } from '../utils/payments.js'
+import { DATE_MAX, DATE_MIN, passwordError } from '../utils/validation.js'
 
 // A real network is not instant. Keeping this delay is what forces you to build
 // a loading state now, while it is cheap, instead of discovering you need one
@@ -72,9 +73,10 @@ export async function register({ name, email, password }) {
   await delay()
   const cleanName = name?.trim() ?? ''
   const cleanEmail = email?.trim().toLowerCase() ?? ''
-  if (!cleanName || !cleanEmail || (password ?? '').length < 8) {
-    fail(400, 'Enter a name, a valid email and a password of at least 8 characters')
-  }
+  if (!cleanName || !cleanEmail) fail(400, 'Enter a name and a valid email')
+  // The same password rule as the real server, 72-byte limit included.
+  const passwordProblem = passwordError(password ?? '')
+  if (passwordProblem) fail(400, passwordProblem)
 
   const rows = readList(USERS_KEY)
   if (rows.some((row) => row.email === cleanEmail)) {
@@ -145,7 +147,8 @@ export async function changePassword({ currentPassword, newPassword }) {
   if (rows[index].passwordHash !== (await hash(currentPassword ?? ''))) {
     fail(401, 'That is not your current password')
   }
-  if ((newPassword ?? '').length < 8) fail(400, 'Use at least 8 characters')
+  const passwordProblem = passwordError(newPassword ?? '')
+  if (passwordProblem) fail(400, passwordProblem)
 
   rows[index] = { ...rows[index], passwordHash: await hash(newPassword) }
   writeList(USERS_KEY, rows)
@@ -195,6 +198,7 @@ function cleanSubscription(input) {
 
   if (!name || name.length > 80) fail(400, 'Enter a service name of 80 characters or fewer')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(endDate)) fail(400, 'Enter the subscription end date')
+  if (endDate < DATE_MIN || endDate > DATE_MAX) fail(400, 'Pick an end date between 2000 and 2100')
   if (!Number.isFinite(price) || price < 0 || price > 9999999) fail(400, 'Enter a price from 0 to 9,999,999')
   if (!CURRENCY_CODES.includes(currency)) fail(400, 'Pick a currency from the list')
   if (!ICON_KEYS.includes(icon)) fail(400, 'Pick an icon from the list')

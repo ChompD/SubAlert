@@ -12,7 +12,7 @@ import { friendlyError } from '../utils/errors.js'
 import { DEFAULT_COLOR, DEFAULT_ICON } from '../utils/icons.js'
 import { DEFAULT_CURRENCY, DEFAULT_FREQUENCY, FREQUENCIES } from '../utils/money.js'
 import { PAYMENT_MAX, PAYMENT_SUGGESTIONS, tidyPaymentMethod } from '../utils/payments.js'
-import { NOTE_MAX, validateSubscription } from '../utils/validation.js'
+import { DATE_MAX, DATE_MIN, NOTE_MAX, validateSubscription } from '../utils/validation.js'
 import formStyles from './AuthForm.module.css'
 import styles from './SubscriptionFormPage.module.css'
 
@@ -171,11 +171,14 @@ export default function SubscriptionFormPage() {
             onChange={(changes) => setForm({ ...form, ...changes })}
           />
 
+          {/* min and max: the date picker only offers days the form accepts. */}
           <FormField
             id="sub-endDate"
             name="endDate"
             label="Subscription end date"
             type="date"
+            min={DATE_MIN}
+            max={DATE_MAX}
             value={form.endDate}
             onChange={handleChange}
             error={errors.endDate}

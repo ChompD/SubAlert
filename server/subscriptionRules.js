@@ -18,6 +18,9 @@ const COLORS = ['blue', 'green', 'orange', 'red', 'purple', 'gray']
 // id, created_at...) is ignored, so nobody can move a row to another account.
 export const FIELDS = ['name', 'price', 'currency', 'frequency', 'endDate', 'status', 'icon', 'color', 'note', 'paymentMethod']
 
+const DATE_MIN = '2000-01-01'
+const DATE_MAX = '2100-12-31'
+
 // A real calendar day in YYYY-MM-DD. The pattern alone would let 2026-02-30
 // through, and Postgres would answer that with a 500.
 function isRealDate(text) {
@@ -56,7 +59,12 @@ export function validateSubscription(input) {
   const frequency = input.frequency ?? 'monthly'
   if (!FREQUENCIES.includes(frequency)) errors.push('Pick how often it bills')
 
+  // 2000 to 2100: anything outside is a typo (a year typed as 0202), and a
+  // kept plan dated centuries ago could never be rolled forward to its next
+  // charge. Same range as the client (client/src/utils/validation.js).
+  // YYYY-MM-DD strings compare correctly as text.
   if (!isRealDate(input.endDate)) errors.push('Enter the subscription end date')
+  else if (input.endDate < DATE_MIN || input.endDate > DATE_MAX) errors.push('Pick an end date between 2000 and 2100')
 
   const status = input.status ?? 'undecided'
   if (!STATUSES.includes(status)) errors.push('Pick keep, cancel or undecided')

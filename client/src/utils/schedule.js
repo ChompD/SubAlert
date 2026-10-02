@@ -24,11 +24,14 @@ export function addCycle(date, frequency) {
 }
 
 // Rolls forward until the date is today or later. The guard stops a runaway
-// loop if a date is ever stored wrong: weekly for 10 years is about 520 steps.
+// loop if a date is ever stored wrong. Dates start at 2000 (validation.js),
+// and weekly from 2000 to 2100 is about 5,300 steps, so 6,000 covers every
+// date the app accepts; 600 used to stop a weekly plan from before ~2015
+// short, leaving it "Renews ended".
 export function nextChargeDate(endDate, frequency, today = new Date()) {
   let date = endDate
 
-  for (let guard = 0; daysUntil(date, today) < 0 && guard < 600; guard += 1) {
+  for (let guard = 0; daysUntil(date, today) < 0 && guard < 6000; guard += 1) {
     date = addCycle(date, frequency)
   }
   return date

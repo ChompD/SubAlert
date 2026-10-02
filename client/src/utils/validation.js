@@ -11,11 +11,33 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export const PASSWORD_MIN = 8
 
-// bcrypt, which the server will use to hash passwords, only reads the first 72
-// characters. Longer ones are refused rather than silently cut short.
-export const PASSWORD_MAX = 72
+// bcrypt, which the server uses to hash passwords, only reads the first 72
+// BYTES. A plain letter or digit is 1 byte, but an accented letter is 2 and
+// an emoji 4, so the limit is counted in bytes, exactly as the server counts
+// it (server/app.js), with the same words. Counting characters here instead
+// let a 40-character password with emoji through, only for the server to
+// refuse it as "over 72 characters".
+const PASSWORD_MAX_BYTES = 72
+const byteLength = (text) => new TextEncoder().encode(text).length
+
+// The one password rule, for Register, the Account page and demo mode.
+// Returns the problem as a sentence, or null.
+export function passwordError(password) {
+  if (password.length < PASSWORD_MIN) return `Use at least ${PASSWORD_MIN} characters`
+  if (byteLength(password) > PASSWORD_MAX_BYTES) {
+    return 'Use a shorter password: 72 characters at most, and emoji or accented letters count as 2 to 4'
+  }
+  return null
+}
 
 export const NAME_MAX = 80
+
+// Subscriptions end between these, both included. Outside them is a typo (a
+// year typed as 0202), and a kept plan dated centuries ago could never be
+// rolled forward to its next charge. The server checks the same range
+// (server/subscriptionRules.js). YYYY-MM-DD strings compare correctly as text.
+export const DATE_MIN = '2000-01-01'
+export const DATE_MAX = '2100-12-31'
 
 export function emailError(email) {
   if (!email.trim()) return 'Enter your email'
@@ -46,6 +68,7 @@ export function validateSubscription({ name, endDate, price, currency, frequency
 
   // <input type="date"> always gives "YYYY-MM-DD", or "" when empty.
   if (!endDate) errors.endDate = 'Pick the day the subscription ends'
+  else if (endDate < DATE_MIN || endDate > DATE_MAX) errors.endDate = 'Pick a date between 2000 and 2100'
 
   const amount = Number(price)
   if (price === '') errors.price = 'Enter the renewal price, or 0 if it is free'
@@ -76,8 +99,8 @@ export function validateRegister({ name, email, password, confirmPassword }) {
   const emailProblem = emailError(email)
   if (emailProblem) errors.email = emailProblem
 
-  if (password.length < PASSWORD_MIN) errors.password = `Use at least ${PASSWORD_MIN} characters`
-  else if (password.length > PASSWORD_MAX) errors.password = `Use ${PASSWORD_MAX} characters or fewer`
+  const passwordProblem = passwordError(password)
+  if (passwordProblem) errors.password = passwordProblem
 
   if (!confirmPassword) errors.confirmPassword = 'Type your password again'
   else if (confirmPassword !== password) errors.confirmPassword = "Passwords don't match"

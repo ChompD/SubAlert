@@ -88,13 +88,17 @@ const signToken = (userId) =>
 // tell a stranger which emails are registered.
 const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', 12)
 
+const PASSWORD_TOO_LONG = 'Use a shorter password: 72 characters at most, and emoji or accented letters count as 2 to 4'
+
 // The one password rule, for registering and for changing it. Returns the
 // problem as a sentence, or null if the password is fine.
 function passwordProblem(password) {
   if (password.length < 8) return 'Use a password of at least 8 characters'
   // bcrypt only reads the first 72 BYTES, and an emoji is 4 of them. Past
-  // that, two different passwords would both work.
-  if (Buffer.byteLength(password) > 72) return 'Use a password of 72 characters or fewer'
+  // that, two different passwords would both work. The message says so,
+  // because 40 characters with emoji can be over the limit. The client checks
+  // the same way (client/src/utils/validation.js) and shows the same words.
+  if (Buffer.byteLength(password) > 72) return PASSWORD_TOO_LONG
   return null
 }
 
