@@ -1,10 +1,10 @@
 import { formatPrice, formatWholePrice } from '../../../utils/money.js'
 import styles from './charts.module.css'
 
-// "Where your money goes": monthly spend per category, biggest first. One
+// "By payment method": monthly spend per "Paid with", biggest first. One
 // series, so one colour for every bar and no legend: the panel's title says
-// what the bars are. Bar length is relative to the biggest category, and the
-// amount sits at each bar's tip. rows come from spendByCategory().
+// what the bars are. Bar length is relative to the biggest row, and the
+// amount sits at each bar's tip. rows come from spendByPaymentMethod().
 export default function CategoryBars({ rows, currency }) {
   const biggest = rows[0]?.monthly ?? 0
 

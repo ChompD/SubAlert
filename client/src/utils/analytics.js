@@ -14,13 +14,10 @@
 //   Money      Added up per currency, never across: ₱ and $ can't be added
 //              without an exchange rate. The user's default currency is the
 //              main figure; any others are listed beside it.
-//   Categories The icon the user picked. The plain first-letter icon means
-//              "no category", so it is grouped as Other.
 //
 // Every function takes `today`, so it can be checked against fixed dates.
 
 import { addDays, addMonths, isoDateFromToday } from './dates.js'
-import { SERVICE_ICONS } from './icons.js'
 import { LEGACY_CURRENCY, monthlyAmount } from './money.js'
 import { paymentKey, paymentLabel } from './payments.js'
 import { addCycle, effectiveDate, hasEnded } from './schedule.js'
@@ -83,31 +80,10 @@ export function mostExpensive(subscriptions, mainCurrency, today = new Date()) {
   return topSubscriptions(subscriptions, mainCurrency, 1, today)[0] ?? null
 }
 
-const categoryLabel = (key) =>
-  key === 'letter' ? 'Other' : (SERVICE_ICONS.find((icon) => icon.key === key)?.label ?? 'Other')
-
-// Monthly spend per category in the main currency, biggest first. share is
-// the fraction of that currency's total (0 to 1), for drawing bars.
-export function spendByCategory(subscriptions, mainCurrency, today = new Date()) {
-  const groups = new Map()
-  for (const sub of spendingSubscriptions(subscriptions, today)) {
-    if (currencyOf(sub) !== mainCurrency) continue
-    const key = categoryLabel(sub.icon) === 'Other' ? 'other' : sub.icon
-    const group = groups.get(key) ?? { key, label: categoryLabel(sub.icon), monthly: 0, count: 0 }
-    group.monthly += monthlyAmount(sub.price, sub.frequency)
-    group.count += 1
-    groups.set(key, group)
-  }
-  const total = [...groups.values()].reduce((sum, group) => sum + group.monthly, 0)
-  return [...groups.values()]
-    .map((group) => ({ ...group, share: total > 0 ? group.monthly / total : 0 }))
-    .sort((a, b) => b.monthly - a.monthly || a.label.localeCompare(b.label))
-}
-
-// Monthly spend per "Paid with", in the main currency, biggest first, the same
-// shape as spendByCategory so the same chart can draw it. Spellings are
-// grouped ("Gcash", "GCash" and "g cash" are one), and subscriptions with none
-// go under "Not set", always last.
+// Monthly spend per "Paid with", in the main currency, biggest first. share is
+// the fraction of that currency's total (0 to 1), for drawing bars. Spellings
+// are grouped ("Gcash", "GCash" and "g cash" are one), and subscriptions with
+// none go under "Not set", always last.
 export function spendByPaymentMethod(subscriptions, mainCurrency, today = new Date()) {
   const groups = new Map()
   for (const sub of spendingSubscriptions(subscriptions, today)) {

@@ -98,7 +98,7 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Where your money goes: one row per category, a bar, the amount at its tip. */
+   By payment method: one row per "Paid with", a bar, the amount at its tip. */
 .bars {
   display: grid;
   gap: var(--space-1);

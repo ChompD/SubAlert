@@ -17,7 +17,6 @@ import {
   monthlyForecast,
   mostExpensive,
   savedByCancelling,
-  spendByCategory,
   spendByPaymentMethod,
   spendingSubscriptions,
   spendTotals,
@@ -82,7 +81,6 @@ export default function AnalyticsPage() {
   const totals = spendTotals(subscriptions, currency)
   const saved = savedByCancelling(subscriptions, currency)
   const top = mostExpensive(subscriptions, currency)
-  const categories = spendByCategory(subscriptions, currency)
   const payments = spendByPaymentMethod(subscriptions, currency)
   // Nobody has filled in "Paid with" yet: say how, rather than one bar of 100%.
   const noPaymentsSet = payments.every((p) => p.key === 'unset')
@@ -142,7 +140,7 @@ export default function AnalyticsPage() {
           <h2>Nothing to add up yet</h2>
           <p className={styles.muted}>
             Add your subscriptions and this page shows what they cost you each month and year,
-            where the money goes, and what&apos;s about to charge you.
+            and what&apos;s about to charge you.
           </p>
           <Button onClick={() => navigate('/add')}>+ Add subscription</Button>
         </section>
@@ -190,43 +188,11 @@ export default function AnalyticsPage() {
 
           <div className={styles.panels}>
             <ChartPanel
-              title="Where your money goes"
-              description={`Per month, in ${currency}, by the icon each subscription uses`}
-              chart={
-                categories.length > 0 ? (
-                  <CategoryBars rows={categories} currency={currency} />
-                ) : (
-                  <p className={styles.muted}>Nothing billed in {currency} yet.</p>
-                )
-              }
-              table={
-                <DataTable
-                  caption={`Spending per category, per month, in ${currency}`}
-                  columns={[
-                    { key: 'label', label: 'Category' },
-                    { key: 'monthly', label: 'Per month', numeric: true },
-                    { key: 'count', label: 'Subscriptions', numeric: true },
-                    { key: 'share', label: 'Share', numeric: true },
-                  ]}
-                  rows={categories.map((c) => ({
-                    label: c.label,
-                    monthly: formatPrice(c.monthly, currency),
-                    count: c.count,
-                    share: percent(c.share, 1),
-                  }))}
-                />
-              }
-              note={
-                totals.monthly.others.length > 0 &&
-                `Not in the bars: ${othersLine(totals.monthly.others, '/mo').slice(2)}, which can't be added to ${currency} without an exchange rate.`
-              }
-            />
-
-            <ChartPanel
+              className={styles.wide}
               title="By payment method"
               description={`Per month, in ${currency}, by "Paid with"`}
               chart={
-                categories.length === 0 ? (
+                payments.length === 0 ? (
                   <p className={styles.muted}>Nothing billed in {currency} yet.</p>
                 ) : noPaymentsSet ? (
                   <p className={styles.muted}>
