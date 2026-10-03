@@ -24,11 +24,13 @@
   text-decoration: none;
 }
 
+/* The SubTrack logo (src/assets/subtrack-logo.png), a small rounded tile. */
 .mark {
+  display: block;
+  flex: none;
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  background: var(--color-primary);
 }
 
 .actions {

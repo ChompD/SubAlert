@@ -5,17 +5,14 @@
   padding: calc(var(--space-4) + var(--space-2)) var(--space-2) var(--space-4);
 }
 
-/* The logo mark: a green rounded square with a white bell in it. */
+/* The SubTrack logo (src/assets/subtrack-logo.png) as a rounded tile. Block,
+   so the card can centre it with auto margins from 640px. */
 .mark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   width: 40px;
   height: 40px;
   margin-bottom: var(--space-2);
   border-radius: 10px;
-  background: var(--color-primary);
-  color: var(--color-surface);
 }
 
 .title {

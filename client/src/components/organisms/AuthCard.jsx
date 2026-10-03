@@ -1,3 +1,4 @@
+import logo from '../../assets/subtrack-logo.png'
 import styles from './AuthCard.module.css'
 
 // The frame around the Log in and Register forms. On a phone it has no border
@@ -5,13 +6,9 @@ import styles from './AuthCard.module.css'
 export default function AuthCard({ title, subtitle, footer, children }) {
   return (
     <section className={styles.card} aria-labelledby="auth-title">
-      {/* The logo mark with a bell in it: SubTrack warns you before a charge. */}
-      <span className={styles.mark} aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-          <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-        </svg>
-      </span>
+      {/* The SubTrack logo. alt="" because the header already names the app
+          and the heading says what the page is. */}
+      <img src={logo} alt="" width="40" height="40" className={styles.mark} />
       <h1 id="auth-title" className={styles.title}>
         {title}
       </h1>

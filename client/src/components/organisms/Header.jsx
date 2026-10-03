@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import logo from '../../assets/subtrack-logo.png'
 import UserMenu from '../molecules/UserMenu.jsx'
 import styles from './Header.module.css'
 
@@ -9,8 +10,10 @@ export default function Header({ variant = 'app', user, onLogout, nav, children 
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
+        {/* alt="" because the name is written right next to it: a screen
+            reader would otherwise say "SubTrack" twice. */}
         <Link to="/" className={styles.logo}>
-          <span className={styles.mark} aria-hidden="true" />
+          <img src={logo} alt="" width="24" height="24" className={styles.mark} />
           SubTrack
         </Link>
 
