@@ -103,7 +103,7 @@ export default function DashboardPage() {
         <section className={styles.empty}>
           <h2>Add your first subscription</h2>
           <p className={styles.muted}>
-            Log a subscription or free trial when you sign up for it, and SubAlert shows you when it&apos;s about to charge you.
+            Log a subscription or free trial when you sign up for it, and SubTrack shows you when it&apos;s about to charge you.
           </p>
           <Button onClick={() => navigate('/add')}>+ Add subscription</Button>
         </section>

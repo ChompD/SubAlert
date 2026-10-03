@@ -59,7 +59,7 @@ export default function StyleguidePage() {
       </Header>
 
       <main className={styles.page}>
-        <h1 className={styles.title}>SubAlert styleguide</h1>
+        <h1 className={styles.title}>SubTrack styleguide</h1>
         <p className={styles.note}>Development only. Resize the window below 640px to see the phone layout.</p>
 
         <Section title="Colour tokens">

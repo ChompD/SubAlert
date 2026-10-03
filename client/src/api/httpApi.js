@@ -3,7 +3,7 @@
 // This is the file that matters for your finals project. mockApi.js exists so
 // you can build the interface before this has anywhere to point.
 //
-// SubAlert runs on mockApi.js for now. These are the same functions, pointing
+// SubTrack runs on mockApi.js for now. These are the same functions, pointing
 // at the routes the server will have once it is built, so switching over is
 // one environment variable, as the template intends.
 

@@ -5,7 +5,7 @@ import styles from './AuthCard.module.css'
 export default function AuthCard({ title, subtitle, footer, children }) {
   return (
     <section className={styles.card} aria-labelledby="auth-title">
-      {/* The logo mark with a bell in it: SubAlert warns you before a charge. */}
+      {/* The logo mark with a bell in it: SubTrack warns you before a charge. */}
       <span className={styles.mark} aria-hidden="true">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />

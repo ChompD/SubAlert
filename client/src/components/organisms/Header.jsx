@@ -11,7 +11,7 @@ export default function Header({ variant = 'app', user, onLogout, nav, children 
       <div className={styles.inner}>
         <Link to="/" className={styles.logo}>
           <span className={styles.mark} aria-hidden="true" />
-          SubAlert
+          SubTrack
         </Link>
 
         {variant === 'app' && nav}

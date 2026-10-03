@@ -11,7 +11,7 @@
 -- can't store a 10,000-character name or a price of -5.
 
 -- ---------------------------------------------------------------------------
--- The template's example table. Gone now that SubAlert has its own.
+-- The template's example table. Gone now that SubTrack has its own.
 DROP TABLE IF EXISTS sightings;
 
 -- ---------------------------------------------------------------------------
@@ -74,7 +74,7 @@ ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 -- ---------------------------------------------------------------------------
 -- A second lock behind RLS. Supabase gives its two public roles, anon (anyone
 -- holding the public key) and authenticated (anyone signed in through
--- Supabase Auth, which SubAlert doesn't use), every permission on new tables.
+-- Supabase Auth, which SubTrack doesn't use), every permission on new tables.
 -- RLS stops them reading or changing rows, but RLS is one switch that could be
 -- turned off by mistake, and one of those permissions, TRUNCATE (empty the
 -- whole table), ignores RLS altogether. Taking the permissions away means the

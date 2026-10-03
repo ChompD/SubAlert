@@ -1,6 +1,6 @@
 -- Sample data for development: deliberately none.
 --
--- Every row in SubAlert belongs to an account, and an account needs a
+-- Every row in SubTrack belongs to an account, and an account needs a
 -- password. A sample password written here would be public (this repository
 -- is), and it would open the live database to anyone who read it. So instead:
 -- make a demo account through the app's Register page, then add invented
