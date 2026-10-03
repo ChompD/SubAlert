@@ -59,11 +59,18 @@
   height: 100%;
 }
 
-/* Phones and tablets: its own row under the header, two halves, easy to
-   reach with a thumb. */
+/* Tablets: its own row under the header, two halves. Phones don't show it:
+   the tabs are in the bottom bar there (BottomNav), where a thumb reaches. */
 .row {
+  display: none;
   border-bottom: 1px solid var(--color-divider);
   background: var(--color-surface);
+}
+
+@media (min-width: 640px) {
+  .row {
+    display: flex;
+  }
 }
 
 .row .tab {

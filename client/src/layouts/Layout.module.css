@@ -29,9 +29,16 @@
   }
 }
 
-/* The header's add button: "+ Add" on a phone, the full label from 640px. */
-.addLong {
+/* The header's "+ Add subscription": from 640px only. On a phone, Add is the
+   round button in the bottom bar (BottomNav). */
+.headerAdd {
   display: none;
+}
+
+/* Phone: room under the page for the fixed bottom bar, so it never covers
+   the last subscription or the end of a page. */
+.roomForBottomNav {
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + var(--space-2));
 }
 
 /* Header search: desktop only. Phones get the magnifier below instead. */
@@ -99,11 +106,11 @@
     display: none;
   }
 
-  .addShort {
-    display: none;
+  .headerAdd {
+    display: inline-flex;
   }
 
-  .addLong {
-    display: inline;
+  .roomForBottomNav {
+    padding-bottom: 0;
   }
 }

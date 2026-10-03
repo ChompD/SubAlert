@@ -1,0 +1,114 @@
+/* Fixed to the bottom of the screen on phones. Three equal columns, so the
+   Add button is always in the exact middle. */
+.bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  /* iPhones with no home button keep a strip at the very bottom for the
+     swipe-up bar; the tabs sit above it rather than under it. */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  border-top: 1px solid var(--color-divider);
+  background: var(--color-surface);
+  animation: barIn var(--duration-slow) var(--ease-out);
+}
+
+@keyframes barIn {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+/* Dashboard and Analytics: icon over label, muted until current. */
+.tab,
+.add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: var(--bottom-nav-height);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.tab[aria-current='page'] {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.tab:active svg {
+  transform: scale(0.9);
+}
+
+.tab svg {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+/* Add: a green circle lifted half out of the bar, with a ring of the bar's
+   own colour around it so it reads as cut out of the bar's edge. */
+.add {
+  justify-content: flex-end;
+  padding-bottom: 6px;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.addCircle {
+  /* Never shrunk to fit the bar: the circle is taller than the bar on
+     purpose, and the extra pokes out of its top edge. */
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  margin-bottom: 2px;
+  border: 4px solid var(--color-surface);
+  border-radius: 50%;
+  background: var(--color-primary);
+  /* var(--color-surface) on primary, like the primary Button: white on teal
+     in light mode, dark on light teal in dark mode. */
+  color: var(--color-surface);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.add:active .addCircle {
+  transform: scale(0.94);
+}
+
+/* On the Add page itself the bar is not shown, so there is no "current"
+   look for it. Keyboard focus shows on the circle, not the whole column. */
+.add:focus-visible {
+  outline: none;
+}
+
+.add:focus-visible .addCircle {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Hidden while you type (the search row, the Account page's fields). On
+   Android the keyboard pushes a fixed bar up to sit on top of it, covering
+   what you're typing into. Radio buttons and checkboxes don't open a
+   keyboard, so they don't count. */
+:global(body:has(input:not([type='radio'], [type='checkbox'], [type='button'], [type='submit']):focus, textarea:focus)) .bar {
+  display: none;
+}
+
+/* Tablets and desktop keep the tabs at the top. */
+@media (min-width: 640px) {
+  .bar {
+    display: none;
+  }
+}

@@ -59,6 +59,7 @@
 
   /* Sizes */
   --control-height: 40px;       /* buttons and inputs: 5 x 8, easy to tap */
+  --bottom-nav-height: 60px;    /* the phone's bottom bar (BottomNav) */
   --content-max: 1120px;        /* widest the page content gets on desktop */
 
   /* Motion. Short, and always easing out (fast start, soft landing), so the
