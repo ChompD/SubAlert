@@ -371,7 +371,7 @@ The backend changes Claude made on October 3 are not my work. These include the 
 
 ### The AI-Written Code I Understand Best
 
-The AI-written code I understand best is `client/src/hooks/useDashboardFilters.js`.
+The AI-written code I understand best is `client/src/hooks/useDashboardFilters.js`. **Commit:** [`e306bb6`](https://github.com/ChompD/SubAlert/commit/e306bb6)
 
 This handles the search, filters, and sorting through the address bar. Instead of keeping them only in React state, the search text, selected filter, and sort order are stored in the URL. For example, the address can look like `/?q=net&filter=keep&sort=price`.
 
