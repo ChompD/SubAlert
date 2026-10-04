@@ -307,6 +307,8 @@ sentences in my documents.
 **What was wrong with it:** some elements were too wide, uneven, or not the same
 width as the ones next to them, and some sentences in the documents were wrong.
 **What I did instead:** I fixed them myself.
+**Commits:** [`0e52f42`](https://github.com/ChompD/SubAlert/commit/0e52f42),
+[`80b9acf`](https://github.com/ChompD/SubAlert/commit/80b9acf)
 
 ### 5. Going back to where you were after logging in never worked
 **What it gave me:** a login flow meant to log you out when your session ends
