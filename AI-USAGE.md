@@ -346,57 +346,40 @@ fixed it so every charge is counted from the original date.
 
 ### Written by me
 
-**The backend** — I wrote it from Claude's guide, and asked for help when I got
-stuck.
+**The Backend**
 
-- **`server/db/schema.sql`** — the users and subscriptions tables.
+I worked on the backend by following Claude’s guide and asking for help whenever I got stuck.
+
+- **`server/db/schema.sql`** — This contains the users and subscriptions tables.
   **Commit:** [`19dbb51`](https://github.com/ChompD/SubAlert/commit/19dbb51)
-  **Why it's built this way:** every limit the app checks (name length, price
-  range, no card numbers in "Paid with") is also a rule in the database, so
-  even a bug in the API can't save bad data. Row Level Security is on so
-  Supabase's public API can't read the tables.
-- **`server/subscriptionsRepo.js`** — the SQL for subscriptions.
-  **Commits:** [`11fea2a`](https://github.com/ChompD/SubAlert/commit/11fea2a),
-  [`a89faf0`](https://github.com/ChompD/SubAlert/commit/a89faf0)
-  **Why:** every query has `AND user_id = $2` in it, so a subscription that
-  belongs to someone else is never found. The ownership check can't be
-  forgotten, because it's in the query, not in an if-statement. Values always
-  go in the `$1, $2` list, never into the SQL text, so typed text can't run as
-  SQL.
-- **`server/app.js` and `server/usersRepo.js`** — register, login, the routes.
-  **Commits:** [`ad99376`](https://github.com/ChompD/SubAlert/commit/ad99376),
-  [`065a381`](https://github.com/ChompD/SubAlert/commit/065a381),
-  [`70ffe27`](https://github.com/ChompD/SubAlert/commit/70ffe27)
-  **Why:** passwords are stored only as bcrypt hashes. Login answers "Wrong
-  email or password" for both mistakes, so a stranger can't find out which
-  emails have accounts. The user's id comes from the login token, never from
-  what the browser sends.
+  **Why I built it this way:** The limits checked by the app, like name length, price range, and preventing card numbers in the “Paid with” field, are also enforced in the database. This means that even if there is a bug in the API, invalid data still cannot be saved. I also enabled Row Level Security so the public Supabase API cannot directly read the tables.
+- **`server/subscriptionsRepo.js`** — This contains the SQL queries for subscriptions.
+  **Commits:** [`11fea2a`](https://github.com/ChompD/SubAlert/commit/11fea2a), [`a89faf0`](https://github.com/ChompD/SubAlert/commit/a89faf0)
+  **Why:** Every query includes `AND user_id = $2`, so the app only finds subscriptions that belong to the logged-in user. I put the ownership check directly in the query so it is harder to accidentally forget it. I also used `$1` and `$2` for values instead of putting user input directly into the SQL, which helps prevent SQL injection.
+- **`server/app.js` and `server/usersRepo.js`** — These handle registration, login, and the API routes.
+  **Commits:** [`ad99376`](https://github.com/ChompD/SubAlert/commit/ad99376), [`065a381`](https://github.com/ChompD/SubAlert/commit/065a381), [`70ffe27`](https://github.com/ChompD/SubAlert/commit/70ffe27)
+  **Why:** Passwords are stored as bcrypt hashes instead of plain text. During login, both an incorrect email and an incorrect password give the same “Wrong email or password” message, so someone cannot easily tell whether an email has an account. The user's ID also comes from the login token instead of being taken from the browser request.
 
-**Front end**
-- The iPhone Safari fixes (entry 14):
-  [`0e52f42`](https://github.com/ChompD/SubAlert/commit/0e52f42),
-  [`80b9acf`](https://github.com/ChompD/SubAlert/commit/80b9acf)
+**Front End**
 
-**Not mine:** the changes Claude made to the backend on 3 October (entry 17):
-the login limits, logging out when a session ends, the date and password
-limits, and the database `REVOKE`.
+I also worked on the iPhone Safari fixes from entry 14.
+**Commits:** [`0e52f42`](https://github.com/ChompD/SubAlert/commit/0e52f42), [`80b9acf`](https://github.com/ChompD/SubAlert/commit/80b9acf)
 
-### The AI-written code I understand best
+**Not Mine**
 
-`client/src/hooks/useDashboardFilters.js` — search, filter and sort live in the
-address bar.
+The backend changes Claude made on October 3 are not my work. These include the login limits, logging out when a session ends, the date and password limits, and the database `REVOKE`.
 
-The search text, the filter pill and the sort order are saved in the page
-address (for example `/?q=net&filter=keep&sort=price`) instead of in React
-state. The search box is in the header and the pills are on the Dashboard, and
-the address is one place both can read, so they always agree. Because it's in
-the address, reloading the page keeps your filters, and a link you share opens
-already filtered. Anything typed into the address by hand is checked, so a
-made-up `?filter=banana` falls back to "All" instead of showing an empty list.
+### The AI-Written Code I Understand Best
 
-It also decides how the Back button behaves. Changing a pill adds a new history
-entry, so Back undoes it. Typing in search replaces the current entry instead,
-so searching "netflix" doesn't take seven Back presses to undo.
+The AI-written code I understand best is `client/src/hooks/useDashboardFilters.js`.
+
+This handles the search, filters, and sorting through the address bar. Instead of keeping them only in React state, the search text, selected filter, and sort order are stored in the URL. For example, the address can look like `/?q=net&filter=keep&sort=price`.
+
+This makes it easier for the search box and dashboard filters to stay in sync because they are both reading from the same URL. It also means that refreshing the page keeps the current filters, and a filtered page can be shared through a link.
+
+The code also checks the values in the URL. For example, if someone manually changes the filter to something invalid like `?filter=banana`, it falls back to “All” instead of breaking the page or showing an incorrect result.
+
+It also controls how the browser Back button works. Changing a filter creates a new history entry, so pressing Back can undo that change. Searching works differently because each new search replaces the current entry, so searching for something like “netflix” does not require pressing Back multiple times just to clear the search.
 
 ---
 
