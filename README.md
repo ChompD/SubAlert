@@ -16,6 +16,8 @@ charge you, and decide to keep or cancel each one before you pay.
 > SubTrack was called SubAlert until October 2026, which is why the GitHub
 > repository is still named SubAlert.
 
+![The SubTrack Dashboard: the "Due this week" banner, summary cards, filters and the subscription list](docs/assets/dashboard-desktop.jpg)
+
 ## What it does
 
 - **Accounts:** register and log in; every subscription is private to its account.
@@ -35,6 +37,17 @@ charge you, and decide to keep or cancel each one before you pay.
   and everything in it.
 - **Works everywhere:** phone layout with a bottom navigation bar, dark mode, and
   keyboard and screen-reader support.
+
+## Screenshots
+
+Taken in demo mode with invented sample data. Every screen, with notes, is in
+[docs/02-mockup.md](docs/02-mockup.md).
+
+![Analytics: per month, per year, savings and a 12-month forecast](docs/assets/analytics-desktop.jpg)
+
+| On a phone | Dark mode | Log in | No subscriptions yet |
+| --- | --- | --- | --- |
+| <img src="docs/assets/dashboard-phone.jpg" alt="Dashboard on a phone, with the bottom navigation bar" width="200"> | <img src="docs/assets/analytics-phone-dark.jpg" alt="Analytics in dark mode on a phone" width="200"> | <img src="docs/assets/login-phone.jpg" alt="The Log in page on a phone" width="200"> | <img src="docs/assets/dashboard-empty-phone.jpg" alt="The empty Dashboard for a new account" width="200"> |
 
 ## Built with
 
