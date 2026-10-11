@@ -3,8 +3,8 @@
 Track your subscriptions and free trials in one list, see what's about to
 charge you, and decide to keep or cancel each one before you pay.
 
-**Live site:** https://sub-alert-eight.vercel.app
-**API health check:** https://sub-alert-eight.vercel.app/healthz
+**Live site:** https://sub-track-chompd.vercel.app
+**API health check:** https://sub-track-chompd.vercel.app/healthz
 **Demo video:** https://drive.google.com/drive/folders/1O0SaVj9BNOJGTlp1Xd3Gcuxjwbqzy9kG?usp=sharing
 
 [![Built with AI: Claude](https://img.shields.io/badge/built%20with%20AI-Claude-0E6E5C)](AI-USAGE.md)
@@ -13,8 +13,8 @@ charge you, and decide to keep or cancel each one before you pay.
 > through Claude Code**. What I asked for, what it got wrong, and who wrote what
 > is in **[AI-USAGE.md](AI-USAGE.md)**.
 
-> SubTrack was called SubAlert until October 2026, which is why the repository
-> and the web address still say SubAlert.
+> SubTrack was called SubAlert until October 2026, which is why the GitHub
+> repository is still named SubAlert.
 
 ## What it does
 
@@ -48,7 +48,7 @@ charge you, and decide to keep or cancel each one before you pay.
 ## Architecture
 
     Browser ── React (built by Vite) ─┐
-                                      │  https://sub-alert-eight.vercel.app
+                                      │  https://sub-track-chompd.vercel.app
                          Vercel ──────┤
                                       │  /api/*, /healthz, /readyz
                                       └─ Express (api/index.js → server/app.js)

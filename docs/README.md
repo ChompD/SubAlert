@@ -1,20 +1,18 @@
 # Project documents
 
-Everything your project is marked on that is not code. Keep it here, in the
-repository, so it is versioned alongside the thing it describes.
+Everything about SubTrack that is not code, kept in the repository so it is
+versioned alongside the app it describes.
 
-| File | What it is | When |
-| --- | --- | --- |
-| [01-proposal.md](01-proposal.md) | the revised proposal | finals, m8a1 |
-| [02-mockup.md](02-mockup.md) | what the app will look like | finals, m8a2 |
-| [03-design-system.md](03-design-system.md) | colours, type, components | finals, m8a3 |
-| [04-weekly-reports.md](04-weekly-reports.md) | a few lines a week | every week |
-| [05-demo-video.md](05-demo-video.md) | the recording, and its plan | the end |
-| [06-security-and-privacy.md](06-security-and-privacy.md) | what you checked before making this public | before your first push |
+| File | What it is |
+| --- | --- |
+| [01-proposal.md](01-proposal.md) | the proposal as submitted, and what changed since |
+| [02-mockup.md](02-mockup.md) | every screen, as screenshots of the app, next to the original wireframes |
+| [03-design-system.md](03-design-system.md) | colours, type, spacing, components and states; the visual version is [assets/design-system.pdf](assets/design-system.pdf) |
+| [04-weekly-reports.md](04-weekly-reports.md) | an index of the weekly reports in [REPORT.md](../REPORT.md) |
+| [05-demo-video.md](05-demo-video.md) | the demo video's link and what it covers |
+| [06-security-and-privacy.md](06-security-and-privacy.md) | the security and privacy checklist |
 
-Put images in `assets/`. A screenshot named `assets/screenshot.png` is referenced
-by the main README, and a README with an image reads as finished in a way one
-without an image does not.
+Images and PDFs are in [`assets/`](assets/). The screenshots use invented sample
+data in demo mode, with no real accounts.
 
-**Write these as you go.** A weekly report written on the last day is obvious to
-read and worth very little.
+How AI was used to build the project is in [AI-USAGE.md](../AI-USAGE.md).
