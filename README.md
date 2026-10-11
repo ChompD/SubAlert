@@ -109,6 +109,9 @@ header. A user only ever sees and changes their own subscriptions.
 - **helmet** security headers, CORS limited to named origins.
 - Row Level Security on both tables, and no table access for Supabase's public
   roles.
+- The API logs in to the database as its own user, `subtrack_app`, which can
+  only read and write rows in the two tables: it can't empty, drop or change
+  them.
 
 More in [docs/06-security-and-privacy.md](docs/06-security-and-privacy.md).
 
@@ -140,8 +143,9 @@ on your own computer.
     # 1. the API
     cd server
     npm install
-    copy .env.example .env      # fill in DATABASE_URL and JWT_SECRET
-    npm run db:schema           # creates the tables
+    copy .env.example .env      # fill in DATABASE_ADMIN_URL and JWT_SECRET
+    npm run db:schema           # creates the tables and the subtrack_app user
+    # give subtrack_app a password (end of db/schema.sql), then fill in DATABASE_URL
     npm run dev                 # http://localhost:3000
 
     # 2. the client, in a second terminal
@@ -162,7 +166,8 @@ placeholder values.
 
 | Name | Where | What it is |
 | --- | --- | --- |
-| `DATABASE_URL` | server | PostgreSQL connection string. Contains a password |
+| `DATABASE_URL` | server | PostgreSQL connection string for `subtrack_app`, the API's limited user. Contains a password |
+| `DATABASE_ADMIN_URL` | server, locally | the connection string as `postgres`, the tables' owner, only for `npm run db:schema`. **Not on Vercel** |
 | `JWT_SECRET` | server | signs the login tokens. Long, random, never shared |
 | `CORS_ORIGINS` | server | the website addresses allowed to call the API |
 | `NODE_ENV` | server, locally | `development`. **Don't set it on Vercel**: Vercel sets it, and setting it yourself breaks the build |
@@ -178,10 +183,11 @@ Everything is one **Vercel** project, configured by `vercel.json`:
 
 1. Import the repository into Vercel. `vercel.json` already tells it to build
    `client/` and send `/api/*`, `/healthz` and `/readyz` to Express.
-2. In the Vercel dashboard, set `DATABASE_URL` (Supabase's **Transaction
-   pooler**, port 6543), `JWT_SECRET`, `CORS_ORIGINS` and
+2. Run `npm run db:schema` in `server/` once against the Supabase database,
+   and give `subtrack_app` a password (end of `server/db/schema.sql`).
+3. In the Vercel dashboard, set `DATABASE_URL` (as `subtrack_app`, Supabase's
+   **Transaction pooler**, port 6543), `JWT_SECRET`, `CORS_ORIGINS` and
    `VITE_USE_MOCK_API=false`.
-3. Run `npm run db:schema` in `server/` once against the Supabase database.
 4. Push to `main`. Vercel builds and deploys by itself.
 
 ## Project structure

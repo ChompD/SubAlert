@@ -65,9 +65,10 @@ CREATE INDEX IF NOT EXISTS subscriptions_user_end_date_idx
 -- own REST API, reachable with the project's public "anon" key. RLS switched
 -- on with NO policies means that API can read and write nothing at all.
 --
--- The Express server is unaffected: it connects as `postgres`, which owns
--- these tables, and an owner is not subject to RLS. So the only way to the
--- data is through our API, with its login and its "AND user_id = $2" checks.
+-- The Express server connects as its own user, subtrack_app, which gets
+-- through with the two policies at the end of this file and nothing else. So
+-- the only way to the data is through our API, with its login and its
+-- "AND user_id = $2" checks.
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 
@@ -79,7 +80,7 @@ ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 -- turned off by mistake, and one of those permissions, TRUNCATE (empty the
 -- whole table), ignores RLS altogether. Taking the permissions away means the
 -- public roles can do nothing here whatever RLS says. Our server is not
--- affected: it connects as postgres, which owns the tables.
+-- affected: it connects as subtrack_app, which has its own permissions below.
 --
 -- rls_auto_enable() is Supabase's own helper that switches RLS on for every
 -- new table. Supabase's security check flags it because anyone may call it;
@@ -100,3 +101,41 @@ BEGIN
   END IF;
 END
 $$;
+
+-- ---------------------------------------------------------------------------
+-- The API's own database user. It used to connect as postgres, which owns the
+-- tables: that user can also drop them, change their columns, create other
+-- users, and it skips RLS. All the API ever does is read and write rows in
+-- these two tables, so subtrack_app can do exactly that and nothing more: no
+-- TRUNCATE, no DROP, no ALTER, no new tables.
+--
+-- It is made here unable to log in and with no password, because this file is
+-- public. The password is set once, by hand, in Supabase's SQL editor:
+--
+--   ALTER ROLE subtrack_app WITH LOGIN PASSWORD '<long random password>';
+--
+-- Then DATABASE_URL logs in as subtrack_app.<project ref>, and this file is run
+-- with DATABASE_ADMIN_URL (postgres), since only the owner can change tables.
+-- Running this file again never resets the password.
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'subtrack_app') THEN
+    CREATE ROLE subtrack_app NOLOGIN;
+  END IF;
+END
+$$;
+
+GRANT USAGE ON SCHEMA public TO subtrack_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON users, subscriptions TO subtrack_app;
+
+-- RLS is on, and subtrack_app doesn't own the tables, so without a policy it
+-- would see no rows at all. These let subtrack_app (and only it) through.
+-- WHOSE rows it may touch is still decided in every query, by
+-- "AND user_id = $n"; anon and authenticated still get nothing.
+DROP POLICY IF EXISTS subtrack_app_all ON users;
+CREATE POLICY subtrack_app_all ON users
+  FOR ALL TO subtrack_app USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS subtrack_app_all ON subscriptions;
+CREATE POLICY subtrack_app_all ON subscriptions
+  FOR ALL TO subtrack_app USING (true) WITH CHECK (true);
