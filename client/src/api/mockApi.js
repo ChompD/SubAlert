@@ -4,9 +4,9 @@
 // httpApi.js, so your components cannot tell the difference. Data lives in the
 // visitor's own browser and goes no further.
 //
-// This exists so the template's GitHub Pages link works on day one and so you
-// can build the interface before your API is deployed. It is NOT a finished
-// project. See content/extending-your-app page 3.
+// It let the whole interface be built before the API existed, and it is still
+// how the client runs without a server (VITE_USE_MOCK_API=true). The live site
+// uses httpApi.js.
 
 import { getToken } from './token.js'
 import {

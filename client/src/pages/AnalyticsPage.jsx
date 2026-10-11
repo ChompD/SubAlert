@@ -22,13 +22,6 @@ import { DEFAULT_CURRENCY, FREQUENCIES, formatPrice } from '../utils/money.js'
 import { hasEnded } from '../utils/schedule.js'
 import styles from './AnalyticsPage.module.css'
 
-// "+ $20.00" for money in currencies other than the main one, which can't be
-// added into it. Nothing when there are none.
-const othersLine = (others, suffix = '') =>
-  others.length > 0
-    ? `+ ${others.map(({ currency, amount }) => formatPrice(amount, currency) + suffix).join(' + ')}`
-    : null
-
 // The Analytics page (/analytics): what your subscriptions add up to. It
 // works from the same list the Dashboard loads, so there is nothing new on
 // the server; every number is worked out here from that list.
@@ -65,23 +58,17 @@ export default function AnalyticsPage() {
   const ended = subscriptions.filter((sub) => sub.status !== 'cancel' && hasEnded(sub)).length
   const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
 
-  // Everything is shown in the currency new subscriptions start in (Account
-  // settings), with any other currencies listed underneath.
+  // One currency per account (Account settings): every amount is in it.
   const currency = user?.defaultCurrency ?? DEFAULT_CURRENCY
   const money = (amount) => formatPrice(amount, currency)
-  // "per month", then any other currencies: the unit lives on this small line
-  // rather than in the big number, which keeps the numbers short on a phone.
+  // "per month", then a detail: the unit lives on this small line rather than
+  // in the big number, which keeps the numbers short on a phone.
   const perMonthLine = (...parts) => ['per month', ...parts].filter(Boolean).join(' · ')
-  const totals = spendTotals(subscriptions, currency)
-  const saved = savedByCancelling(subscriptions, currency)
-  const top = mostExpensive(subscriptions, currency)
-  const priciest = topSubscriptions(subscriptions, currency, 5)
-  const forecast = monthlyForecast(subscriptions, currency)
-  // Other currencies that appear anywhere in the forecast get a table column.
-  const forecastCurrencies = [...new Set(forecast.flatMap((m) => m.others.map((o) => o.currency)))]
-  const forecastOthers = forecastCurrencies
-    .map((code) => formatPrice(forecast.reduce((sum, m) => sum + (m.others.find((o) => o.currency === code)?.amount ?? 0), 0), code))
-    .join(' + ')
+  const totals = spendTotals(subscriptions)
+  const saved = savedByCancelling(subscriptions)
+  const top = mostExpensive(subscriptions)
+  const priciest = topSubscriptions(subscriptions, 5)
+  const forecast = monthlyForecast(subscriptions)
   // "Adobe", or "iCloud, ₱588.00 yearly" when it isn't billed monthly, so the
   // per-month figure above it isn't mistaken for what's actually charged.
   const topDetail =
@@ -144,30 +131,28 @@ export default function AnalyticsPage() {
           <div className={styles.cards}>
             <SummaryCard
               label="Per month"
-              value={totals.monthly.main}
+              value={totals.monthly}
               format={money}
-              detail={othersLine(totals.monthly.others)}
               index={0}
             />
             <SummaryCard
               label="Per year"
-              value={totals.yearly.main}
+              value={totals.yearly}
               format={money}
-              detail={othersLine(totals.yearly.others)}
               index={1}
             />
             <SummaryCard
               label="Saved by cancelling"
-              value={saved.main}
+              value={saved}
               format={money}
-              detail={perMonthLine(othersLine(saved.others))}
+              detail={perMonthLine()}
               index={2}
             />
             <SummaryCard
               label="Most expensive"
               value={top ? top.monthly : '—'}
               format={money}
-              detail={top ? perMonthLine(topDetail) : `Nothing billed in ${currency} yet`}
+              detail={top ? perMonthLine(topDetail) : 'Nothing being paid for yet'}
               index={3}
             />
           </div>
@@ -183,22 +168,14 @@ export default function AnalyticsPage() {
                   caption={`What will be charged each month for the next 12 months`}
                   columns={[
                     { key: 'month', label: 'Month' },
-                    { key: currency, label: currency, numeric: true },
-                    ...forecastCurrencies.map((code) => ({ key: code, label: code, numeric: true })),
+                    { key: 'amount', label: currency, numeric: true },
                   ]}
                   rows={forecast.map((m, index) => ({
                     month: `${m.label} ${m.year}${index === 0 ? ' (from today)' : ''}`,
-                    [currency]: formatPrice(m.main, currency),
-                    ...Object.fromEntries(
-                      forecastCurrencies.map((code) => [
-                        code,
-                        formatPrice(m.others.find((o) => o.currency === code)?.amount ?? 0, code),
-                      ])
-                    ),
+                    amount: formatPrice(m.amount, currency),
                   }))}
                 />
               }
-              note={forecastOthers && `Also ${forecastOthers} over these 12 months in other currencies, shown in the table.`}
             />
 
             <ChartPanel

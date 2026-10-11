@@ -1,11 +1,6 @@
-// The real client. Every function here talks to YOUR Express API.
-//
-// This is the file that matters for your finals project. mockApi.js exists so
-// you can build the interface before this has anywhere to point.
-//
-// SubTrack runs on mockApi.js for now. These are the same functions, pointing
-// at the routes the server will have once it is built, so switching over is
-// one environment variable, as the template intends.
+// The real client: every function here calls the Express API, and the live
+// site uses this file. mockApi.js has the same functions for demo mode, so
+// switching between them is one environment variable (see api/index.js).
 
 import { getToken } from './token.js'
 

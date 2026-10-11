@@ -15,14 +15,11 @@ import StyleguidePage from './pages/StyleguidePage.jsx'
 import SubscriptionFormPage from './pages/SubscriptionFormPage.jsx'
 
 // Every screen in the app and the URL it lives at (document 2, Step A).
-//
-// basename: on GitHub Pages the site lives at /SubAlert/, not /, and Vite
-// exposes that as import.meta.env.BASE_URL. Without it every route would miss.
-// Refreshing on /SubAlert/login still works because the build copies
-// index.html to 404.html, which Pages serves for any unknown path.
+// Refreshing on a page like /edit/123 works because vercel.json sends every
+// unknown path to index.html, and React Router takes it from there.
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
           <DemoNotice />
@@ -47,7 +44,7 @@ export default function App() {
             </Route>
 
             {/* Every design-system component on one page. Development only:
-                import.meta.env.DEV is false in the build GitHub Pages serves. */}
+                import.meta.env.DEV is false in the production build. */}
             {import.meta.env.DEV && <Route path="/styleguide" element={<StyleguidePage />} />}
 
             {/* Any other URL, for example a mistyped one, goes home. */}

@@ -81,7 +81,7 @@ input {
   border: 0;
 }
 
-/* From the template: the banner shown while the backend is simulated. One
+/* The banner shown in demo mode, while the backend is simulated. One
    line, with the full explanation in a <details> that opens on tap. */
 .demo-notice {
   padding: var(--space-1) var(--space-2);

@@ -12,15 +12,15 @@ function niceCeiling(value) {
 }
 
 // "Next 12 months": what will be charged each calendar month, one column per
-// month in the main currency. One series, one colour. Only the biggest month
+// month, in the account's currency. One series, one colour. Only the biggest month
 // is labelled on the chart; the y scale, the tooltips and the table carry the
 // rest. months comes from monthlyForecast().
 export default function ForecastColumns({ months, currency }) {
-  const top = niceCeiling(Math.max(...months.map((m) => m.main)))
-  if (top === 0) return <p className={styles.empty}>Nothing in {currency} will charge in the next 12 months.</p>
+  const top = niceCeiling(Math.max(...months.map((m) => m.amount)))
+  if (top === 0) return <p className={styles.empty}>Nothing will charge in the next 12 months.</p>
 
   const ticks = [0, top / 2, top]
-  const peak = months.reduce((best, m, i) => (m.main > months[best].main ? i : best), 0)
+  const peak = months.reduce((best, m, i) => (m.amount > months[best].amount ? i : best), 0)
 
   return (
     <div className={styles.forecast}>
@@ -40,7 +40,6 @@ export default function ForecastColumns({ months, currency }) {
         <div className={styles.columns}>
           {months.map((m, index) => {
             const name = `${m.label} ${m.year}${index === 0 ? ' (from today)' : ''}`
-            const others = m.others.map((o) => `+ ${formatPrice(o.amount, o.currency)}`).join(' ')
             const align = index < 2 ? styles.tipStart : index > 9 ? styles.tipEnd : ''
             return (
               <div
@@ -48,21 +47,20 @@ export default function ForecastColumns({ months, currency }) {
                 className={`${styles.slot} ${styles.mark}`}
                 tabIndex={0}
                 role="img"
-                aria-label={`${name}: ${formatPrice(m.main, currency)}${others ? ` ${others}` : ''}`}
+                aria-label={`${name}: ${formatPrice(m.amount, currency)}`}
               >
                 {index === peak && (
                   <span className={styles.peak} aria-hidden="true">
-                    {formatWholePrice(m.main, currency)}
+                    {formatWholePrice(m.amount, currency)}
                   </span>
                 )}
                 <span
                   className={styles.column}
-                  style={{ '--size': `${(m.main / top) * 100}%`, '--i': index }}
+                  style={{ '--size': `${(m.amount / top) * 100}%`, '--i': index }}
                   aria-hidden="true"
                 />
                 <span className={`${styles.tip} ${align}`} aria-hidden="true">
-                  <span className={styles.tipValue}>{formatPrice(m.main, currency)}</span>
-                  {others && <span className={styles.tipValue}>{others}</span>}
+                  <span className={styles.tipValue}>{formatPrice(m.amount, currency)}</span>
                   <span className={styles.tipLabel}>{name}</span>
                 </span>
               </div>

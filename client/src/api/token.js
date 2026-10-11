@@ -2,9 +2,9 @@
 // this, so staying logged in survives a page reload.
 //
 // localStorage can be read by any JavaScript on the page, so a cross-site
-// scripting bug could steal the token. The alternative, an httpOnly cookie, is
-// hard to make work between github.io and a separate API host. This is the
-// tradeoff to write about in docs/06-security-and-privacy.md.
+// scripting bug could steal the token. React escapes everything it shows, which
+// keeps that risk low, but an httpOnly cookie (which page scripts can't read)
+// would be safer. It is listed as a next step in the README.
 
 const KEY = 'subalert:token'
 

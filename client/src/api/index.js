@@ -1,15 +1,15 @@
-// The only file your components import from.
+// The only file the components import from.
 //
-// Swapping the simulated backend for your real API is one environment variable,
+// Swapping the simulated backend for the real API is one environment variable,
 // set at BUILD time. Nothing in src/components or src/pages changes.
 //
-//   VITE_USE_MOCK_API=false  -> your Express API at VITE_API_BASE_URL
-//   anything else, INCLUDING UNSET -> the browser-only fake
+//   VITE_USE_MOCK_API=false  -> the Express API at VITE_API_BASE_URL (the live site)
+//   anything else, INCLUDING UNSET -> the browser-only fake (demo mode)
 //
-// Note which way round that is. Demo mode is the DEFAULT, so a fresh copy of
-// this template builds into a working site before you have configured anything.
-// The alternative (defaulting to the real API) means a forgotten variable
-// produces a deployed site that calls an empty URL and fails on every request,
+// Note which way round that is. Demo mode is the DEFAULT, so a build with no
+// settings at all still works and says it's a demo. The alternative
+// (defaulting to the real API) means a forgotten variable produces a deployed
+// site that calls an empty URL and fails on every request,
 // with nothing on the page explaining why. A visible demo notice is a much
 // better failure than a silently broken app.
 //
@@ -18,8 +18,8 @@
 // need, and it does not build: top-level await is not available in Vite's
 // default browser target, so `vite build` fails with
 // "Top-level await is not available in the configured target environment".
-// Bundling both costs a couple of kilobytes and keeps the demo build available
-// as your fallback, which you want anyway.
+// Bundling both costs a couple of kilobytes and keeps demo mode available as a
+// fallback.
 
 import * as mockApi from './mockApi.js'
 import * as httpApi from './httpApi.js'
