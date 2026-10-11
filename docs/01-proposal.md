@@ -162,9 +162,11 @@ PostgreSQL database. This is also entry 1 in section 2 of
 
 Because of that, the `.env` values changed too: no `VITE_SUPABASE_*` keys in the
 client. The server has `DATABASE_URL` and `JWT_SECRET` instead, which are never
-sent to the browser. Row Level Security is on with **no** policies (so
-Supabase's public API can do nothing), and Supabase's public roles have no
-access to the tables at all.
+sent to the browser. Row Level Security is on with **no** policies for
+Supabase's public roles (so Supabase's public API can do nothing), and those
+roles have no access to the tables at all. Since 11 October 2026 the server
+logs in as its own database user, `subtrack_app`, which can only read and
+write rows; the only policies are for it.
 
 ### Where each piece is hosted
 
